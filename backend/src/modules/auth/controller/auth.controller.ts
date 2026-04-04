@@ -47,7 +47,7 @@ export class AuthController {
         res.cookie('accessToken', accessToken, cookieOptions)
         res.cookie('refreshToken', refreshToken, cookieOptions)
 
-        res.status(HTTP_STATUS.OK).json({ success: true, data: result.user })
+        res.status(HTTP_STATUS.OK).json({ success: true, message: 'Login successfull', data: result.user })
     }
 
     refreshToken = async (req: Request, res: Response) => {
