@@ -1,4 +1,8 @@
-import type { PendingCaregiversResponse, PendingDoctorsResponse } from '../interfaces/admin.interface'
+import type {
+    PendingCaregiversResponse,
+    PendingDoctorsResponse,
+    RecentCaregiversResponse,
+} from '../interfaces/admin.interface'
 
 import { api } from '@/services/api'
 
@@ -47,7 +51,7 @@ export const getPendingCaregivers = async (
     return res.data
 }
 
-export const getRecentCaregiverVerifications = async (limit: number = 10): Promise<PendingCaregiversResponse> => {
+export const getRecentCaregiverVerifications = async (limit: number = 10): Promise<RecentCaregiversResponse> => {
     const res = await api.get('/admin/recent-caregiver-verifications', {
         params: { limit },
     })
