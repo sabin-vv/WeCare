@@ -36,12 +36,15 @@
 .input {
     width: 100%;
     height: 48px;
-    padding: 10px 10px 10px 40px;
+    padding: 10px;
     border-radius: 8px;
     outline: none;
     border: 1.5px solid #dbe0e6;
     background: #f8fafc;
     transition: all 0.25s ease;
+}
+.withLeft {
+    padding-left: 40px;
 }
 
 .withPrefix {
