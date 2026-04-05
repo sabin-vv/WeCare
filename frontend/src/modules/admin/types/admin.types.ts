@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react'
+
 export interface UserProfile {
     _id: string
     name: string
@@ -6,4 +8,11 @@ export interface UserProfile {
     isActive: boolean
     createdAt: string
     profileImage?: string
+}
+
+export interface PageCardProps {
+    title?: string
+    subtitle?: string
+    actions?: ReactNode
+    children: ReactNode
 }
