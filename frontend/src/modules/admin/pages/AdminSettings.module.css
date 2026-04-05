@@ -1,0 +1,42 @@
+.form {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 30px;
+}
+
+.logoContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.logoWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.logoWrapper div {
+    width: 200px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed #ccc;
+    border-radius: 12px;
+    background-color: #fafafa;
+    overflow: hidden;
+}
+
+.logoWrapper img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.saveButton {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
