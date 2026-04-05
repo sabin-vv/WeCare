@@ -3,6 +3,7 @@ import type { RouteObject } from 'react-router-dom'
 import AdminLayout from '../components/AdminLayout'
 import AdminDashboard from '../pages/AdminDashboard'
 import AdminLoginPage from '../pages/AdminLoginPage'
+import AdminSettings from '../pages/AdminSettings'
 import CaregiverVerificationPage from '../pages/CaregiverVerificationPage'
 import DoctorVerificationPage from '../pages/DoctorVerificationPage'
 import UserManagementPage from '../pages/UserManagementPage'
@@ -31,6 +32,10 @@ export const AdminRoutes: RouteObject[] = [
             {
                 path: 'caregivers/verification',
                 element: <CaregiverVerificationPage />,
+            },
+            {
+                path: 'settings',
+                element: <AdminSettings />,
             },
         ],
     },
