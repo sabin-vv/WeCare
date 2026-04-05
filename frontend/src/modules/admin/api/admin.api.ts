@@ -1,3 +1,4 @@
+import type { PresignUploadParams, PresignUploadResponse } from '../../auth/api/auth.api.types'
 import type {
     PendingCaregiversResponse,
     PendingDoctorsResponse,
@@ -94,4 +95,23 @@ export const getPlatformSettings = async (): Promise<PlatformSettings> => {
 export const updatePlatformSettings = async (settings: Partial<PlatformSettings>): Promise<PlatformSettings> => {
     const res = await api.put('/admin/platform-settings', settings)
     return res.data
+}
+
+export const presignUpload = async (params: PresignUploadParams): Promise<PresignUploadResponse> => {
+    const res = await api.post('/uploads/presign', params)
+    return res.data
+}
+
+export const uploadToS3 = async (uploadUrl: string, file: File): Promise<void> => {
+    const res = await fetch(uploadUrl, {
+        method: 'PUT',
+        body: file,
+        headers: {
+            'Content-Type': file.type,
+        },
+    })
+
+    if (!res.ok) {
+        throw new Error(`S3 upload failed: ${res.status} ${res.statusText}`)
+    }
 }

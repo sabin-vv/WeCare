@@ -1,9 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { IndianRupee } from 'lucide-react'
+import { IndianRupee, Upload, X } from 'lucide-react'
 import { useState, useEffect, type ChangeEvent } from 'react'
 import { useForm } from 'react-hook-form'
+import toast from 'react-hot-toast'
 
-import { getPlatformSettings, updatePlatformSettings } from '../api/admin.api'
+import type { AllowedContentType } from '../../auth/api/auth.api.types'
+import { getPlatformSettings, presignUpload, updatePlatformSettings, uploadToS3 } from '../api/admin.api'
 import PageCard from '../components/PageCard'
 import { platformSettingsSchema, type PlatformSettingsForm } from '../validator/admin.validator'
 
@@ -31,6 +33,9 @@ const AdminSettings = () => {
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [feeInput, setFeeInput] = useState<string>('0')
+    const [fullLogo, setFullLogo] = useState<string | null>(null)
+    const [iconLogo, setIconLogo] = useState<string | null>(null)
+    const [uploading, setUploading] = useState<'fullLogo' | 'iconLogo' | null>(null)
 
     useEffect(() => {
         const loadSettings = async () => {
@@ -42,6 +47,8 @@ const AdminSettings = () => {
                 setValue('platformFee', data.platformFee)
 
                 setFeeInput(data.platformFee.toString())
+                setFullLogo(data.platformLogo || null)
+                setIconLogo(data.platformIcon || null)
             } catch (error) {
                 console.error('Failed to load settings:', error)
             } finally {
@@ -60,14 +67,65 @@ const AdminSettings = () => {
         setValue('platformFee', Number(value), { shouldValidate: true })
     }
 
+    const handleLogoUpload = async (type: 'fullLogo' | 'iconLogo', file: File) => {
+        if (!file.type.startsWith('image/')) {
+            toast.error('Please upload an image file')
+            return
+        }
+
+        setUploading(type)
+        try {
+            const folder = type === 'fullLogo' ? 'settings/full-logo' : 'settings/icon-logo'
+            const presignRes = await presignUpload({
+                fileName: file.name,
+                contentType: file.type as AllowedContentType,
+                folder,
+                size: file.size,
+            })
+
+            await uploadToS3(presignRes.uploadUrl, file)
+
+            if (type === 'fullLogo') {
+                setFullLogo(presignRes.key)
+            } else {
+                setIconLogo(presignRes.key)
+            }
+        } catch (error) {
+            console.error('Failed to upload logo:', error)
+            toast.error('Failed to upload logo')
+        } finally {
+            setUploading(null)
+        }
+    }
+
+    const handleLogoChange = (type: 'fullLogo' | 'iconLogo') => (e: ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            handleLogoUpload(type, file)
+        }
+    }
+
+    const removeLogo = (type: 'fullLogo' | 'iconLogo') => {
+        if (type === 'fullLogo') {
+            setFullLogo(null)
+        } else {
+            setIconLogo(null)
+        }
+    }
+
     const onSubmit = async (data: PlatformSettingsForm) => {
         setSaving(true)
         try {
-            await updatePlatformSettings(data)
-            alert('Settings saved successfully')
+            const settingsWithLogos = {
+                ...data,
+                platformLogo: fullLogo || undefined,
+                platformIcon: iconLogo || undefined,
+            }
+            await updatePlatformSettings(settingsWithLogos)
+            toast.success('Settings saved successfully')
         } catch (err) {
             console.error(err)
-            alert('Failed to save settings')
+            toast.error('Failed to save settings')
         } finally {
             setSaving(false)
         }
@@ -111,16 +169,86 @@ const AdminSettings = () => {
                 <PageCard title="Platform Branding">
                     <div className={styles.logoContainer}>
                         <div className={styles.logoWrapper}>
-                            <div>
-                                <img src="/logo" alt="logo" />
-                            </div>
-                            <Button>Upload Full logo</Button>
+                            <span className={styles.logoTitle}>Full Logo</span>
+                            <label htmlFor="fullLogo" className={styles.logoLabel}>
+                                {fullLogo ? (
+                                    <div className={styles.logoPreview}>
+                                        <img src={`${import.meta.env.VITE_S3_BASE_URL}${fullLogo}`} alt="Full logo" />
+                                        <button
+                                            type="button"
+                                            className={styles.removeButton}
+                                            onClick={(e) => {
+                                                e.preventDefault()
+                                                removeLogo('fullLogo')
+                                            }}
+                                        >
+                                            <X size={16} />
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className={styles.logoPlaceholder}>
+                                        {uploading === 'fullLogo' ? (
+                                            <>
+                                                <Upload size={24} className={styles.spinning} />
+                                                <span>Uploading...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Upload size={24} />
+                                                <span>Click to upload</span>
+                                            </>
+                                        )}
+                                    </div>
+                                )}
+                            </label>
+                            <input
+                                type="file"
+                                id="fullLogo"
+                                accept="image/*"
+                                onChange={handleLogoChange('fullLogo')}
+                                className={styles.fileInput}
+                            />
                         </div>
                         <div className={styles.logoWrapper}>
-                            <div>
-                                <img src="/logo" alt="logo" />
-                            </div>
-                            <Button>Upload Icon logo</Button>
+                            <span className={styles.logoTitle}>Icon Logo</span>
+                            <label htmlFor="iconLogo" className={styles.logoLabel}>
+                                {iconLogo ? (
+                                    <div className={styles.logoPreview}>
+                                        <img src={`${import.meta.env.VITE_S3_BASE_URL}${iconLogo}`} alt="Icon logo" />
+                                        <button
+                                            type="button"
+                                            className={styles.removeButton}
+                                            onClick={(e) => {
+                                                e.preventDefault()
+                                                removeLogo('iconLogo')
+                                            }}
+                                        >
+                                            <X size={16} />
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className={styles.logoPlaceholder}>
+                                        {uploading === 'iconLogo' ? (
+                                            <>
+                                                <Upload size={24} className={styles.spinning} />
+                                                <span>Uploading...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Upload size={24} />
+                                                <span>Click to upload</span>
+                                            </>
+                                        )}
+                                    </div>
+                                )}
+                            </label>
+                            <input
+                                type="file"
+                                id="iconLogo"
+                                accept="image/*"
+                                onChange={handleLogoChange('iconLogo')}
+                                className={styles.fileInput}
+                            />
                         </div>
                     </div>
                 </PageCard>
