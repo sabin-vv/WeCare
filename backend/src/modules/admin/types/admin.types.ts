@@ -131,5 +131,3 @@ export interface PlatformSettings {
     platformLogo?: string
     platformIcon?: string
 }
-
-export interface PlatformSettingsResponse extends PlatformSettings {}

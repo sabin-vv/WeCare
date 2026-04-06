@@ -10,8 +10,8 @@ import { CaregiverModel } from '../../caregiver/models/caregiver.model'
 import { VerificationStatus } from '../../caregiver/types/caregiver.types'
 import { DoctorModel } from '../../doctor/models/doctor.model'
 import { PatientModel } from '../../patient/models/patient.model'
-import { platFoemSettingsModel } from '../models/platformSettings.model'
 import { IAdminRepository } from '../interfaces/admin.repository.interface'
+import { platFoemSettingsModel } from '../models/platformSettings.model'
 import {
     AdminUserProfile,
     AdminVerificationStatus,

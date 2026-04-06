@@ -1,6 +1,7 @@
-import type { PendingCaregiver } from '../interfaces/admin.interface'
-import { getFileUrl } from '@/utils/getFileUrl'
+import type { PendingCaregiver, RecentCaregiver } from '../interfaces/admin.interface'
 import styles from '../pages/DoctorVerification.module.css'
+
+import { getFileUrl } from '@/utils/getFileUrl'
 
 export const pendingCaregiverColumns = [
     {
@@ -59,8 +60,8 @@ export const pendingCaregiverColumns = [
 export const recentCaregiverColumns = [
     {
         header: 'Caregiver Name',
-        key: 'name' as keyof PendingCaregiver,
-        render: (caregiver: PendingCaregiver) => (
+        key: 'name' as keyof RecentCaregiver,
+        render: (caregiver: RecentCaregiver) => (
             <div className={styles.doctorInfo}>
                 <div className={styles.avatar}>
                     {caregiver.profileImage ? (
@@ -81,8 +82,8 @@ export const recentCaregiverColumns = [
     },
     {
         header: 'Status',
-        key: 'verificationStatus' as keyof PendingCaregiver,
-        render: (caregiver: PendingCaregiver) => (
+        key: 'verificationStatus' as keyof RecentCaregiver,
+        render: (caregiver: RecentCaregiver) => (
             <span className={caregiver.verificationStatus === 'verified' ? styles.verifiedBadge : styles.rejectedBadge}>
                 {caregiver.verificationStatus}
             </span>
@@ -90,8 +91,8 @@ export const recentCaregiverColumns = [
     },
     {
         header: 'Verified/Rejected On',
-        key: 'updatedAt' as keyof PendingCaregiver,
-        render: (caregiver: PendingCaregiver) =>
+        key: 'updatedAt' as keyof RecentCaregiver,
+        render: (caregiver: RecentCaregiver) =>
             new Date(caregiver.updatedAt || caregiver.createdAt).toLocaleDateString('en-US', {
                 month: 'short',
                 day: 'numeric',

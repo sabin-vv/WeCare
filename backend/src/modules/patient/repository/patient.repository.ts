@@ -15,5 +15,10 @@ export class PatientRepository extends BaseRepository<PatientDocument> implement
     async findByUserId(userId: Types.ObjectId): Promise<PatientDocument | null> {
         return this.model.findOne({ userId })
     }
+
+    async getLastPatientId(): Promise<string | null> {
+        const lastPatient = await this.model.findOne().sort({ patientId: -1 }).select('patientId').lean()
+        return lastPatient?.patientId || null
+    }
 }
 

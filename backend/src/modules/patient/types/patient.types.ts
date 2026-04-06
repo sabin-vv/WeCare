@@ -2,6 +2,7 @@ import { Document, Types } from 'mongoose'
 
 export interface PatientDocument extends Document {
     userId: Types.ObjectId
+    patientId: string
     dateOfBirth: Date
     gender: string
     mobile: string
@@ -13,6 +14,7 @@ export interface PatientDocument extends Document {
 
 export interface PatientEntity {
     userId: Types.ObjectId
+    patientId: string
     dateOfBirth: Date
     gender: string
     mobile: string

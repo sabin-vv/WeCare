@@ -9,6 +9,11 @@ const patientSchema = new Schema<PatientDocument>(
             ref: 'User',
             required: true,
         },
+        patientId: {
+            type: String,
+            required: true,
+            unique: true,
+        },
         dateOfBirth: {
             type: Date,
             required: true,
@@ -34,4 +39,3 @@ const patientSchema = new Schema<PatientDocument>(
 )
 
 export const PatientModel = model<PatientDocument>('Patient', patientSchema)
-
