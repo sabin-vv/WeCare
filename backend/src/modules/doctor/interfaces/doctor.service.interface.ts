@@ -1,7 +1,6 @@
-import { MulterFiles } from '../../auth/types/auth.types'
 import { DoctorDocument } from '../types/doctor.types'
-import { RegisterDoctorDTO } from '../validator/registerDoctor.schema'
+import { DoctorDTO } from '../validator/registerDoctor.schema'
 
 export interface IDoctorService {
-    registerDoctor(dto: RegisterDoctorDTO, files: MulterFiles): Promise<DoctorDocument>
+    createProfile(userId: string, dto: DoctorDTO): Promise<DoctorDocument>
 }

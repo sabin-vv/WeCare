@@ -1,16 +1,16 @@
 import { Router } from 'express'
 import { container } from 'tsyringe'
 
-import { upload } from '../../../core/middleware/upload'
+import { requireAuth } from '../../../core/middleware/requireAuth'
 import { validate } from '../../../core/middleware/validateMiddleware'
 import { DoctorController } from '../controller/doctor.controller'
-import { registerDoctorSchema } from '../validator/registerDoctor.schema'
+import { DoctorSchema } from '../validator/registerDoctor.schema'
 
 export const createDoctorRoutes = () => {
     const router = Router()
     const doctorController = container.resolve(DoctorController)
 
-    router.post('/register', upload.none(), validate(registerDoctorSchema), doctorController.registerDoctor)
+    router.post('/profile', requireAuth, validate(DoctorSchema), doctorController.createProfile)
 
     return router
 }
