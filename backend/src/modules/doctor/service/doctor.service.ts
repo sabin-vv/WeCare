@@ -1,3 +1,4 @@
+import { Types } from 'mongoose'
 import { inject, injectable } from 'tsyringe'
 
 import { TOKENS } from '../../../container/tokens'
@@ -18,6 +19,14 @@ export class DoctorService implements IDoctorService {
         @inject(TOKENS.IDoctorRepository) private _doctorRepo: IDoctorRepository,
     ) {}
 
+    async createProfile(userId: Types.ObjectId, dto: RegisterDoctorDTO, files: MulterFiles) {
+        const doctorData = toDoctorEntity(userId, dto, files)
+
+        const doctor = await this._doctorRepo.create(doctorData)
+        await this._userRepo.update(userId.toString(), { isProfileComplete: true })
+
+        return doctor
+    }
     async registerDoctor(dto: RegisterDoctorDTO, files: MulterFiles) {
         const existing = await this._userRepo.findByEmail(dto.email)
         if (existing) throw new AppError(HTTP_STATUS.BAD_REQUEST, 'User already exist')
