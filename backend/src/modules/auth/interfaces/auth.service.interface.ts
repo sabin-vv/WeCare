@@ -1,6 +1,6 @@
-import { ResetPasswordDTO } from '../dto/resetPassword.dto'
 import { LoginResponse, UserDocument, UserRole } from '../types/auth.types'
 import { OtpRequestPurpose } from '../types/otp.types'
+import { ResetPasswordDTO } from '../validator/auth.schema'
 import { RegisterDTO } from '../validator/auth.schema'
 
 export interface IAuthService {
