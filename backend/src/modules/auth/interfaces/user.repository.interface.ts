@@ -8,4 +8,6 @@ export interface IUserRepository {
     create(data: Partial<UserDocument>): Promise<UserDocument>
 
     updatePassword(userId: Types.ObjectId, password: string): Promise<void>
+
+    update(userId: string, data: Partial<UserDocument>): Promise<UserDocument | null>
 }
