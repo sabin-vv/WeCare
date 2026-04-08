@@ -68,21 +68,6 @@ export class AuthService implements IAuthService {
         if (role !== user.role) {
             throw new AppError(HTTP_STATUS.FORBIDDEN, 'Access denied')
         }
-        if (user.role === 'doctor') {
-            const doctor = await this._doctorRepo.findByUserId(user._id)
-
-            if (!doctor) {
-                throw new AppError(HTTP_STATUS.FORBIDDEN, 'Doctor profile not found')
-            }
-
-            if (doctor.verificationStatus === 'pending') {
-                throw new AppError(HTTP_STATUS.FORBIDDEN, 'Your account is under review')
-            }
-
-            if (doctor.verificationStatus === 'rejected') {
-                throw new AppError(HTTP_STATUS.FORBIDDEN, 'Your application was rejected')
-            }
-        }
 
         const payload = {
             userId: user._id.toString(),
