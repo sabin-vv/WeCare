@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
-import { sendOtp, verifyOtp } from '../api/auth.api'
+import { register, sendOtp, verifyOtp } from '../api/auth.api'
 import OtpVerification from '../components/OtpVerification'
 import BasicInfoForm from '../form/BasicInfoForm'
 import RegistrationSuccessForm from '../form/RegistrationSuccessForm'
@@ -49,6 +49,11 @@ const DoctorRegisterPage = () => {
         setLoading(true)
         try {
             await verifyOtp(registerData.email, otp)
+            const res = await register(registerData)
+
+            if (res) {
+                toast.success(res.message)
+            }
             nextStep()
         } catch (error: unknown) {
             toast.error(getErrorMessage(error))
