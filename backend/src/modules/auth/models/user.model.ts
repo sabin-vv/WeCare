@@ -35,6 +35,10 @@ const userSchema: Schema<UserDocument> = new Schema<UserDocument>(
             required: true,
             default: true,
         },
+        isProfileComplete: {
+            type: Boolean,
+            default: false,
+        },
     },
     { timestamps: true },
 )

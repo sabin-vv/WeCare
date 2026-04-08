@@ -13,6 +13,7 @@ export interface UserDocument extends Document {
     password: string
     role: UserRole
     isActive: boolean
+    isProfileComplete: boolean
 }
 
 export type MulterFiles = Record<string, Express.Multer.File[]>
