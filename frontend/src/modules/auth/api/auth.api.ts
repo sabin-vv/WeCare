@@ -1,3 +1,5 @@
+import type { RegisterFormData } from '../types/auth.types'
+
 import type { ApiInterface, LoginUser, PresignUploadParams, PresignUploadResponse } from './auth.api.types'
 
 import { api } from '@/services/api'
@@ -20,6 +22,10 @@ export const verifyOtp = async (email: string, otp: string): Promise<ApiInterfac
     return res.data
 }
 
+export const register = async (data: RegisterFormData): Promise<ApiInterface> => {
+    const res = await api.post('/register', data)
+    return res.data
+}
 export const patientRegister = async (data: PatientRegister): Promise<ApiInterface> => {
     const res = await api.post('/patients/register', data)
     return res.data
