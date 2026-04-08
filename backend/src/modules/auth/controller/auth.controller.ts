@@ -19,7 +19,8 @@ export class AuthController {
     constructor(@inject(TOKENS.IAuthService) private _authService: IAuthService) {}
 
     register = async (req: Request, res: Response) => {
-        const result = await this._authService.register(req.body)
+        const { confirmPassword: _confirmPassword, ...cleanDto } = req.body
+        const result = await this._authService.register(cleanDto)
 
         res.status(HTTP_STATUS.CREATED).json({
             success: true,
