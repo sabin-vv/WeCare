@@ -5,7 +5,7 @@ import { register, sendOtp, verifyOtp } from '../api/auth.api'
 import OtpVerification from '../components/OtpVerification'
 import BasicInfoForm from '../form/BasicInfoForm'
 import RegistrationSuccessForm from '../form/RegistrationSuccessForm'
-import { OtpPurpose, type RegisterFormData } from '../types/auth.types'
+import { OtpPurpose, Role, type RegisterFormData } from '../types/auth.types'
 
 import AuthLayout from '@/layout/AuthLayout'
 import { getErrorMessage } from '@/utils/getErrorMessage'
@@ -49,7 +49,7 @@ const DoctorRegisterPage = () => {
         setLoading(true)
         try {
             await verifyOtp(registerData.email, otp)
-            const res = await register(registerData)
+            const res = await register(registerData, Role.DOCTOR)
 
             if (res) {
                 toast.success(res.message)
