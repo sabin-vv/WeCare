@@ -23,7 +23,10 @@ export class AuthService implements IAuthService {
     ) {}
 
     async register(dto: RegisterDTO) {
-        const existing = await this._userRepo.findByEmail(dto.email)
+        const { confirmPassword: _confirmPassword, ...cleanDto } = dto
+
+        const email = cleanDto.email.toLowerCase()
+        const existing = await this._userRepo.findByEmail(email)
 
         if (existing) {
             throw new AppError(HTTP_STATUS.CONFLICT, 'User already exist')
