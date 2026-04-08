@@ -18,6 +18,16 @@ const cookieOptions = {
 export class AuthController {
     constructor(@inject(TOKENS.IAuthService) private _authService: IAuthService) {}
 
+    register = async (req: Request, res: Response) => {
+        const result = await this._authService.register(req.body)
+
+        res.status(HTTP_STATUS.CREATED).json({
+            success: true,
+            message: 'User created successfully',
+            data: result,
+        })
+    }
+
     sendOtp = async (req: Request, res: Response) => {
         const { email, purpose } = req.body
 
