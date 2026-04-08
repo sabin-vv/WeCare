@@ -1,7 +1,5 @@
 import { useNavigate } from 'react-router-dom'
 
-import ProgressBar from '../components/ProgressBar'
-
 import styles from './RegistrationSuccessForm.module.css'
 
 import Button from '@/shared/components/Button/Button'
@@ -10,7 +8,6 @@ const RegistrationSuccessForm = () => {
     const navigate = useNavigate()
     return (
         <div className={styles.cardWrapper}>
-            <ProgressBar step={4} totalSteps={4} title="Account Setup" percentage={100} />
             <div className={styles.successSection}>
                 <svg
                     className={styles.svg}
