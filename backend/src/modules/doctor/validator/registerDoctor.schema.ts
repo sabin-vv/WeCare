@@ -1,12 +1,6 @@
 import { z } from 'zod'
 
-import { emailschema, mobileSchema, nameSchema, passwordSchema } from '../../../core/validation/common.schema'
-
-export const registerDoctorSchema = z.object({
-    name: nameSchema,
-    email: emailschema,
-    mobile: mobileSchema,
-    password: passwordSchema,
+export const DoctorSchema = z.object({
     medicalCertificateNumber: z.string().min(1, 'Medical certificate number is required'),
     medicalCouncilRegisterNumber: z.string().min(1, 'Medical council register number required'),
 
@@ -32,4 +26,4 @@ export const registerDoctorSchema = z.object({
         ),
 })
 
-export type RegisterDoctorDTO = z.infer<typeof registerDoctorSchema>
+export type DoctorDTO = z.infer<typeof DoctorSchema>
