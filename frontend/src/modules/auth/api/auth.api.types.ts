@@ -11,6 +11,7 @@ export interface LoginUser extends ApiInterface {
         name: string
         email: string
         role: Role
+        isProfileComplete: boolean
     }
 }
 
