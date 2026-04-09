@@ -45,6 +45,8 @@ const LoginForm = () => {
                 id: response.data.email,
                 name: response.data.name,
                 email: response.data.email,
+                role: response.data.role,
+                isProfileComplete: response.data.isProfileComplete,
             })
 
             toast.success(response.message)
