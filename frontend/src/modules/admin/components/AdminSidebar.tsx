@@ -1,9 +1,9 @@
 import { LayoutDashboard, Users, UserCheck, ShieldPlus, History as HistoryIcon, CalendarDays } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 
-import { usePendingCount } from '@/shared/context/PendingCountContext'
-
 import styles from './AdminSidebar.module.css'
+
+import { usePendingCount } from '@/shared/context/PendingCountContext'
 
 const AdminSidebar = () => {
     const { doctorCount, caregiverCount } = usePendingCount()
