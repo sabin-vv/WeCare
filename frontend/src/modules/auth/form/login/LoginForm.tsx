@@ -41,22 +41,17 @@ const LoginForm = () => {
         try {
             const response = await loginUser(data.email, data.password, role)
 
-            setAuth({
-                id: response.data.email,
-                name: response.data.name,
-                email: response.data.email,
-                role: response.data.role,
-                isProfileComplete: response.data.isProfileComplete,
-            })
-
             try {
                 const profile = await getCurrentUser()
                 setAuth({
-                    id: profile.data.id,
-                    name: profile.data.name,
-                    email: profile.data.email,
-                    role: profile.data.role,
+                    id: response.data.id,
+                    name: response.data.name,
+                    email: response.data.email,
+                    role: response.data.role,
                     isProfileComplete: response.data.isProfileComplete,
+                    profileImage: profile.data.profileImage,
+                    specialization: profile.data.specialization,
+                    verificationStatus: profile.data.verificationStatus,
                 })
             } catch {
                 toast.error('Failed to load profile')

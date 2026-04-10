@@ -36,6 +36,7 @@ export interface User {
     email: string
     role: Role
     isProfileComplete?: boolean
+    verificationStatus?: boolean
     profileImage?: string
     specialization?: string
 }
