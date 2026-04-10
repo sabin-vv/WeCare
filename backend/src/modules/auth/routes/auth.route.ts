@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { container } from 'tsyringe'
 
+import { requireAuth } from '../../../core/middleware/requireAuth'
 import { validate } from '../../../core/middleware/validateMiddleware'
 import { AuthController } from '../controller/auth.controller'
 import { loginSchema, registerSchema, resetPasswordSchema } from '../validator/auth.schema'
@@ -18,6 +19,7 @@ export const createAuthRoutes = () => {
     router.post('/refresh-token', authController.refreshToken)
     router.post('/logout', authController.logout)
     router.post('/reset-password', validate(resetPasswordSchema), authController.resetPassword)
+    router.get('/me', requireAuth, authController.getCurrentUser)
 
     return router
 }
