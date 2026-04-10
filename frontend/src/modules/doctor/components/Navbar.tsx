@@ -4,13 +4,17 @@ import styles from './Navbar.module.css'
 
 import LogoutButton from '@/shared/components/LogoutButton/LogoutButton'
 import { useAuth } from '@/shared/context/AuthContext'
+import { usePlatform } from '@/shared/context/PlatformContext'
 
 const Navbar = () => {
     const { user } = useAuth()
+    const { settings } = usePlatform()
+    const baseUrl = import.meta.env.VITE_S3_BASE_URL
+
     return (
         <header className={styles.navbar}>
             <div className={styles.left}>
-                <img src="/logo.png" alt="/logo" className={styles.logo} />
+                <img src={`${baseUrl}${settings?.platformLogo}`} alt="/logo" className={styles.logo} />
             </div>
             <nav className={styles.center}>
                 <ul>
@@ -31,7 +35,7 @@ const Navbar = () => {
                         <p>{user?.specialization}</p>
                     </div>
                     {user?.profileImage ? (
-                        <img src={user?.profileImage} alt="/profile" className={styles.profileImg} />
+                        <img src={`${baseUrl}${user?.profileImage}`} alt="/profile" className={styles.profileImg} />
                     ) : (
                         <div className={styles.avatarFallback}>
                             <h1>{user?.name?.charAt(0)?.toUpperCase() || 'Dr'}</h1>

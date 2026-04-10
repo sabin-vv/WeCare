@@ -1,4 +1,4 @@
-import type { Role } from '../types/auth.types'
+import type { Role, VerificationStatus } from '../types/auth.types'
 
 export interface ApiInterface {
     success: boolean
@@ -19,7 +19,7 @@ export interface GetCurrentUser extends ApiInterface {
     data: {
         profileImage?: string
         specialization?: string
-        verificationStatus?: boolean
+        verificationStatus?: VerificationStatus
     }
 }
 

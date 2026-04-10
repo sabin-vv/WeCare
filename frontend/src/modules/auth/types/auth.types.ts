@@ -12,6 +12,11 @@ export enum Role {
     ADMIN = 'admin',
 }
 
+export enum VerificationStatus {
+    PENDING = 'pending',
+    Verified = 'verified',
+    REJECTED = 'rejected',
+}
 export interface RoleSelectorProps {
     role: Role
     onChange: (role: Role) => void
@@ -36,7 +41,7 @@ export interface User {
     email: string
     role: Role
     isProfileComplete?: boolean
-    verificationStatus?: boolean
+    verificationStatus?: VerificationStatus
     profileImage?: string
     specialization?: string
 }
