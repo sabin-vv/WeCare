@@ -200,12 +200,9 @@ const DoctorDetailsForm = () => {
                         onFileSelect={(file) =>
                             setDocuments((prev) => ({
                                 ...prev,
-                                documents: {
-                                    ...prev,
-                                    medicalCertificate: {
-                                        ...prev.medicalCertificate,
-                                        document: file,
-                                    },
+                                medicalCertificate: {
+                                    ...prev.medicalCertificate,
+                                    document: file,
                                 },
                             }))
                         }
@@ -236,12 +233,9 @@ const DoctorDetailsForm = () => {
                         onFileSelect={(file) =>
                             setDocuments((prev) => ({
                                 ...prev,
-                                documents: {
-                                    ...prev,
-                                    councilRegistration: {
-                                        ...prev.councilRegistration,
-                                        document: file,
-                                    },
+                                councilRegistration: {
+                                    ...prev.councilRegistration,
+                                    document: file,
                                 },
                             }))
                         }
