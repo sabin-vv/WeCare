@@ -18,6 +18,6 @@ export class DoctorController {
 
         const result = await this._doctorService.createProfile(userId, req.body)
 
-        res.status(HTTP_STATUS.CREATED).json({ success: true, data: result })
+        res.status(HTTP_STATUS.CREATED).json({ success: true, message: 'Profile updated', data: result })
     }
 }
