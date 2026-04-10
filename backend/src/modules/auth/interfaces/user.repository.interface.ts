@@ -10,4 +10,6 @@ export interface IUserRepository {
     updatePassword(userId: Types.ObjectId, password: string): Promise<void>
 
     update(userId: string, data: Partial<UserDocument>): Promise<UserDocument | null>
+
+    findById(userId: string): Promise<UserDocument | null>
 }
