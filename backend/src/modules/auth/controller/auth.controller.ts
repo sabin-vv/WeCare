@@ -5,6 +5,7 @@ import { TOKENS } from '../../../container/tokens'
 import { env } from '../../../core/config/env'
 import { HTTP_STATUS } from '../../../core/constants/httpStatus'
 import { IAuthService } from '../interfaces/auth.service.interface'
+import { UserRole } from '../types/auth.types'
 
 const isProduction = env.NODE_ENV === 'production'
 
@@ -84,5 +85,14 @@ export class AuthController {
         res.clearCookie('refreshToken', cookieOptions)
 
         res.status(HTTP_STATUS.OK).json({ success: true, message: 'Logged out successfully' })
+    }
+
+    getCurrentUser = async (req: Request, res: Response) => {
+        const userId = req?.user?.userId
+        const role = req?.user?.role as UserRole
+
+        const user = await this._authService.getCurrentUser(userId!, role)
+
+        res.status(HTTP_STATUS.OK).json({ success: true, data: user })
     }
 }
