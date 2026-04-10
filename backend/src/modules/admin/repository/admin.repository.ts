@@ -503,4 +503,15 @@ export class AdminRepository implements IAdminRepository {
             platformIcon: updated.platformIcon,
         }
     }
+
+    async findByUserId(userId: string): Promise<{ profileImage?: string } | null> {
+        const adminUser = await UserModel.findById(userId).lean()
+        if (!adminUser) {
+            return null
+        }
+        const adminDoc = await platFoemSettingsModel.findOne().lean()
+        return {
+            profileImage: adminDoc?.platformLogo || '',
+        }
+    }
 }
