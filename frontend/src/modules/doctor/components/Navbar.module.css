@@ -41,6 +41,9 @@
 .icon {
     cursor: pointer;
 }
+.icon:hover {
+    color: #007bff;
+}
 
 .profile {
     display: flex;

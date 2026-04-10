@@ -1,4 +1,5 @@
 import { BellRing, Settings } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 import styles from './Navbar.module.css'
 
@@ -7,6 +8,7 @@ import { useAuth } from '@/shared/context/AuthContext'
 import { usePlatform } from '@/shared/context/PlatformContext'
 
 const Navbar = () => {
+    const navigate = useNavigate()
     const { user } = useAuth()
     const { settings } = usePlatform()
     const baseUrl = import.meta.env.VITE_S3_BASE_URL
@@ -18,14 +20,20 @@ const Navbar = () => {
             </div>
             <nav className={styles.center}>
                 <ul>
-                    <li className={styles.link}>Dashboard</li>
-                    <li className={styles.link}>Patient List</li>
-                    <li className={styles.link}>Schedule</li>
+                    <li className={styles.link} onClick={() => navigate('/doctor/dashboard')}>
+                        Dashboard
+                    </li>
+                    <li className={styles.link} onClick={() => navigate('/doctor/patients')}>
+                        Patient List
+                    </li>
+                    <li className={styles.link} onClick={() => navigate('/doctor/availability')}>
+                        Schedule
+                    </li>
                 </ul>
             </nav>
             <div className={styles.right}>
-                <BellRing className={styles.icon} />
-                <Settings className={styles.icon} />
+                <BellRing className={styles.icon} onClick={() => navigate('/doctor/notification')} />
+                <Settings className={styles.icon} onClick={() => navigate('/doctor/settings')} />
 
                 <LogoutButton />
 
