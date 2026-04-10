@@ -14,4 +14,14 @@ export interface IAuthService {
     refreshToken(token: string): Promise<{ accessToken: string }>
 
     resetpassword(dto: ResetPasswordDTO): Promise<void>
+
+    getCurrentUser(userId: string, role: UserRole): Promise<{
+        id: string
+        name: string
+        email: string
+        role: UserRole
+        isProfileComplete: boolean
+        profileImage?: string
+        specialization?: string
+    }>
 }
