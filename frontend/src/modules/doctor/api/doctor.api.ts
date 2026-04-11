@@ -8,8 +8,9 @@ export const updateProfile = async (data: FormData): Promise<ApiInterface> => {
 
     return res.data
 }
-export const getDoctorProfile = async (): Promise<DoctorProfile> => {
-    const res = await api.get('/doctors/me')
 
-    return res.data
+export const getDoctorProfile = async (): Promise<DoctorProfile> => {
+    const res = await api.get<{ success: boolean; message: string; data: DoctorProfile }>('/doctors/me')
+
+    return res.data.data
 }
