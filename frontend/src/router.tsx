@@ -5,6 +5,7 @@ import { AuthRoutes } from './modules/auth/routes/auth.routes'
 import { CaregiverRoutes } from './modules/caregiver/routes/CaregiverRoutes'
 import { DoctorRoutes } from './modules/doctor/routes/DoctorRoutes'
 import { PatientRoutes } from './modules/patient/routes/PatientRoutes'
+import PageNotFound from './shared/components/PageNotFound/PageNotFound'
 
 export const router = createBrowserRouter([
     ...AuthRoutes,
@@ -12,4 +13,8 @@ export const router = createBrowserRouter([
     ...DoctorRoutes,
     ...CaregiverRoutes,
     ...PatientRoutes,
+    {
+        path: '*',
+        element: <PageNotFound />,
+    },
 ])
