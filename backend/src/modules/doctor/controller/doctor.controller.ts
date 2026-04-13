@@ -31,4 +31,15 @@ export class DoctorController {
 
         res.status(HTTP_STATUS.CREATED).json({ success: true, message: 'Profile updated', data: result })
     }
+
+    updateProfile = async (req: Request, res: Response) => {
+        const userId = req.user?.userId
+        if (!userId) {
+            throw new AppError(HTTP_STATUS.UNAUTHORIZED, 'User not authenticated')
+        }
+
+        const result = await this._doctorService.updateProfile(userId, req.body)
+
+        res.status(HTTP_STATUS.OK).json({ success: true, message: 'Profile updated', data: result })
+    }
 }
