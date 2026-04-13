@@ -7,9 +7,10 @@ import { AppError } from '../../../core/errors/AppError'
 import { IUserRepository } from '../../auth/interfaces/user.repository.interface'
 import { IDoctorRepository } from '../interfaces/doctor.repository.interface'
 import { IDoctorService } from '../interfaces/doctor.service.interface'
-import { toDoctorEntity } from '../mapper/doctor.mapper'
+import { toDoctorEntity, toDoctorProfileResponse } from '../mapper/doctor.mapper'
 import { DoctorProfileResponse } from '../types/doctor.types'
 import { DoctorDTO } from '../validator/registerDoctor.schema'
+import { UpdateDoctorSettingsDTO } from '../validator/updateDoctorSettings.schema'
 
 @injectable()
 export class DoctorService implements IDoctorService {
@@ -43,19 +44,39 @@ export class DoctorService implements IDoctorService {
             throw new AppError(HTTP_STATUS.NOT_FOUND, 'Doctor profile not found')
         }
 
-        return {
-            id: user._id.toString(),
-            fullName: user.name,
-            email: user.email,
-            phoneNumber: user.mobile,
-            profileImage: doctor.profileImage,
-            professionalTitle: doctor.specializations?.[0]?.name,
-            consultationFee: doctor.consultationFee ?? 0,
-            medicalLicenseNumber: doctor.medicalCertificateNumber,
-            medicalCouncilRegistrationNumber: doctor.medicalCouncilRegisterNumber,
-            experienceCertificatesCount: doctor.specializations?.length ?? 0,
-            isActive: user.isActive,
-            verificationStatus: doctor.verificationStatus,
+        return toDoctorProfileResponse(user, doctor)
+    }
+
+    async updateProfile(userId: string, dto: UpdateDoctorSettingsDTO): Promise<DoctorProfileResponse> {
+        const existingDoctor = await this._doctorRepo.findByUserId(new Types.ObjectId(userId))
+        if (!existingDoctor) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'Doctor profile not found')
         }
+
+        await this._userRepo.update(userId, {
+            name: dto.fullName,
+            email: dto.email,
+            mobile: dto.phoneNumber,
+        })
+
+        const updatedSpecializations =
+            existingDoctor.specializations?.length > 0
+                ? existingDoctor.specializations.map((specialization, index) =>
+                      index === 0 ? { ...specialization, name: dto.professionalTitle } : specialization,
+                  )
+                : []
+
+        const doctor = await this._doctorRepo.updateByUserId(new Types.ObjectId(userId), {
+            consultationFee: dto.consultationFee,
+            specializations: updatedSpecializations,
+            ...(dto.isActive !== undefined ? { isActive: dto.isActive } : {}),
+        })
+
+        const updatedUser = await this._userRepo.findById(userId)
+        if (!updatedUser) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'User not found')
+        }
+
+        return toDoctorProfileResponse(updatedUser, doctor)
     }
 }
