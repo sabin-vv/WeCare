@@ -32,3 +32,8 @@ export interface DoctorProfile extends ApiInterface {
 export interface DoctorProfileResponse extends ApiInterface {
     data: DoctorProfile
 }
+
+export type UpdateDoctorProfileData = Pick<
+    DoctorProfile,
+    'fullName' | 'professionalTitle' | 'consultationFee' | 'phoneNumber' | 'email' | 'isActive'
+>
