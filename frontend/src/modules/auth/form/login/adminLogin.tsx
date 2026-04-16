@@ -43,7 +43,10 @@ const AdminLogin = () => {
 
                 try {
                     const profile = await getCurrentUser()
-                    setAuth(profile.data)
+                    setAuth({
+                        ...res.data,
+                        ...profile.data,
+                    })
                 } catch {
                     toast.error('Failed to load profile')
                 }

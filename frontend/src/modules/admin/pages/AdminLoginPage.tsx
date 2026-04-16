@@ -1,4 +1,4 @@
-import AdminLogin from '@/modules/auth/form/login/AdminLogin'
+import AdminLogin from '@/modules/auth/form/login/adminLogin'
 
 const AdminLoginPage = () => {
     return <AdminLogin />
