@@ -15,12 +15,23 @@
 .modal {
     background: #fff;
     width: 90%;
-    max-width: 800px;
     max-height: 90vh;
     border-radius: 16px;
     display: flex;
     flex-direction: column;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.sm {
+    max-width: 400px;
+}
+
+.md {
+    max-width: 600px;
+}
+
+.lg {
+    max-width: 800px;
 }
 
 .header {
@@ -29,6 +40,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
 }
 
 .title {
@@ -64,4 +77,6 @@
     display: flex;
     justify-content: flex-end;
     gap: 12px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
 }

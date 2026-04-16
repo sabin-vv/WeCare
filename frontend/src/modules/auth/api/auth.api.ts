@@ -88,3 +88,14 @@ export const getCurrentUser = async (): Promise<GetCurrentUser> => {
     const res = await api.get('/auth/me')
     return res.data
 }
+
+export const changePassword = async (
+    currentPassword: string,
+    newPassword: string,
+): Promise<ApiInterface> => {
+    const res = await api.post('/auth/change-password', {
+        currentPassword,
+        newPassword,
+    })
+    return res.data
+}

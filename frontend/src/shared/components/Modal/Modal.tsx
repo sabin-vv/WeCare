@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom'
 import styles from './Modal.module.css'
 import type { ModalProps } from './Modal.types'
 
-const Modal = ({ isOpen, onClose, title, children, footer }: ModalProps) => {
+const Modal = ({ isOpen, onClose, title, children, footer, size = 'md' }: ModalProps) => {
     const modalRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
@@ -33,7 +33,7 @@ const Modal = ({ isOpen, onClose, title, children, footer }: ModalProps) => {
         <div className={styles.overlay} onClick={onClose}>
             <div
                 ref={modalRef}
-                className={styles.modal}
+                className={`${styles.modal} ${styles[size]}`}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="modal-title"
