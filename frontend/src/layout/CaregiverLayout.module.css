@@ -1,0 +1,33 @@
+.shell {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background:
+        radial-gradient(circle at top right, rgba(59, 130, 246, 0.08), transparent 28%),
+        linear-gradient(180deg, #f8fbff 0%, #f4f7fb 100%);
+}
+
+.body {
+    flex: 1;
+    display: flex;
+    gap: 20px;
+}
+
+.main {
+    flex: 1;
+    min-width: 0;
+}
+
+.content {
+    padding: 32px;
+}
+
+@media (max-width: 900px) {
+    .shell {
+        flex-direction: column;
+    }
+
+    .content {
+        padding: 20px;
+    }
+}
