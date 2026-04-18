@@ -1,5 +1,7 @@
 import { Document, Types } from 'mongoose'
 
+import { UserDocument } from '../../auth/types/auth.types'
+
 export enum VerificationStatus {
     pending = 'pending',
     verified = 'verified',
@@ -8,6 +10,7 @@ export enum VerificationStatus {
 
 export interface CaregiverDocument extends Document {
     userId: Types.ObjectId
+    phoneNumber?: string
     profileImage: string
     govIdImage: string
     certificateNumber: string
@@ -31,3 +34,17 @@ export interface CaregiverEntity {
     certificateImage: string
     licenseImage: string
 }
+
+export interface CaregiverProfileResponse {
+    id: string
+    fullName: string
+    email: string
+    phoneNumber: string
+    profileImage: string
+    certificateNumber: string
+    licenseNumber: string
+    isActive: boolean
+    verificationStatus: VerificationStatus
+}
+
+export type CaregiverProfileMapper = (user: UserDocument, caregiver: CaregiverDocument) => CaregiverProfileResponse
