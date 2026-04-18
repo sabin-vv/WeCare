@@ -1,16 +1,21 @@
 import { Router } from 'express'
 import { container } from 'tsyringe'
 
+import { requireAuth } from '../../../core/middleware/requireAuth'
 import { upload } from '../../../core/middleware/upload'
 import { validate } from '../../../core/middleware/validateMiddleware'
 import { CaregiverController } from '../controller/caregiver.controller'
-import { registerCaregiverSchema } from '../validator/caregiver.schema'
+import { createCaregiverProfileSchema, registerCaregiverSchema } from '../validator/caregiver.schema'
+import { UpdateCaregiverSettingsSchema } from '../validator/updateCaregiverSettings.schema'
 
 export const createCaregiverRoutes = () => {
     const router = Router()
     const caregiverController = container.resolve(CaregiverController)
 
     router.post('/register', upload.none(), validate(registerCaregiverSchema), caregiverController.registerCaregiver)
+    router.post('/profile', requireAuth, upload.none(), validate(createCaregiverProfileSchema), caregiverController.createProfile)
+    router.get('/me', requireAuth, caregiverController.getProfile)
+    router.put('/me', requireAuth, upload.none(), validate(UpdateCaregiverSettingsSchema), caregiverController.updateProfile)
 
     return router
 }
