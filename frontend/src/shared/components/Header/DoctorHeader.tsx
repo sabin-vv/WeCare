@@ -1,0 +1,16 @@
+import Header, { type NavLink } from './Header'
+
+import { useAuth } from '@/shared/context/AuthContext'
+
+const doctorNavLinks: NavLink[] = [
+    { label: 'Dashboard', path: '/doctor/dashboard' },
+    { label: 'Patient List', path: '/doctor/patients' },
+    { label: 'Schedule', path: '/doctor/availability' },
+]
+
+const DoctorHeader = () => {
+    const { user } = useAuth()
+    return <Header titlePrefix="Dr. " subtitle={user?.specialization} navLinks={doctorNavLinks} />
+}
+
+export default DoctorHeader
