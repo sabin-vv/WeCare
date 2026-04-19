@@ -80,3 +80,95 @@ export type UpdateDoctorProfileData = Pick<
     DoctorProfile,
     'fullName' | 'consultationFee' | 'phoneNumber' | 'email' | 'isActive'
 >
+
+export interface TimeRange {
+    startTime: string
+    endTime: string
+}
+
+export interface TimeRangeInputProps {
+    value: TimeRange
+    onChange: (value: TimeRange) => void
+    slotDuration: number
+    onDelete?: () => void
+}
+
+export interface DaySchedule {
+    day: string
+    isAvailable: boolean
+    timeRanges: TimeRange[]
+}
+export interface DayScheduleRowProps {
+    data: DaySchedule
+    slotDuration: number
+    canAddRange: boolean
+    onToggleAvailability: (value: boolean) => void
+    onRangeChange: (index: number, value: TimeRange) => void
+    onAddRange: () => void
+    onDeleteRange: (index: number) => void
+}
+
+export interface SlotDurationSelctorProps {
+    value: number
+    onChange: (value: number) => void
+    options?: number[]
+}
+
+export interface DateRange {
+    start: string
+    end: string
+}
+
+export interface DateRangePickerProps {
+    value: DateRange
+    onChange: (value: DateRange) => void
+    minDate?: string
+    maxDate?: string
+}
+
+export interface WeeklySchedule {
+    day: string
+    isAvailable: boolean
+    timeRanges: { startTime: string; endTime: string }[]
+}
+
+export const initialSchedule: WeeklySchedule[] = [
+    {
+        day: 'Monday',
+        isAvailable: true,
+        timeRanges: [{ startTime: '09:00', endTime: '13:00' }],
+    },
+    {
+        day: 'Tuesday',
+        isAvailable: true,
+        timeRanges: [
+            { startTime: '09:00', endTime: '13:00' },
+            { startTime: '14:00', endTime: '17:00' },
+        ],
+    },
+    {
+        day: 'Wednesday',
+        isAvailable: false,
+        timeRanges: [],
+    },
+    {
+        day: 'Thursday',
+        isAvailable: true,
+        timeRanges: [{ startTime: '09:00', endTime: '13:00' }],
+    },
+    {
+        day: 'Friday',
+        isAvailable: true,
+        timeRanges: [{ startTime: '09:00', endTime: '13:00' }],
+    },
+    {
+        day: 'Saturday',
+        isAvailable: false,
+        timeRanges: [],
+    },
+    {
+        day: 'Sunday',
+        isAvailable: false,
+        timeRanges: [],
+    },
+]
