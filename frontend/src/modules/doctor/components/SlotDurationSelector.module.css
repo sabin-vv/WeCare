@@ -1,0 +1,36 @@
+.container {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: #f8fafc;
+    padding: 4px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+}
+
+.btn {
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    background-color: #eef2ff;
+    color: #2563eb;
+}
+
+.active {
+    background-color: #2563eb;
+    color: #ffffff;
+}
+
+.btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
+}
