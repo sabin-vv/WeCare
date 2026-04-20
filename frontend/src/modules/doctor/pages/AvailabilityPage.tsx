@@ -6,7 +6,8 @@ import { getDoctorAvailability, updateDoctorAvailability } from '../api/doctor.a
 import { DateRangePicker } from '../components/DateRangePicker'
 import { DayScheduleRow } from '../components/DayScheduleRow'
 import { SlotDurationSelector } from '../components/SlotDurationSelector'
-import { type WeeklySchedule } from '../types/doctor.types'
+import { type DoctorAvailability, type WeeklySchedule } from '../types/doctor.types'
+import { validateDoctorAvailability } from '../validator/availabilityValidation'
 
 import styles from './AvailabilityPage.module.css'
 
@@ -111,16 +112,25 @@ const AvailabilityPage = () => {
     }, [])
 
     const handleSave = async () => {
+        const availabilityData: DoctorAvailability = {
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            weeklySchedule: schedule,
+            slotDuration,
+            startDate: dateRange.start,
+            endDate: dateRange.end,
+        }
+
+        const validation = validateDoctorAvailability(availabilityData, slotDuration)
+
+        if (!validation.valid) {
+            validation.errors.forEach((err) => toast.error(err.message))
+            return
+        }
+
         setIsSaving(true)
 
         try {
-            const updatedAvailability = await updateDoctorAvailability({
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                weeklySchedule: schedule,
-                slotDuration,
-                startDate: dateRange.start,
-                endDate: dateRange.end,
-            })
+            const updatedAvailability = await updateDoctorAvailability(availabilityData)
 
             setSlotDuration(updatedAvailability.slotDuration)
             setSchedule(cloneSchedule(updatedAvailability.weeklySchedule))
@@ -153,123 +163,130 @@ const AvailabilityPage = () => {
                         </div>
                     ) : (
                         <div className={styles.form}>
-                        <section className={styles.card}>
-                            <div className={styles.cardHeader}>
-                                <div className={styles.cardTitleWrap}>
-                                    <div className={styles.iconBadge}>
-                                        <Clock3 size={18} />
+                            <section className={styles.card}>
+                                <div className={styles.cardHeader}>
+                                    <div className={styles.cardTitleWrap}>
+                                        <div className={styles.iconBadge}>
+                                            <Clock3 size={18} />
+                                        </div>
+                                        <h2 className={styles.cardTitle}>Slot Configuration</h2>
                                     </div>
-                                    <h2 className={styles.cardTitle}>Slot Configuration</h2>
                                 </div>
-                            </div>
 
-                            <div className={styles.configRow}>
-                                <div className={styles.fieldBlock}>
-                                    <span className={styles.fieldLabel}>Consultation Duration</span>
-                                    <SlotDurationSelector value={slotDuration} onChange={handleSlotDurationChange} />
-                                </div>
-                            </div>
-                        </section>
-
-                        <section className={styles.card}>
-                            <div className={styles.scheduleHeader}>
-                                <div className={styles.cardTitleWrap}>
-                                    <div className={styles.iconBadge}>
-                                        <CalendarDays size={18} />
+                                <div className={styles.configRow}>
+                                    <div className={styles.fieldBlock}>
+                                        <span className={styles.fieldLabel}>Consultation Duration</span>
+                                        <SlotDurationSelector
+                                            value={slotDuration}
+                                            onChange={handleSlotDurationChange}
+                                        />
                                     </div>
-                                    <h2 className={styles.cardTitle}>Weekly Schedule</h2>
+                                </div>
+                            </section>
+
+                            <section className={styles.card}>
+                                <div className={styles.scheduleHeader}>
+                                    <div className={styles.cardTitleWrap}>
+                                        <div className={styles.iconBadge}>
+                                            <CalendarDays size={18} />
+                                        </div>
+                                        <h2 className={styles.cardTitle}>Weekly Schedule</h2>
+                                    </div>
+
+                                    <DateRangePicker value={dateRange} onChange={setDateRange} minDate={today} />
                                 </div>
 
-                                <DateRangePicker value={dateRange} onChange={setDateRange} minDate={today} />
-                            </div>
-
-                            <div className={styles.daysList}>
-                                {schedule.map((day, index) => (
-                                    <DayScheduleRow
-                                        key={day.day}
-                                        data={day}
-                                        slotDuration={slotDuration}
-                                        canAddRange={
-                                            day.timeRanges.length === 0 ||
-                                            toMinutes(day.timeRanges[day.timeRanges.length - 1].endTime) < 23 * 60 + 45
-                                        }
-                                        onToggleAvailability={(value) =>
-                                            updateDay(index, (currentDay) => ({
-                                                ...currentDay,
-                                                isAvailable: value,
-                                                timeRanges:
-                                                    value && currentDay.timeRanges.length === 0
-                                                        ? [
-                                                              {
-                                                                  startTime: '09:00',
-                                                                  endTime: addMinutesToTime('09:00', slotDuration),
-                                                              },
-                                                          ]
-                                                        : currentDay.timeRanges,
-                                            }))
-                                        }
-                                        onRangeChange={(rangeIndex, value) =>
-                                            updateDay(index, (currentDay) => ({
-                                                ...currentDay,
-                                                timeRanges: currentDay.timeRanges.map((range, currentRangeIndex) =>
-                                                    currentRangeIndex === rangeIndex ? value : range,
-                                                ),
-                                            }))
-                                        }
-                                        onAddRange={() =>
-                                            updateDay(index, (currentDay) => {
-                                                const previousEndTime =
-                                                    currentDay.timeRanges[currentDay.timeRanges.length - 1]?.endTime ??
-                                                    '09:00'
-
-                                                if (toMinutes(previousEndTime) >= 23 * 60 + 45) {
-                                                    return currentDay
-                                                }
-
-                                                return {
+                                <div className={styles.daysList}>
+                                    {schedule.map((day, index) => (
+                                        <DayScheduleRow
+                                            key={day.day}
+                                            data={day}
+                                            slotDuration={slotDuration}
+                                            canAddRange={
+                                                day.timeRanges.length === 0 ||
+                                                toMinutes(day.timeRanges[day.timeRanges.length - 1].endTime) <
+                                                    23 * 60 + 45
+                                            }
+                                            onToggleAvailability={(value) =>
+                                                updateDay(index, (currentDay) => ({
                                                     ...currentDay,
-                                                    timeRanges: [
-                                                        ...currentDay.timeRanges,
-                                                        {
-                                                            startTime: previousEndTime,
-                                                            endTime: addMinutesToTime(previousEndTime, slotDuration),
-                                                        },
-                                                    ],
-                                                }
-                                            })
-                                        }
-                                        onDeleteRange={(rangeIndex) =>
-                                            updateDay(index, (currentDay) => {
-                                                const nextRanges = currentDay.timeRanges.filter(
-                                                    (_, currentRangeIndex) => currentRangeIndex !== rangeIndex,
-                                                )
-
-                                                return {
+                                                    isAvailable: value,
+                                                    timeRanges:
+                                                        value && currentDay.timeRanges.length === 0
+                                                            ? [
+                                                                  {
+                                                                      startTime: '09:00',
+                                                                      endTime: addMinutesToTime('09:00', slotDuration),
+                                                                  },
+                                                              ]
+                                                            : currentDay.timeRanges,
+                                                }))
+                                            }
+                                            onRangeChange={(rangeIndex, value) =>
+                                                updateDay(index, (currentDay) => ({
                                                     ...currentDay,
-                                                    isAvailable: nextRanges.length > 0,
-                                                    timeRanges: nextRanges,
-                                                }
-                                            })
-                                        }
-                                    />
-                                ))}
-                            </div>
-                        </section>
+                                                    timeRanges: currentDay.timeRanges.map((range, currentRangeIndex) =>
+                                                        currentRangeIndex === rangeIndex ? value : range,
+                                                    ),
+                                                }))
+                                            }
+                                            onAddRange={() =>
+                                                updateDay(index, (currentDay) => {
+                                                    const previousEndTime =
+                                                        currentDay.timeRanges[currentDay.timeRanges.length - 1]
+                                                            ?.endTime ?? '09:00'
 
-                        <div className={styles.actions}>
-                            <button type="button" className={styles.secondaryButton} onClick={handleReset}>
-                                Cancel
-                            </button>
-                            <button
-                                type="button"
-                                className={styles.primaryButton}
-                                onClick={handleSave}
-                                disabled={isSaving || isLoadingAvailability}
-                            >
-                                {isSaving ? 'Saving...' : 'Save Changes'}
-                            </button>
+                                                    if (toMinutes(previousEndTime) >= 23 * 60 + 45) {
+                                                        return currentDay
+                                                    }
+
+                                                    return {
+                                                        ...currentDay,
+                                                        timeRanges: [
+                                                            ...currentDay.timeRanges,
+                                                            {
+                                                                startTime: previousEndTime,
+                                                                endTime: addMinutesToTime(
+                                                                    previousEndTime,
+                                                                    slotDuration,
+                                                                ),
+                                                            },
+                                                        ],
+                                                    }
+                                                })
+                                            }
+                                            onDeleteRange={(rangeIndex) =>
+                                                updateDay(index, (currentDay) => {
+                                                    const nextRanges = currentDay.timeRanges.filter(
+                                                        (_, currentRangeIndex) => currentRangeIndex !== rangeIndex,
+                                                    )
+
+                                                    return {
+                                                        ...currentDay,
+                                                        isAvailable: nextRanges.length > 0,
+                                                        timeRanges: nextRanges,
+                                                    }
+                                                })
+                                            }
+                                        />
+                                    ))}
+                                </div>
+                            </section>
+
+                            <div className={styles.actions}>
+                                <button type="button" className={styles.secondaryButton} onClick={handleReset}>
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    className={styles.primaryButton}
+                                    onClick={handleSave}
+                                    disabled={isSaving || isLoadingAvailability}
+                                >
+                                    {isSaving ? 'Saving...' : 'Save Changes'}
+                                </button>
+                            </div>
                         </div>
-                    </div>
                     )}
                 </div>
             </div>
