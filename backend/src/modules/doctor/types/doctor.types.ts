@@ -1,5 +1,35 @@
 import { Document, Types } from 'mongoose'
 
+export type WeekDay = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday'
+
+export interface TimeRange {
+    startTime: string
+    endTime: string
+}
+
+export interface WeeklySchedule {
+    day: WeekDay
+    isAvailable: boolean
+    timeRanges: TimeRange[]
+}
+
+export interface DoctorAvailability {
+    timezone: string
+    weeklySchedule: WeeklySchedule[]
+    slotDuration: number
+    startDate: string
+    endDate: string
+}
+
+export interface DoctorAvailabilityDocument extends Document {
+    doctorId: Types.ObjectId
+    timezone: string
+    weeklySchedule: WeeklySchedule[]
+    slotDuration: number
+    startDate?: Date
+    endDate?: Date
+}
+
 export interface DoctorSpecialization {
     name: string
     documentImage: string
