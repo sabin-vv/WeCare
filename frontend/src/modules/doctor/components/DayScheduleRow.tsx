@@ -18,7 +18,7 @@ export const DayScheduleRow = ({
         <div className={styles.container}>
             <div className={styles.left}>
                 <ToggleSwitch checked={data.isAvailable} onChange={onToggleAvailability} />
-                <span className={styles.day}>{data.day}</span>
+                <span className={styles.day}>{data.day.slice(0, 1).toUpperCase() + data.day.slice(1)}</span>
             </div>
 
             <div className={styles.right}>
@@ -29,6 +29,8 @@ export const DayScheduleRow = ({
                                 <TimeRangeInput
                                     value={range}
                                     slotDuration={slotDuration}
+                                    minStartTime={data.timeRanges[i - 1]?.endTime}
+                                    maxEndTime={data.timeRanges[i + 1]?.startTime}
                                     onChange={(value) => onRangeChange(i, value)}
                                     onDelete={() => onDeleteRange(i)}
                                 />
