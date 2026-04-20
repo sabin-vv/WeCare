@@ -1,4 +1,10 @@
-import type { DoctorProfile, DoctorProfileResponse, UpdateDoctorProfileData } from '../types/doctor.types'
+import type {
+    DoctorAvailability,
+    DoctorAvailabilityResponse,
+    DoctorProfile,
+    DoctorProfileResponse,
+    UpdateDoctorProfileData,
+} from '../types/doctor.types'
 
 import type { ApiInterface } from '@/modules/auth/api/auth.api.types'
 import { api } from '@/services/api'
@@ -19,4 +25,18 @@ export const updateDoctorProfile = async (data: UpdateDoctorProfileData): Promis
     const res = await api.put<DoctorProfileResponse>('/doctors/me', data)
 
     return res.data.data
+}
+
+const unwrapDoctorAvailability = (payload: DoctorAvailability | DoctorAvailabilityResponse) => {
+    return 'data' in payload ? payload.data : payload
+}
+
+export const getDoctorAvailability = async (): Promise<DoctorAvailability> => {
+    const res = await api.get<DoctorAvailability | DoctorAvailabilityResponse>('/doctors/availability')
+    return unwrapDoctorAvailability(res.data)
+}
+
+export const updateDoctorAvailability = async (data: DoctorAvailability): Promise<DoctorAvailability> => {
+    const res = await api.put<DoctorAvailability | DoctorAvailabilityResponse>('/doctors/availability', data)
+    return unwrapDoctorAvailability(res.data)
 }
