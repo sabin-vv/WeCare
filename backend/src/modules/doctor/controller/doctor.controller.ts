@@ -42,4 +42,26 @@ export class DoctorController {
 
         res.status(HTTP_STATUS.OK).json({ success: true, message: 'Profile updated', data: result })
     }
+
+    getAvailability = async (req: Request, res: Response) => {
+        const userId = req.user?.userId
+        if (!userId) {
+            throw new AppError(HTTP_STATUS.UNAUTHORIZED, 'User not authenticated')
+        }
+
+        const result = await this._doctorService.getAvailability(userId)
+
+        res.status(HTTP_STATUS.OK).json({ success: true, message: 'Doctor availability fetched', data: result })
+    }
+
+    updateAvailability = async (req: Request, res: Response) => {
+        const userId = req.user?.userId
+        if (!userId) {
+            throw new AppError(HTTP_STATUS.UNAUTHORIZED, 'User not authenticated')
+        }
+
+        const result = await this._doctorService.updateAvailability(userId, req.body)
+
+        res.status(HTTP_STATUS.OK).json({ success: true, message: 'Doctor availability updated', data: result })
+    }
 }
