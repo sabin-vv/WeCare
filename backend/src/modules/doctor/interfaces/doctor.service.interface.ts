@@ -1,4 +1,4 @@
-import { DoctorAvailability, DoctorDocument, DoctorProfileResponse, DoctorSearchResponse } from '../types/doctor.types'
+import { DoctorAvailability, DoctorDocument, DoctorProfileResponse, DoctorSearchResponse, DoctorSlotsResponse } from '../types/doctor.types'
 import { DoctorDTO } from '../validator/registerDoctor.schema'
 import { UpdateDoctorAvailabilityDTO } from '../validator/updateDoctorAvailability.schema'
 import { UpdateDoctorSettingsDTO } from '../validator/updateDoctorSettings.schema'
@@ -16,4 +16,6 @@ export interface IDoctorService {
         limit: number
     }): Promise<DoctorSearchResponse>
     getSpecialties(): Promise<string[]>
+    getDoctorById(doctorId: string): Promise<DoctorProfileResponse>
+    getDoctorSlots(doctorId: string, date: string): Promise<DoctorSlotsResponse>
 }
