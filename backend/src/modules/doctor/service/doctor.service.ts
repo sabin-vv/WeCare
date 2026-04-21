@@ -9,7 +9,16 @@ import { IDoctorRepository } from '../interfaces/doctor.repository.interface'
 import { IDoctorService } from '../interfaces/doctor.service.interface'
 import { IDoctorAvailabilityRepository } from '../interfaces/doctor-availability.repository.interface'
 import { toDoctorEntity, toDoctorProfileResponse } from '../mapper/doctor.mapper'
-import { DoctorAvailability, DoctorAvailabilityDocument, DoctorProfileResponse, WeekDay } from '../types/doctor.types'
+import {
+    DoctorAvailability,
+    DoctorAvailabilityDocument,
+    DoctorProfileResponse,
+    DoctorSearchFilter,
+    DoctorSearchResponse,
+    DoctorSearchResult,
+    PopulatedDoctorDocument,
+    WeekDay,
+} from '../types/doctor.types'
 import { DoctorDTO } from '../validator/registerDoctor.schema'
 import { UpdateDoctorAvailabilityDTO } from '../validator/updateDoctorAvailability.schema'
 import { UpdateDoctorSettingsDTO } from '../validator/updateDoctorSettings.schema'
@@ -149,5 +158,60 @@ export class DoctorService implements IDoctorService {
         })
 
         return normalizeAvailability(availability)
+    }
+
+    async searchDoctors(params: {
+        search?: string
+        specialty?: string
+        page: number
+        limit: number
+    }): Promise<DoctorSearchResponse> {
+        const filter: DoctorSearchFilter = { isActive: true }
+
+        if (params.specialty) {
+            filter['specializations.name'] = params.specialty
+        }
+
+        if (params.search) {
+            filter.$or = [
+                { 'specializations.name': { $regex: params.search, $options: 'i' } },
+                { 'userId.name': { $regex: params.search, $options: 'i' } },
+            ]
+        }
+
+        const { doctors, total } = await this._doctorRepo.search(filter, {
+            page: params.page || 1,
+            limit: params.limit || 8,
+        })
+
+        const mappedDoctors = doctors.map((doc: PopulatedDoctorDocument): DoctorSearchResult => {
+            const user = doc.userId
+            return {
+                id: doc._id.toString(),
+                name: user?.name || 'Unknown Doctor',
+                specialty: doc.specializations.map((s) => s.name).join(', '),
+                accent:
+                    typeof doc._id === 'object'
+                        ? doc._id.toString().length % 2 === 0
+                            ? '#6bc8c0'
+                            : '#dfeefe'
+                        : '#6bc8c0',
+                initials: user?.name
+                    ? user.name
+                          .split(' ')
+                          .map((n: string) => n[0])
+                          .join('')
+                    : 'DR',
+                profileImage: doc.profileImage,
+            }
+        })
+
+        const specialties = await this.getSpecialties()
+
+        return { doctors: mappedDoctors, specialties, total } as DoctorSearchResponse
+    }
+
+    async getSpecialties(): Promise<string[]> {
+        return this._doctorRepo.getSpecialties()
     }
 }
