@@ -9,6 +9,7 @@ import { IDoctorRepository } from '../interfaces/doctor.repository.interface'
 import { IDoctorService } from '../interfaces/doctor.service.interface'
 import { IDoctorAvailabilityRepository } from '../interfaces/doctor-availability.repository.interface'
 import { toDoctorEntity, toDoctorProfileResponse } from '../mapper/doctor.mapper'
+import { toDoctorSlotsResponse } from '../mapper/doctor-slots.mapper'
 import {
     DoctorAvailability,
     DoctorAvailabilityDocument,
@@ -16,6 +17,7 @@ import {
     DoctorSearchFilter,
     DoctorSearchResponse,
     DoctorSearchResult,
+    DoctorSlotsResponse,
     PopulatedDoctorDocument,
     WeekDay,
 } from '../types/doctor.types'
@@ -107,6 +109,20 @@ export class DoctorService implements IDoctorService {
         return toDoctorProfileResponse(user, doctor)
     }
 
+    async getDoctorById(doctorId: string): Promise<DoctorProfileResponse> {
+        const doctor = await this._doctorRepo.findById(doctorId)
+        if (!doctor) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'Doctor not found')
+        }
+
+        const user = await this._userRepo.findById(doctor.userId.toString())
+        if (!user) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'User not found')
+        }
+
+        return toDoctorProfileResponse(user, doctor)
+    }
+
     async updateProfile(userId: string, dto: UpdateDoctorSettingsDTO): Promise<DoctorProfileResponse> {
         const existingDoctor = await this._doctorRepo.findByUserId(new Types.ObjectId(userId))
         if (!existingDoctor) {
@@ -190,18 +206,6 @@ export class DoctorService implements IDoctorService {
                 id: doc._id.toString(),
                 name: user?.name || 'Unknown Doctor',
                 specialty: doc.specializations.map((s) => s.name).join(', '),
-                accent:
-                    typeof doc._id === 'object'
-                        ? doc._id.toString().length % 2 === 0
-                            ? '#6bc8c0'
-                            : '#dfeefe'
-                        : '#6bc8c0',
-                initials: user?.name
-                    ? user.name
-                          .split(' ')
-                          .map((n: string) => n[0])
-                          .join('')
-                    : 'DR',
                 profileImage: doc.profileImage,
             }
         })
@@ -213,5 +217,16 @@ export class DoctorService implements IDoctorService {
 
     async getSpecialties(): Promise<string[]> {
         return this._doctorRepo.getSpecialties()
+    }
+
+    async getDoctorSlots(doctorId: string, date: string): Promise<DoctorSlotsResponse> {
+        const doctor = await this._doctorRepo.findById(doctorId)
+        if (!doctor) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'Doctor not found')
+        }
+
+        const availability = await this._doctorAvailabilityRepo.findByDoctorId(doctor._id as Types.ObjectId)
+
+        return toDoctorSlotsResponse(doctorId, date, availability)
     }
 }
