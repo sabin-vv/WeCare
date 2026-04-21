@@ -1,5 +1,7 @@
 import { Document, Types } from 'mongoose'
 
+import { UserDocument } from '../../auth/types/auth.types'
+
 export type WeekDay = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday'
 
 export interface TimeRange {
@@ -54,7 +56,7 @@ type specialization = {
     documentImage: string
 }
 
-type verificationStataus = 'pending' | 'verified' | 'rejected'
+type verificationStatus = 'pending' | 'verified' | 'rejected'
 
 export interface DoctorDocument extends Document {
     userId: Types.ObjectId
@@ -63,7 +65,7 @@ export interface DoctorDocument extends Document {
 
     specializations: specialization[]
 
-    verificationStatus: verificationStataus
+    verificationStatus: verificationStatus
     verifiedBy: Types.ObjectId
     verifiedAt: Date
     rejectReason: string
@@ -89,5 +91,34 @@ export interface DoctorProfileResponse {
     medicalCouncilRegistrationNumber: string
     experienceCertificatesCount: number
     isActive: boolean
-    verificationStatus: verificationStataus
+    verificationStatus: verificationStatus
+}
+
+export interface PopulatedDoctorDocument extends Omit<DoctorDocument, 'userId'> {
+    userId: UserDocument
+}
+
+export interface DoctorSearchResult {
+    id: string
+    name: string
+    specialty: string
+    accent: string
+    initials: string
+    profileImage?: string
+}
+
+export interface DoctorSearchResponse {
+    doctors: DoctorSearchResult[]
+    specialties: string[]
+    total: number
+}
+
+export interface DoctorSearchFilter {
+    isActive?: boolean
+    'specializations.name'?: string
+    'userId.name'?: string
+    $or?: Array<{
+        'specializations.name'?: { $regex: string; $options: string }
+        'userId.name'?: { $regex: string; $options: string }
+    }>
 }
