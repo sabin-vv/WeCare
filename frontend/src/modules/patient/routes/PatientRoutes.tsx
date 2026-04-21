@@ -1,10 +1,10 @@
 import type { RouteObject } from 'react-router-dom'
 
-import PatientDashboard from '../pages/PatientDashboard'
+import DoctorBookingPage from '../pages/DoctorBookingPage'
 
 export const PatientRoutes: RouteObject[] = [
     {
-        path: '/patient/dashboard',
-        element: <PatientDashboard />,
+        path: '/appointments',
+        element: <DoctorBookingPage />,
     },
 ]
