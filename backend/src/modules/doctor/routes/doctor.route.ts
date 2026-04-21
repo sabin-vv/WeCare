@@ -14,6 +14,8 @@ export const createDoctorRoutes = () => {
     const doctorController = container.resolve(DoctorController)
 
     router.get('/', doctorController.searchDoctors)
+    router.get('/:doctorId', doctorController.getDoctorById)
+    router.get('/:doctorId/slots', doctorController.getDoctorSlots)
 
     router.use(requireAuth)
 
