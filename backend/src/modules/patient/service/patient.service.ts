@@ -8,8 +8,7 @@ import { toUserEntity } from '../../auth/mapper/auth.mapper'
 import { UserRole } from '../../auth/types/auth.types'
 import { IPatientRepository } from '../interfaces/patient.repository.interface'
 import { IPatientService } from '../interfaces/patient.service.interface'
-import { toPatientEntity } from '../mapper/patient.mapper'
-import { PatientDocument } from '../types/patient.types'
+import { PatientResponseDTO, toPatientEntity, toPatientResponseDTO } from '../mapper/patient.mapper'
 import { RegisterPatientDTO } from '../validator/patient.schema'
 
 const STARTING_ID = 1000
@@ -27,7 +26,7 @@ export class PatientService implements IPatientService {
         return String(nextNumber)
     }
 
-    async registerPatient(dto: RegisterPatientDTO): Promise<PatientDocument> {
+    async registerPatient(dto: RegisterPatientDTO): Promise<PatientResponseDTO> {
         const existing = await this._userRepo.findByEmail(dto.email)
         if (existing) throw new AppError(HTTP_STATUS.BAD_REQUEST, 'User already exist')
 
@@ -36,6 +35,7 @@ export class PatientService implements IPatientService {
 
         const patientId = await this.generateNextPatientId()
         const patientData = toPatientEntity(user._id, patientId, dto)
-        return this._patientRepo.create(patientData)
+        const patient = await this._patientRepo.create(patientData)
+        return toPatientResponseDTO(patient)
     }
 }

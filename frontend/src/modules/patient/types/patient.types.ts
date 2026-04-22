@@ -54,6 +54,8 @@ export interface Appointment {
 
 export interface RazorpayOrderResponse {
     id: string
-    amount: number
+    amount: number | string
     currency: string
+    receipt?: string
+    status?: string
 }

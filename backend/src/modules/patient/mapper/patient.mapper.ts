@@ -1,7 +1,18 @@
 import { Types } from 'mongoose'
 
-import { PatientEntity } from '../types/patient.types'
+import { PatientDocument, PatientEntity } from '../types/patient.types'
 import { RegisterPatientDTO } from '../validator/patient.schema'
+
+export interface PatientResponseDTO {
+    id: string
+    userId: string
+    patientId: string
+    dateOfBirth: string
+    gender: string
+    mobile: string
+    profileImage?: string
+    isActive: boolean
+}
 
 export const toPatientEntity = (userId: Types.ObjectId, patientId: string, dto: RegisterPatientDTO): PatientEntity => {
     return {
@@ -10,6 +21,19 @@ export const toPatientEntity = (userId: Types.ObjectId, patientId: string, dto: 
         dateOfBirth: new Date(dto.dateOfBirth),
         gender: dto.gender,
         mobile: dto.mobile,
+    }
+}
+
+export const toPatientResponseDTO = (patient: PatientDocument): PatientResponseDTO => {
+    return {
+        id: patient._id.toString(),
+        userId: patient.userId.toString(),
+        patientId: patient.patientId,
+        dateOfBirth: patient.dateOfBirth.toISOString(),
+        gender: patient.gender,
+        mobile: patient.mobile,
+        profileImage: patient.profileImage,
+        isActive: patient.isActive,
     }
 }
 

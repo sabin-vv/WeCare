@@ -5,6 +5,7 @@ import type {
     GetDoctorsParams,
     Specialist,
     VerifyPaymentRequest,
+    RazorpayOrderResponse,
 } from '../types/patient.types'
 
 import { api } from '@/services/api'
@@ -33,13 +34,13 @@ export const getDoctorSlots = async (doctorId: string, date: string): Promise<Do
     return response.data.data
 }
 
-export const createAppointment = async (data: CreateAppointmentRequest): Promise<any> => {
-    const response = await api.post<{ data: any }>('/appointments', data)
+export const createAppointment = async (data: CreateAppointmentRequest): Promise<RazorpayOrderResponse> => {
+    const response = await api.post<{ data: RazorpayOrderResponse }>('/appointments', data)
     return response.data.data
 }
 
-export const verifyPayment = async (data: VerifyPaymentRequest): Promise<any> => {
-    const response = await api.post<{ data: any }>('/appointments/verify', data)
+export const verifyPayment = async (data: VerifyPaymentRequest): Promise<Appointment> => {
+    const response = await api.post<{ data: Appointment }>('/appointments/verify', data)
     return response.data.data
 }
 

@@ -1,6 +1,6 @@
-import { PatientDocument } from '../types/patient.types'
+import { PatientResponseDTO } from '../mapper/patient.mapper'
 import { RegisterPatientDTO } from '../validator/patient.schema'
 
 export interface IPatientService {
-    registerPatient(dto: RegisterPatientDTO): Promise<PatientDocument>
+    registerPatient(dto: RegisterPatientDTO): Promise<PatientResponseDTO>
 }
