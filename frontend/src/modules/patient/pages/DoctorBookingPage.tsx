@@ -121,7 +121,7 @@ const DoctorBookingPage = () => {
                             <button 
                                 type="button" 
                                 className={styles.bookButton}
-                                onClick={() => navigate(`/appointments/doctor/${doctor.id}`)}
+                                onClick={() => navigate(`/doctors/${doctor.id}`)}
                             >
                                 Book Appointment
                             </button>
