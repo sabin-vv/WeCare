@@ -5,7 +5,8 @@ export enum UserRole {
     ADMIN = 'admin',
 }
 
-import { Document, Types } from 'mongoose'
+import { Document } from 'mongoose'
+
 import { UserResponseDTO } from '../mapper/auth.mapper'
 
 export interface UserDocument extends Document {

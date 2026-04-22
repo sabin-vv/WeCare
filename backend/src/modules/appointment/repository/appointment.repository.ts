@@ -1,4 +1,5 @@
 import { singleton } from 'tsyringe'
+
 import { AppointmentModel } from '../models/appointment.model'
 import { AppointmentDocument } from '../types/appointment.types'
 

@@ -6,6 +6,8 @@ import { IAdminRepository } from '../modules/admin/interfaces/admin.repository.i
 import { IAdminService } from '../modules/admin/interfaces/admin.service.interface'
 import { AdminRepository } from '../modules/admin/repository/admin.repository'
 import { AdminService } from '../modules/admin/service/admin.service'
+import { AppointmentRepository } from '../modules/appointment/repository/appointment.repository'
+import { AppointmentService } from '../modules/appointment/service/appointment.service'
 import { IAuthService } from '../modules/auth/interfaces/auth.service.interface'
 import { IOtpService } from '../modules/auth/interfaces/otp.service.interface'
 import { IUserRepository } from '../modules/auth/interfaces/user.repository.interface'
@@ -26,8 +28,6 @@ import { IPatientRepository } from '../modules/patient/interfaces/patient.reposi
 import { IPatientService } from '../modules/patient/interfaces/patient.service.interface'
 import { PatientRepository } from '../modules/patient/repository/patient.repository'
 import { PatientService } from '../modules/patient/service/patient.service'
-import { AppointmentRepository } from '../modules/appointment/repository/appointment.repository'
-import { AppointmentService } from '../modules/appointment/service/appointment.service'
 import { TOKENS } from './tokens'
 
 container.register<IUserRepository>(TOKENS.IUserRepository, { useClass: UserRepository })

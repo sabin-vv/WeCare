@@ -1,8 +1,8 @@
+import { UserResponseDTO } from '../mapper/auth.mapper'
 import { LoginResponse, UserRole } from '../types/auth.types'
 import { OtpRequestPurpose } from '../types/otp.types'
 import { ChangePasswordDTO, ResetPasswordDTO } from '../validator/auth.schema'
 import { RegisterDTO } from '../validator/auth.schema'
-import { UserResponseDTO } from '../mapper/auth.mapper'
 
 export interface IAuthService {
     register(dto: RegisterDTO): Promise<UserResponseDTO>

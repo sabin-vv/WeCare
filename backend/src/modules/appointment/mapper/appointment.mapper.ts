@@ -1,4 +1,5 @@
 import { Types } from 'mongoose'
+
 import { AppointmentDocument } from '../types/appointment.types'
 
 export interface PopulatedUser {
