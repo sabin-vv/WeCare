@@ -25,6 +25,22 @@ type DoctorInfo = {
     consultationFee: number
 }
 
+interface RazorpayResponse {
+    razorpay_order_id: string
+    razorpay_payment_id: string
+    razorpay_signature: string
+}
+
+declare global {
+    interface Window {
+        Razorpay: {
+            new (options: unknown): {
+                open(): void
+            }
+        }
+    }
+}
+
 const DoctorAvailabilityPage = () => {
     const { doctorId } = useParams<{ doctorId: string }>()
     const navigate = useNavigate()
@@ -123,7 +139,7 @@ const DoctorAvailabilityPage = () => {
                 name: 'WeCare',
                 description: `Appointment with ${doctor?.fullName}`,
                 order_id: order.id,
-                handler: async (response: any) => {
+                handler: async (response: RazorpayResponse) => {
                     try {
                         await verifyPayment({
                             razorpayOrderId: response.razorpay_order_id,
@@ -152,7 +168,7 @@ const DoctorAvailabilityPage = () => {
                 },
             }
 
-            const rzp = new (window as any).Razorpay(options)
+            const rzp = new window.Razorpay(options)
             rzp.open()
         } catch (err) {
             console.error('Booking failed:', err)
