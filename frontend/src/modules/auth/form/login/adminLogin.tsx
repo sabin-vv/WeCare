@@ -85,7 +85,6 @@ const AdminLogin = () => {
                         id="password"
                         {...register('password')}
                         error={errors.password?.message}
-                        onForgotPassword={() => toast('Please contact the IT department for password recovery')}
                     />
                 </div>
 
