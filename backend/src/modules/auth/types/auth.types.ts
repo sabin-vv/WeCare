@@ -4,7 +4,9 @@ export enum UserRole {
     PATIENT = 'patient',
     ADMIN = 'admin',
 }
+
 import { Document, Types } from 'mongoose'
+import { UserResponseDTO } from '../mapper/auth.mapper'
 
 export interface UserDocument extends Document {
     name: string
@@ -19,16 +21,7 @@ export interface UserDocument extends Document {
 export type MulterFiles = Record<string, Express.Multer.File[]>
 
 export interface LoginResponse {
-    user: {
-        id: Types.ObjectId
-        name: string
-        email: string
-        role: string
-        isProfileComplete: boolean
-        profileImage?: string
-        specialization?: string
-        verificationStatus?: string
-    }
+    user: UserResponseDTO
     tokens: {
         accessToken: string
         refreshToken: string

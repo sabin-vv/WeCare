@@ -12,7 +12,7 @@ import { IDoctorRepository } from '../../doctor/interfaces/doctor.repository.int
 import { IPatientRepository } from '../../patient/interfaces/patient.repository.interface'
 import { IAuthService } from '../interfaces/auth.service.interface'
 import { IUserRepository } from '../interfaces/user.repository.interface'
-import { toUserEntity } from '../mapper/auth.mapper'
+import { toUserEntity, toUserResponseDTO } from '../mapper/auth.mapper'
 import { UserRole } from '../types/auth.types'
 import { OtpRequestPurpose } from '../types/otp.types'
 import { ChangePasswordDTO, RegisterDTO, ResetPasswordDTO } from '../validator/auth.schema'
@@ -89,16 +89,7 @@ export class AuthService implements IAuthService {
         const profile = await this.getCurrentUser(user._id.toString(), user.role)
 
         return {
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                isProfileComplete: user.isProfileComplete,
-                profileImage: profile.profileImage,
-                specialization: profile.specialization,
-                verificationStatus: profile.verificationStatus,
-            },
+            user: toUserResponseDTO(user, profile),
             tokens: {
                 accessToken,
                 refreshToken,
