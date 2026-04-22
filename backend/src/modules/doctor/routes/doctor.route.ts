@@ -14,16 +14,20 @@ export const createDoctorRoutes = () => {
     const doctorController = container.resolve(DoctorController)
 
     router.get('/', doctorController.searchDoctors)
+
+    router.get('/me', requireAuth, doctorController.getProfile)
+    router.put('/me', requireAuth, upload.none(), validate(UpdateDoctorSettingsSchema), doctorController.updateProfile)
+    router.get('/availability', requireAuth, doctorController.getAvailability)
+    router.put(
+        '/availability',
+        requireAuth,
+        validate(UpdateDoctorAvailabilitySchema),
+        doctorController.updateAvailability,
+    )
+    router.post('/profile', requireAuth, upload.none(), validate(DoctorSchema), doctorController.createProfile)
+
     router.get('/:doctorId', doctorController.getDoctorById)
     router.get('/:doctorId/slots', doctorController.getDoctorSlots)
-
-    router.use(requireAuth)
-
-    router.get('/me', doctorController.getProfile)
-    router.put('/me', upload.none(), validate(UpdateDoctorSettingsSchema), doctorController.updateProfile)
-    router.get('/availability', doctorController.getAvailability)
-    router.put('/availability', validate(UpdateDoctorAvailabilitySchema), doctorController.updateAvailability)
-    router.post('/profile', upload.none(), validate(DoctorSchema), doctorController.createProfile)
 
     return router
 }

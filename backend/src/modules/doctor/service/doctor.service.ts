@@ -8,6 +8,7 @@ import { IUserRepository } from '../../auth/interfaces/user.repository.interface
 import { IDoctorRepository } from '../interfaces/doctor.repository.interface'
 import { IDoctorService } from '../interfaces/doctor.service.interface'
 import { IDoctorAvailabilityRepository } from '../interfaces/doctor-availability.repository.interface'
+import { AppointmentRepository } from '../../appointment/repository/appointment.repository'
 import { toDoctorEntity, toDoctorProfileResponse } from '../mapper/doctor.mapper'
 import { toDoctorSlotsResponse } from '../mapper/doctor-slots.mapper'
 import {
@@ -79,6 +80,7 @@ export class DoctorService implements IDoctorService {
         @inject(TOKENS.IDoctorRepository) private _doctorRepo: IDoctorRepository,
         @inject(TOKENS.IDoctorAvailabilityRepository)
         private _doctorAvailabilityRepo: IDoctorAvailabilityRepository,
+        @inject(TOKENS.IAppointmentRepository) private _appointmentRepo: AppointmentRepository,
     ) {}
 
     async createProfile(userId: string, dto: DoctorDTO) {
@@ -226,7 +228,8 @@ export class DoctorService implements IDoctorService {
         }
 
         const availability = await this._doctorAvailabilityRepo.findByDoctorId(doctor._id as Types.ObjectId)
+        const appointments = await this._appointmentRepo.findActiveAppointments(doctor.userId.toString(), date)
 
-        return toDoctorSlotsResponse(doctorId, date, availability)
+        return toDoctorSlotsResponse(doctorId, date, availability, appointments)
     }
 }

@@ -11,7 +11,7 @@ import { DoctorAvailabilityDocument } from '../types/doctor.types'
 @injectable()
 export class DoctorAvailabilityRepository implements IDoctorAvailabilityRepository {
     async findByDoctorId(doctorId: Types.ObjectId): Promise<DoctorAvailabilityDocument | null> {
-        return DoctorAvailabilityModel.findOne({ doctorId })
+        return DoctorAvailabilityModel.findOne({ doctorId }).lean()
     }
 
     async createOrUpdateByDoctorId(
@@ -25,7 +25,7 @@ export class DoctorAvailabilityRepository implements IDoctorAvailabilityReposito
                 doctorId,
             },
             { upsert: true, new: true, setDefaultsOnInsert: true },
-        )
+        ).lean()
 
         if (!availability) {
             throw new Error('Doctor availability could not be created or updated')
