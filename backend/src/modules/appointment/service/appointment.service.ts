@@ -10,8 +10,13 @@ import { AppError } from '../../../core/errors/AppError'
 import { IAdminRepository } from '../../admin/interfaces/admin.repository.interface'
 import { IDoctorRepository } from '../../doctor/interfaces/doctor.repository.interface'
 import { IAppointmentService } from '../interfaces/appointment.service.interface'
+import { RazorpayOrder } from '../interfaces/appointment.service.interface'
+import {
+    AppointmentResponseDTO,
+    toAppointmentListResponseDTO,
+    toAppointmentResponseDTO,
+} from '../mapper/appointment.mapper'
 import { AppointmentRepository } from '../repository/appointment.repository'
-import { AppointmentDocument } from '../types/appointment.types'
 
 @injectable()
 export class AppointmentService implements IAppointmentService {
@@ -28,7 +33,12 @@ export class AppointmentService implements IAppointmentService {
         })
     }
 
-    async createOrder(patientId: string, doctorId: string, appointmentDate: string, slotStart: string): Promise<any> {
+    async createOrder(
+        patientId: string,
+        doctorId: string,
+        appointmentDate: string,
+        slotStart: string,
+    ): Promise<RazorpayOrder> {
         const doctor = await this._doctorRepo.findById(doctorId)
         if (!doctor) {
             throw new AppError(HTTP_STATUS.NOT_FOUND, 'Doctor not found')
@@ -78,14 +88,14 @@ export class AppointmentService implements IAppointmentService {
             razorpayOrderId: order.id,
         })
 
-        return order
+        return order as RazorpayOrder
     }
 
     async verifyPayment(
         razorpayOrderId: string,
         razorpayPaymentId: string,
         razorpaySignature: string,
-    ): Promise<AppointmentDocument> {
+    ): Promise<AppointmentResponseDTO> {
         const secret = env.RAZORPAY_KEY_SECRET
         const body = razorpayOrderId + '|' + razorpayPaymentId
 
@@ -113,14 +123,16 @@ export class AppointmentService implements IAppointmentService {
             throw new AppError(HTTP_STATUS.INTERNAL_SERVER_ERROR, 'Failed to update appointment')
         }
 
-        return updatedAppointment
+        return toAppointmentResponseDTO(updatedAppointment)
     }
 
-    async getPatientAppointments(patientId: string): Promise<AppointmentDocument[]> {
-        return await this._appointmentRepo.findByPatientId(patientId)
+    async getPatientAppointments(patientId: string): Promise<AppointmentResponseDTO[]> {
+        const appointments = await this._appointmentRepo.findByPatientId(patientId)
+        return toAppointmentListResponseDTO(appointments)
     }
 
-    async getDoctorAppointments(doctorId: string): Promise<AppointmentDocument[]> {
-        return await this._appointmentRepo.findByDoctorId(doctorId)
+    async getDoctorAppointments(doctorId: string): Promise<AppointmentResponseDTO[]> {
+        const appointments = await this._appointmentRepo.findByDoctorId(doctorId)
+        return toAppointmentListResponseDTO(appointments)
     }
 }
