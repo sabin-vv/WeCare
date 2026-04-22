@@ -143,6 +143,7 @@ const DoctorDetailsForm = () => {
                 profileImage: profile.data.profileImage,
                 specialization: profile.data.specialization,
                 verificationStatus: profile.data.verificationStatus,
+                isProfileComplete: true,
             })
             navigate('/doctor/dashboard')
         } catch (error: unknown) {

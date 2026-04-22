@@ -41,7 +41,8 @@ export class AuthService implements IAuthService {
 
         const userData = await toUserEntity(dto, dto.role)
 
-        return await this._userRepo.create({ ...userData, isProfileComplete: false })
+        const user = await this._userRepo.create({ ...userData, isProfileComplete: false })
+        return toUserResponseDTO(user)
     }
 
     async sendOtp(email: string, purpose: OtpRequestPurpose) {

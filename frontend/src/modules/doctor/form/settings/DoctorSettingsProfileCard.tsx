@@ -8,11 +8,23 @@ const DoctorSettingsProfileCard = ({
     profileImageUrl,
     onToggleStatus,
     isActive,
+    onImageSelect,
+    isUploadingImage,
 }: DoctorSettingsProfileCardProps) => {
     return (
         <section className={styles.profileCard}>
             <div className={styles.profileMeta}>
-                <div className={styles.avatarWrap}>
+                <div
+                    className={`${styles.avatarWrap} ${isUploadingImage ? styles.uploading : ''}`}
+                    onClick={() => !isUploadingImage && document.getElementById('doctorProfileImageInput')?.click()}
+                >
+                    <input
+                        type="file"
+                        id="doctorProfileImageInput"
+                        accept="image/*"
+                        onChange={onImageSelect}
+                        style={{ display: 'none' }}
+                    />
                     {profileImageUrl ? (
                         <img src={profileImageUrl} alt={savedState.fullName} className={styles.avatar} />
                     ) : (
@@ -25,9 +37,7 @@ const DoctorSettingsProfileCard = ({
 
                 <div>
                     <h1 className={styles.doctorName}>Dr. {savedState.fullName}</h1>
-                    <p className={styles.doctorMetaLine}>
-                        {savedState.email}
-                    </p>
+                    <p className={styles.doctorMetaLine}>{savedState.email}</p>
                 </div>
             </div>
 

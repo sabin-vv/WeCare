@@ -22,6 +22,8 @@ export interface DoctorSettingsProfileCardProps {
     profileImageUrl: string
     isActive: boolean
     onToggleStatus: () => void
+    onImageSelect: (e: ChangeEvent<HTMLInputElement>) => void
+    isUploadingImage: boolean
 }
 
 export interface DoctorSettingsActionsProps {
@@ -78,7 +80,7 @@ export interface DoctorProfileResponse extends ApiInterface {
 
 export type UpdateDoctorProfileData = Pick<
     DoctorProfile,
-    'fullName' | 'consultationFee' | 'phoneNumber' | 'email' | 'isActive'
+    'fullName' | 'consultationFee' | 'phoneNumber' | 'email' | 'isActive' | 'profileImage'
 >
 
 export interface TimeRange {

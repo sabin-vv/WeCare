@@ -48,6 +48,17 @@
 
 .avatarWrap {
     position: relative;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.avatarWrap:hover {
+    opacity: 0.8;
+}
+
+.uploading {
+    opacity: 0.5;
+    cursor: wait;
 }
 
 .avatar,

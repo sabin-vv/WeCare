@@ -8,6 +8,7 @@ export const UpdateDoctorSettingsSchema = z.object({
     phoneNumber: mobileSchema,
     email: emailschema,
     isActive: z.boolean().optional(),
+    profileImage: z.string().optional(),
 })
 
 export type UpdateDoctorSettingsDTO = z.infer<typeof UpdateDoctorSettingsSchema>

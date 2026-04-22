@@ -73,7 +73,8 @@ export class CaregiverService implements ICaregiverService {
 
         const caregiver = await this._caregiverRepo.updateByUserId(new Types.ObjectId(userId), {
             phoneNumber: dto.phoneNumber,
-            ...(dto.isActive !== undefined ? { isActive: dto.isActive } : {}),
+            isActive: dto.isActive !== undefined ? dto.isActive : existingCaregiver.isActive,
+            profileImage: dto.profileImage || existingCaregiver.profileImage,
         })
         if (!caregiver) {
             throw new AppError(HTTP_STATUS.NOT_FOUND, 'Caregiver profile not found')

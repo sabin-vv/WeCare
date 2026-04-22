@@ -139,7 +139,8 @@ export class DoctorService implements IDoctorService {
 
         const doctor = await this._doctorRepo.updateByUserId(new Types.ObjectId(userId), {
             consultationFee: dto.consultationFee,
-            ...(dto.isActive !== undefined ? { isActive: dto.isActive } : {}),
+            isActive: dto.isActive !== undefined ? dto.isActive : existingDoctor.isActive,
+            profileImage: dto.profileImage || existingDoctor.profileImage,
         })
 
         const updatedUser = await this._userRepo.findById(userId)

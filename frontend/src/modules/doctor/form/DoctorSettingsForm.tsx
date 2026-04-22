@@ -12,10 +12,11 @@ import DoctorSecuritySection from './settings/DoctorSecuritySection'
 import DoctorSettingsActions from './settings/DoctorSettingsActions'
 import DoctorSettingsProfileCard from './settings/DoctorSettingsProfileCard'
 
-import { changePassword, sendOtp, verifyOtp } from '@/modules/auth/api/auth.api'
+import { changePassword, getCurrentUser, presignUpload, sendOtp, uploadToS3, verifyOtp } from '@/modules/auth/api/auth.api'
 import OtpVerification from '@/modules/auth/components/OtpVerification'
 import { OtpPurpose } from '@/modules/auth/types/auth.types'
 import ChangePasswordForm from '@/shared/components/ChangePasswordForm'
+import ImageCropper from '@/shared/components/ImageCropper/ImageCropper'
 import Modal from '@/shared/components/Modal/Modal'
 import { useAuth } from '@/shared/context/AuthContext'
 import { getErrorMessage } from '@/utils/getErrorMessage'
@@ -53,6 +54,9 @@ const DoctorSettingsForm = () => {
 
     const [showPasswordModal, setShowPasswordModal] = useState(false)
     const [isChangingPassword, setIsChangingPassword] = useState(false)
+
+    const [imageCrop, setImageCrop] = useState<string | null>(null)
+    const [isUploadingImage, setIsUploadingImage] = useState(false)
 
     useEffect(() => {
         if (!showEmailOtpModal || !pendingEmail || otpSent) return
@@ -211,6 +215,58 @@ const DoctorSettingsForm = () => {
         }
     }
 
+    const handleImageSelect = (e: ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            const reader = new FileReader()
+            reader.onload = () => {
+                setImageCrop(reader.result as string)
+            }
+            reader.readAsDataURL(file)
+        }
+    }
+
+    const handleCropComplete = async (croppedFile: File) => {
+        setImageCrop(null)
+        setIsUploadingImage(true)
+        const toastId = toast.loading('Uploading profile image...')
+
+        try {
+            // 1. Presign upload
+            const presignRes = await presignUpload({
+                fileName: croppedFile.name,
+                contentType: croppedFile.type as 'image/png' | 'image/jpeg',
+                folder: 'documents/doctorProfile',
+                size: croppedFile.size,
+            })
+
+            // 2. Upload to S3
+            await uploadToS3(presignRes.uploadUrl, croppedFile)
+
+            // 3. Update profile
+            await updateDoctorProfile({
+                ...formState,
+                consultationFee: Number(formState.consultationFee),
+                profileImage: presignRes.key,
+            })
+
+            // 4. Update auth context
+            const profile = await getCurrentUser()
+            if (user) {
+                setAuth({
+                    ...user,
+                    profileImage: profile.data.profileImage,
+                })
+            }
+
+            toast.success('Profile image updated successfully', { id: toastId })
+        } catch (error) {
+            toast.error(getErrorMessage(error), { id: toastId })
+        } finally {
+            setIsUploadingImage(false)
+        }
+    }
+
     if (isLoadingProfile) {
         return (
             <div className={styles.container}>
@@ -229,6 +285,8 @@ const DoctorSettingsForm = () => {
                     profileImageUrl={profileImageUrl}
                     isActive={formState.isActive}
                     onToggleStatus={handleToggleStatus}
+                    onImageSelect={handleImageSelect}
+                    isUploadingImage={isUploadingImage}
                 />
 
                 <DoctorPersonalInfoSection
@@ -276,6 +334,14 @@ const DoctorSettingsForm = () => {
                 onSubmit={handleChangePassword}
                 isLoading={isChangingPassword}
             />
+
+            {imageCrop && (
+                <ImageCropper
+                    image={imageCrop}
+                    onCropComplete={handleCropComplete}
+                    onClose={() => setImageCrop(null)}
+                />
+            )}
         </div>
     )
 }
