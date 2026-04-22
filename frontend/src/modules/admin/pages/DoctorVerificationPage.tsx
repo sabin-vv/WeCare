@@ -242,6 +242,15 @@ const DoctorVerificationPage = () => {
                     year: 'numeric',
                 }),
         },
+        {
+            header: 'Documents',
+            key: 'documents' as keyof PendingDoctor,
+            render: (doctor: PendingDoctor) => (
+                <button onClick={() => openDocumentViewer(doctor)} className={styles.viewDocBtn}>
+                    📄 View
+                </button>
+            ),
+        },
     ]
 
     return (
@@ -290,20 +299,22 @@ const DoctorVerificationPage = () => {
                 onClose={() => setIsModalOpen(false)}
                 title={`Verification: Dr. ${selectedDoctor?.name}`}
                 footer={
-                    <>
-                        <button
-                            className={styles.rejectBtn}
-                            onClick={() => selectedDoctor && handleAction(selectedDoctor._id, 'rejected')}
-                        >
-                            Reject
-                        </button>
-                        <button
-                            className={styles.approveBtn}
-                            onClick={() => selectedDoctor && handleAction(selectedDoctor._id, 'verified')}
-                        >
-                            Approve
-                        </button>
-                    </>
+                    selectedDoctor?.verificationStatus === 'pending' ? (
+                        <>
+                            <button
+                                className={styles.rejectBtn}
+                                onClick={() => selectedDoctor && handleAction(selectedDoctor._id, 'rejected')}
+                            >
+                                Reject
+                            </button>
+                            <button
+                                className={styles.approveBtn}
+                                onClick={() => selectedDoctor && handleAction(selectedDoctor._id, 'verified')}
+                            >
+                                Approve
+                            </button>
+                        </>
+                    ) : null
                 }
             >
                 {selectedDoctor && (
@@ -359,12 +370,14 @@ const DoctorVerificationPage = () => {
                                         <span>Verified</span>
                                     </div>
                                 ) : (
-                                    <button
-                                        className={styles.specVerifyBtn}
-                                        onClick={() => handleSpecVerify(currentSpecIndex)}
-                                    >
-                                        Verify This Certificate
-                                    </button>
+                                    selectedDoctor?.verificationStatus === 'pending' && (
+                                        <button
+                                            className={styles.specVerifyBtn}
+                                            onClick={() => handleSpecVerify(currentSpecIndex)}
+                                        >
+                                            Verify This Certificate
+                                        </button>
+                                    )
                                 )}
                             </div>
                         )}
