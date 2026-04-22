@@ -110,6 +110,22 @@ const CaregiverVerificationPage = () => {
         },
     ]
 
+    const recentColumnsWithView = [
+        ...recentCaregiverColumns,
+        {
+            header: 'Documents',
+            key: 'documents' as keyof RecentCaregiver,
+            render: (caregiver: RecentCaregiver) => (
+                <button
+                    onClick={() => openDocumentViewer(caregiver as unknown as PendingCaregiver)}
+                    className={styles.viewDocBtn}
+                >
+                    📄 View
+                </button>
+            ),
+        },
+    ]
+
     return (
         <div className={styles.container}>
             <PageHeader
@@ -145,7 +161,7 @@ const CaregiverVerificationPage = () => {
                 <h2 className={styles.recentTitle}>Recent Verifications</h2>
                 <DataTable
                     data={recentCaregivers}
-                    columns={recentCaregiverColumns}
+                    columns={recentColumnsWithView}
                     keyExtractor={(caregiver) => caregiver._id}
                     isLoading={recentLoading}
                 />
@@ -156,20 +172,22 @@ const CaregiverVerificationPage = () => {
                 onClose={() => setIsModalOpen(false)}
                 title={`Verification: ${selectedCaregiver?.name || ''}`}
                 footer={
-                    <>
-                        <button
-                            className={styles.rejectBtn}
-                            onClick={() => selectedCaregiver && handleAction(selectedCaregiver._id, 'rejected')}
-                        >
-                            Reject
-                        </button>
-                        <button
-                            className={styles.approveBtn}
-                            onClick={() => selectedCaregiver && handleAction(selectedCaregiver._id, 'verified')}
-                        >
-                            Approve
-                        </button>
-                    </>
+                    selectedCaregiver?.verificationStatus === 'pending' ? (
+                        <>
+                            <button
+                                className={styles.rejectBtn}
+                                onClick={() => selectedCaregiver && handleAction(selectedCaregiver._id, 'rejected')}
+                            >
+                                Reject
+                            </button>
+                            <button
+                                className={styles.approveBtn}
+                                onClick={() => selectedCaregiver && handleAction(selectedCaregiver._id, 'verified')}
+                            >
+                                Approve
+                            </button>
+                        </>
+                    ) : null
                 }
             >
                 {selectedCaregiver && (
