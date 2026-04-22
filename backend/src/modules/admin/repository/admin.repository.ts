@@ -159,11 +159,8 @@ export class AdminRepository implements IAdminRepository {
         doctor.verificationStatus = status
         doctor.verifiedBy = new Types.ObjectId(adminId)
         doctor.verifiedAt = new Date()
-        doctor.rejectReason = status === 'rejected' ? (reason || 'Rejected by admin') : ''
+        doctor.rejectReason = status === 'rejected' ? reason || 'Rejected by admin' : ''
         await doctor.save()
-
-        const isActive = status === 'verified'
-        await UserModel.findByIdAndUpdate(doctor.userId, { isActive })
 
         return {
             message: status === 'verified' ? 'Doctor approved successfully' : 'Doctor rejected successfully',
@@ -317,8 +314,6 @@ export class AdminRepository implements IAdminRepository {
         caregiver.rejectReason = status === 'rejected' ? 'Rejected by admin' : ''
         caregiver.isActive = status === 'verified'
         await caregiver.save()
-
-        await UserModel.findByIdAndUpdate(caregiver.userId, { isActive: status === 'verified' })
 
         return {
             message: status === 'verified' ? 'Caregiver approved successfully' : 'Caregiver rejected successfully',
