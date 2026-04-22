@@ -26,7 +26,11 @@ export const initialSchedule: WeeklySchedule[] = [
 ]
 
 const addMinutesToTime = (time: string, minutesToAdd: number) => {
-    const [hours, minutes] = time.split(':').map(Number)
+    if (!time) return '00:00'
+    const parts = time.split(':')
+    if (parts.length < 2) return '00:00'
+
+    const [hours, minutes] = parts.map(Number)
     const totalMinutes = hours * 60 + minutes + minutesToAdd
     const normalizedMinutes = ((totalMinutes % (24 * 60)) + 24 * 60) % (24 * 60)
     const nextHours = Math.floor(normalizedMinutes / 60)
@@ -36,18 +40,13 @@ const addMinutesToTime = (time: string, minutesToAdd: number) => {
 }
 
 const toMinutes = (time: string) => {
-    const [hours, minutes] = time.split(':').map(Number)
+    if (!time) return 0
+    const parts = time.split(':')
+    if (parts.length < 2) return 0
+
+    const [hours, minutes] = parts.map(Number)
     return hours * 60 + minutes
 }
-
-const syncScheduleToDuration = (value: WeeklySchedule[], duration: number) =>
-    value.map((day) => ({
-        ...day,
-        timeRanges: day.timeRanges.map((range) => ({
-            ...range,
-            endTime: addMinutesToTime(range.startTime, duration),
-        })),
-    }))
 
 const cloneSchedule = (value: WeeklySchedule[]) =>
     value.map((day) => ({ ...day, timeRanges: day.timeRanges.map((range) => ({ ...range })) }))
@@ -66,7 +65,7 @@ const mergeWithDefaultSchedule = (value: WeeklySchedule[]) =>
     })
 
 const defaultSlotDuration = 15
-const defaultSchedule = syncScheduleToDuration(cloneSchedule(initialSchedule), defaultSlotDuration)
+const defaultSchedule = cloneSchedule(initialSchedule)
 const defaultDateRange = { start: '', end: '' }
 
 const AvailabilityPage = () => {
@@ -88,7 +87,6 @@ const AvailabilityPage = () => {
 
     const handleSlotDurationChange = (duration: number) => {
         setSlotDuration(duration)
-        setSchedule((current) => syncScheduleToDuration(current, duration))
     }
 
     useEffect(() => {
