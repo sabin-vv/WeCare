@@ -48,11 +48,12 @@ export class AdminService implements IAdminService {
         doctorId: string,
         status: AdminVerificationStatus,
         adminId: string,
+        reason?: string,
     ): Promise<{ message: string }> {
         if (status !== 'verified' && status !== 'rejected') {
             throw new AppError(HTTP_STATUS.BAD_REQUEST, 'Invalid verification status')
         }
-        return this._adminRepo.verifyDoctor(doctorId, status, adminId)
+        return this._adminRepo.verifyDoctor(doctorId, status, adminId, reason)
     }
 
     async verifySpecialization(

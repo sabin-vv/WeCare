@@ -16,7 +16,7 @@ export interface IAdminRepository {
 
     getRecentDoctorVerifications(limit: number): Promise<RecentDoctorsResponse>
 
-    verifyDoctor(doctorId: string, status: AdminVerificationStatus, adminId: string): Promise<{ message: string }>
+    verifyDoctor(doctorId: string, status: AdminVerificationStatus, adminId: string, reason?: string): Promise<{ message: string }>
 
     verifySpecialization(
         doctorId: string,

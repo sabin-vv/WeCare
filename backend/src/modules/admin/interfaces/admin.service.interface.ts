@@ -12,7 +12,7 @@ import {
 export interface IAdminService {
     getPendingDoctors(page: number, limit: number, search: string): Promise<PendingDoctorsResponse>
     getRecentDoctorVerifications(limit: number): Promise<RecentDoctorsResponse>
-    verifyDoctor(doctorId: string, status: AdminVerificationStatus, adminId: string): Promise<{ message: string }>
+    verifyDoctor(doctorId: string, status: AdminVerificationStatus, adminId: string, reason?: string): Promise<{ message: string }>
     verifySpecialization(
         doctorId: string,
         specIndex: number,

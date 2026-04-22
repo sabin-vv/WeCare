@@ -149,6 +149,7 @@ export class AdminRepository implements IAdminRepository {
         doctorId: string,
         status: AdminVerificationStatus,
         adminId: string,
+        reason?: string,
     ): Promise<{ message: string }> {
         const doctor = await DoctorModel.findById(doctorId)
         if (!doctor) {
@@ -158,7 +159,7 @@ export class AdminRepository implements IAdminRepository {
         doctor.verificationStatus = status
         doctor.verifiedBy = new Types.ObjectId(adminId)
         doctor.verifiedAt = new Date()
-        doctor.rejectReason = status === 'rejected' ? 'Rejected by admin' : ''
+        doctor.rejectReason = status === 'rejected' ? (reason || 'Rejected by admin') : ''
         await doctor.save()
 
         const isActive = status === 'verified'
