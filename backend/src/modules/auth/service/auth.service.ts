@@ -110,7 +110,7 @@ export class AuthService implements IAuthService {
         return { accessToken: newAccessToken }
     }
 
-    async resetpassword(dto: ResetPasswordDTO): Promise<void> {
+    async resetPassword(dto: ResetPasswordDTO): Promise<void> {
         const { email, newPassword } = dto
 
         const user = await this._userRepo.findByEmail(email)
@@ -151,7 +151,7 @@ export class AuthService implements IAuthService {
         }
 
         let profileImage: string | undefined
-        let specialization: string | undefined
+        let professionalTitle: string | undefined
         let verificationStatus: string | undefined
 
         switch (role) {
@@ -159,7 +159,7 @@ export class AuthService implements IAuthService {
                 const doctor = await this._doctorRepo.findByUserId(new Types.ObjectId(userId))
                 verificationStatus = doctor?.verificationStatus
                 profileImage = doctor?.profileImage
-                specialization = doctor?.specializations?.[0]?.name
+                professionalTitle = doctor?.specializations?.[0]?.name
                 break
             case UserRole.CAREGIVER:
                 const caregiver = await this._caregiverRepo.findByUserId(new Types.ObjectId(userId))
@@ -179,7 +179,7 @@ export class AuthService implements IAuthService {
         return {
             verificationStatus,
             profileImage,
-            specialization,
+            professionalTitle,
         }
     }
 }
