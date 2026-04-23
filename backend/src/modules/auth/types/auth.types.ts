@@ -1,14 +1,13 @@
+import { Document } from 'mongoose'
+
+import { UserResponseDTO } from './auth.response'
+
 export enum UserRole {
     DOCTOR = 'doctor',
     CAREGIVER = 'caregiver',
     PATIENT = 'patient',
     ADMIN = 'admin',
 }
-
-import { Document } from 'mongoose'
-
-import { UserResponseDTO } from '../mapper/auth.mapper'
-
 export interface UserDocument extends Document {
     name: string
     email: string
@@ -20,7 +19,6 @@ export interface UserDocument extends Document {
 }
 
 export type MulterFiles = Record<string, Express.Multer.File[]>
-
 export interface LoginResponse {
     user: UserResponseDTO
     tokens: {
