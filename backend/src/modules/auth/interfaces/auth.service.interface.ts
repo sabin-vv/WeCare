@@ -1,4 +1,4 @@
-import { UserResponseDTO } from '../mapper/auth.mapper'
+import { UserResponseDTO } from '../types/auth.response'
 import { LoginResponse, UserRole } from '../types/auth.types'
 import { OtpRequestPurpose } from '../types/otp.types'
 import { ChangePasswordDTO, ResetPasswordDTO } from '../validator/auth.schema'
@@ -14,7 +14,7 @@ export interface IAuthService {
 
     refreshToken(token: string): Promise<{ accessToken: string }>
 
-    resetpassword(dto: ResetPasswordDTO): Promise<void>
+    resetPassword(dto: ResetPasswordDTO): Promise<void>
 
     changePassword(userId: string, dto: ChangePasswordDTO): Promise<void>
 
