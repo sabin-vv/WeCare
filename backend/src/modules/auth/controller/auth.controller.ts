@@ -72,7 +72,7 @@ export class AuthController {
     }
 
     resetPassword = async (req: Request, res: Response) => {
-        await this._authService.resetpassword(req.body)
+        await this._authService.resetPassword(req.body)
 
         res.status(HTTP_STATUS.OK).json({
             success: true,
