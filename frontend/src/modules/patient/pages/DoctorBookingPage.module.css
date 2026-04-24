@@ -35,37 +35,9 @@
     align-items: center;
     gap: 12px;
 }
-
-.searchField,
-.selectField {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    height: 44px;
-    padding: 0 14px;
-    border: 1px solid #dfe7f3;
-    border-radius: 10px;
-    background: #ffffff;
-    color: #8da1b8;
-}
-
-.searchField input,
-.selectField select {
-    border: none;
-    outline: none;
-    background: transparent;
-    color: #49637e;
-    font-size: 13px;
-}
-
-.searchField input {
-    width: 210px;
-}
-
-.selectField select {
-    min-width: 126px;
-    appearance: none;
-    cursor: pointer;
+.filters > *:first-child {
+    flex: 1;
+    min-width: 200px;
 }
 
 .selectIcon {
@@ -251,14 +223,6 @@
 
     .title {
         font-size: 26px;
-    }
-
-    .searchField,
-    .selectField,
-    .searchField input,
-    .selectField select {
-        width: 100%;
-        min-width: 0;
     }
 
     .filters {
