@@ -13,7 +13,7 @@ export interface LoginUser extends ApiInterface {
         role: Role
         isProfileComplete: boolean
         profileImage?: string
-        specialization?: string
+        professionalTitle?: string
         verificationStatus?: VerificationStatus
     }
 }
