@@ -23,7 +23,7 @@ export interface RoleSelectorProps {
 }
 
 export interface FileUploadBoxProps {
-    file?: File | null
+    file?: File | string | null
     accept?: string
     onFileSelect: (file: File) => void
 }
@@ -43,7 +43,7 @@ export interface User {
     isProfileComplete?: boolean
     verificationStatus?: VerificationStatus
     profileImage?: string
-    specialization?: string
+    professionalTitle?: string
 }
 export interface AuthContextType {
     user: User | null
