@@ -40,6 +40,7 @@ const LoginForm = () => {
         setIsLoading(true)
         try {
             const response = await loginUser(data.email, data.password, role)
+
             setAuth({
                 id: response.data.id,
                 name: response.data.name,
@@ -47,7 +48,7 @@ const LoginForm = () => {
                 role: response.data.role,
                 isProfileComplete: response.data.isProfileComplete,
                 profileImage: response.data.profileImage,
-                specialization: response.data.specialization,
+                professionalTitle: response.data.professionalTitle,
                 verificationStatus: response.data.verificationStatus,
             })
 
