@@ -47,32 +47,39 @@ export interface DoctorPersonalInfoSectionProps {
 
 export interface Certificate {
     number: string
-    document: File | null
+    document: File | string | null
 }
 export interface Specializations {
     name: string
-    document: File | null
+    documentImage: File | string | null
 }
 export interface DoctorDocuments {
-    govId: File | null
-    profileImage: File | null
+    govId: File | string | null
+    profileImage: File | string | null
     medicalCertificate: Certificate
     councilRegistration: Certificate
 }
 
 export interface DoctorProfile extends ApiInterface {
     id: string
-    fullName: string
+    name: string
     email: string
-    phoneNumber: string
+
+    govIdImage: string
     profileImage?: string
     professionalTitle?: string
     consultationFee: number
-    medicalLicenseNumber: string
+
+    medicalCertificateNumber: string
+    medicalCertificateImage: string
     medicalCouncilRegistrationNumber: string
-    experienceCertificatesCount: number
+    medicalCouncilImage: string
+
+    specialization: Specializations[]
+
     isActive: boolean
     verificationStatus: 'pending' | 'verified' | 'rejected'
+    rejectReason?: string
 }
 export interface DoctorProfileResponse extends ApiInterface {
     data: DoctorProfile
@@ -80,7 +87,7 @@ export interface DoctorProfileResponse extends ApiInterface {
 
 export type UpdateDoctorProfileData = Pick<
     DoctorProfile,
-    'fullName' | 'consultationFee' | 'phoneNumber' | 'email' | 'isActive' | 'profileImage'
+    'name' | 'consultationFee' | 'email' | 'isActive' | 'profileImage'
 >
 
 export interface TimeRange {
