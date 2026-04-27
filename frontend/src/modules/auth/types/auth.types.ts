@@ -39,7 +39,7 @@ export interface User {
     id: string
     name: string
     email: string
-    mobile: string
+    mobile?: string
     role: Role
     isProfileComplete?: boolean
     verificationStatus?: VerificationStatus
