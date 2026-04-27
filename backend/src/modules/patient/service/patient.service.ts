@@ -1,3 +1,4 @@
+import { Types } from 'mongoose'
 import { inject, injectable } from 'tsyringe'
 
 import { TOKENS } from '../../../container/tokens'
@@ -8,8 +9,15 @@ import { toUserEntity } from '../../auth/mapper/auth.mapper'
 import { UserRole } from '../../auth/types/auth.types'
 import { IPatientRepository } from '../interfaces/patient.repository.interface'
 import { IPatientService } from '../interfaces/patient.service.interface'
-import { PatientResponseDTO, toPatientEntity, toPatientResponseDTO } from '../mapper/patient.mapper'
+import {
+    PatientProfileResponseDTO,
+    PatientResponseDTO,
+    toPatientEntity,
+    toPatientProfileResponseDTO,
+    toPatientResponseDTO,
+} from '../mapper/patient.mapper'
 import { RegisterPatientDTO } from '../validator/patient.schema'
+import { UpdatePatientSettingsDTO } from '../validator/updatePatientSettings.schema'
 
 const STARTING_ID = 1000
 
@@ -36,6 +44,57 @@ export class PatientService implements IPatientService {
         const patientId = await this.generateNextPatientId()
         const patientData = toPatientEntity(user._id, patientId, dto)
         const patient = await this._patientRepo.create(patientData)
-        return toPatientResponseDTO(patient)
+        return toPatientResponseDTO(user, patient)
+    }
+
+    async getProfile(userId: string): Promise<PatientProfileResponseDTO> {
+        const user = await this._userRepo.findById(userId)
+        if (!user) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'User not found')
+        }
+
+        const patient = await this._patientRepo.findByUserId(new Types.ObjectId(userId))
+        if (!patient) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'Patient profile not found')
+        }
+
+        return toPatientProfileResponseDTO(user, patient)
+    }
+
+    async updateProfile(userId: string, dto: UpdatePatientSettingsDTO): Promise<PatientProfileResponseDTO> {
+        const existingPatient = await this._patientRepo.findByUserId(new Types.ObjectId(userId))
+        if (!existingPatient) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'Patient profile not found')
+        }
+
+        const userUpdates: Record<string, string> = {}
+        if (dto.name !== undefined) {
+            userUpdates.name = dto.name
+        }
+        if (dto.email !== undefined) {
+            userUpdates.email = dto.email
+        }
+        if (dto.mobile !== undefined) {
+            userUpdates.mobile = dto.mobile
+        }
+        if (Object.keys(userUpdates).length > 0) {
+            await this._userRepo.update(userId, userUpdates)
+        }
+
+        const patientUpdates = {
+            profileImage: dto.profileImage ?? existingPatient.profileImage,
+        }
+
+        const patient = await this._patientRepo.updateByUserId(new Types.ObjectId(userId), patientUpdates)
+        if (!patient) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'Patient profile not found')
+        }
+
+        const updatedUser = await this._userRepo.findById(userId)
+        if (!updatedUser) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'User not found')
+        }
+
+        return toPatientProfileResponseDTO(updatedUser, patient)
     }
 }
