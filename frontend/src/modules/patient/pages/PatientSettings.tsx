@@ -247,7 +247,7 @@ const PatientSettings = () => {
                             </label>
                         </div>
                         <div>
-                            <h3 className={styles.name}>{form.name || user?.name}</h3>
+                            <h3 className={styles.name}>{savedState.name || user?.name}</h3>
 
                             <p className={styles.conditions}>
                                 Conditions:{' '}
