@@ -16,6 +16,10 @@ export class PatientRepository extends BaseRepository<PatientDocument> implement
         return this.model.findOne({ userId })
     }
 
+    async updateByUserId(userId: Types.ObjectId, data: Partial<PatientDocument>): Promise<PatientDocument | null> {
+        return this.model.findOneAndUpdate({ userId }, data, { new: true })
+    }
+
     async getLastPatientId(): Promise<string | null> {
         const lastPatient = await this.model.findOne().sort({ patientId: -1 }).select('patientId').lean()
         return lastPatient?.patientId || null
