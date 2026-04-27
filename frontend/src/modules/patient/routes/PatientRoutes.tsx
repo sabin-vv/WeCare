@@ -4,6 +4,7 @@ import DoctorAvailabilityPage from '../pages/DoctorAvailabilityPage'
 import DoctorBookingPage from '../pages/DoctorBookingPage'
 import PatientAppointmentsPage from '../pages/PatientAppointmentsPage'
 import PatientDashboardPage from '../pages/PatientDashboardPage'
+import PatientSettings from '../pages/PatientSettings'
 
 export const PatientRoutes: RouteObject[] = [
     {
@@ -21,5 +22,9 @@ export const PatientRoutes: RouteObject[] = [
     {
         path: '/appointments',
         element: <PatientAppointmentsPage />,
+    },
+    {
+        path: '/settings',
+        element: <PatientSettings />,
     },
 ]
