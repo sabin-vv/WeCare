@@ -3,13 +3,18 @@ import type { ChangeEvent } from 'react'
 import type { ApiInterface } from '@/modules/auth/api/auth.api.types'
 
 export type DoctorSettingsFormState = {
-    fullName: string
-    consultationFee: string
-    phoneNumber: string
+    name: string
+    mobile: string
     email: string
-    medicalLicenseNumber: string
+
+    consultationFee: string
+    medicalCertificateNumber: string
+    medicalCertificateImage?: string
     medicalCouncilRegistrationNumber: string
-    experienceCertificatesCount: number
+    medicalCouncilImage?: string
+
+    specialization?: Specialization[]
+
     isActive: boolean
 }
 
@@ -49,7 +54,7 @@ export interface Certificate {
     number: string
     document: File | string | null
 }
-export interface Specializations {
+export interface Specialization {
     name: string
     documentImage: File | string | null
 }
@@ -64,6 +69,7 @@ export interface DoctorProfile extends ApiInterface {
     id: string
     name: string
     email: string
+    mobile: string
 
     govIdImage: string
     profileImage?: string
@@ -75,7 +81,7 @@ export interface DoctorProfile extends ApiInterface {
     medicalCouncilRegistrationNumber: string
     medicalCouncilImage: string
 
-    specialization: Specializations[]
+    specialization: Specialization[]
 
     isActive: boolean
     verificationStatus: 'pending' | 'verified' | 'rejected'
