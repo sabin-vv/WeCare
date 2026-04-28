@@ -1,0 +1,22 @@
+import { BaseRepository } from '../../../core/base/base.repository'
+import { IPaymentRepository } from '../interfaces/payment.repository.interface'
+import { PaymentModel } from '../models/payment.model'
+import { PaymentDocument } from '../types/payment.types'
+
+export class PaymentRepository extends BaseRepository<PaymentDocument> implements IPaymentRepository {
+    async create(data: Partial<PaymentDocument>) {
+        return await PaymentModel.create(data)
+    }
+
+    async findByOrderId(orderId: string) {
+        return await PaymentModel.findOne({ razorpayOrderId: orderId })
+    }
+
+    async updateById(id: string, data: Partial<PaymentDocument>) {
+        return await PaymentModel.findByIdAndUpdate(id, data, { new: true })
+    }
+
+    async updateByOrderId(orderId: string, data: Partial<PaymentDocument>) {
+        return await PaymentModel.findOneAndUpdate({ razorpayOrderId: orderId }, data, { new: true })
+    }
+}
