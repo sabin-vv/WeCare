@@ -101,7 +101,7 @@ export class AppointmentService implements IAppointmentService {
         await this._paymentRepo.updateById(payment._id.toString(), {
             razorpayOrderId: order.id,
         })
-        await this._appointmentRepo.update(payment._id.toString(), {
+        await this._appointmentRepo.update(appointment._id.toString(), {
             paymentId: payment._id,
         })
 
