@@ -5,12 +5,11 @@ export interface AppointmentDocument extends Document {
     doctorId: Types.ObjectId
     appointmentDate: Date
     slotStart: string
-    status: 'pending' | 'confirmed' | 'cancelled' | 'completed'
-    paymentStatus: 'pending' | 'paid' | 'failed'
-    razorpayOrderId?: string
-    razorpayPaymentId?: string
-    razorpaySignature?: string
-    amount: number
+    slotEnd: string
+    consultationFee: number
+    paymentId?: Types.ObjectId
+    status: 'pending_payment' | 'confirmed' | 'cancelled' | 'in_consultation' | 'completed'
+    expiredAt?: Date
     createdAt: Date
     updatedAt: Date
 }
