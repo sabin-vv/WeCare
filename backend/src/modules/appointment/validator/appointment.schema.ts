@@ -3,11 +3,14 @@ import { z } from 'zod'
 export const createAppointmentSchema = z.object({
     doctorId: z.string().min(1, 'Doctor ID is required'),
     appointmentDate: z.string().min(1, 'Appointment date is required'),
-    slotStart: z.string().min(1, 'Slot start time is required'),
+    slotStart: z
+        .string()
+        .min(1, 'Slot start time is required')
+        .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format '),
+    slotEnd: z
+        .string()
+        .min(1, 'Slot start time is required')
+        .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format '),
 })
 
-export const verifyPaymentSchema = z.object({
-    razorpayOrderId: z.string().min(1, 'Order ID is required'),
-    razorpayPaymentId: z.string().min(1, 'Payment ID is required'),
-    razorpaySignature: z.string().min(1, 'Signature is required'),
-})
+export type CreateAppointmentDTO = z.infer<typeof createAppointmentSchema>
