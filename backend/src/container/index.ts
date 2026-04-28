@@ -6,6 +6,8 @@ import { IAdminRepository } from '../modules/admin/interfaces/admin.repository.i
 import { IAdminService } from '../modules/admin/interfaces/admin.service.interface'
 import { AdminRepository } from '../modules/admin/repository/admin.repository'
 import { AdminService } from '../modules/admin/service/admin.service'
+import { IAppointmentRepository } from '../modules/appointment/interfaces/appointment.repository.interface'
+import { IAppointmentService } from '../modules/appointment/interfaces/appointment.service.interface'
 import { AppointmentRepository } from '../modules/appointment/repository/appointment.repository'
 import { AppointmentService } from '../modules/appointment/service/appointment.service'
 import { IAuthService } from '../modules/auth/interfaces/auth.service.interface'
@@ -28,6 +30,10 @@ import { IPatientRepository } from '../modules/patient/interfaces/patient.reposi
 import { IPatientService } from '../modules/patient/interfaces/patient.service.interface'
 import { PatientRepository } from '../modules/patient/repository/patient.repository'
 import { PatientService } from '../modules/patient/service/patient.service'
+import { IPaymentRepository } from '../modules/payment/interfaces/payment.repository.interface'
+import { IPaymentService } from '../modules/payment/interfaces/payment.service.interface'
+import { PaymentRepository } from '../modules/payment/repository/payment.repository'
+import { PaymentService } from '../modules/payment/services/payment.service'
 import { TOKENS } from './tokens'
 
 container.register<IUserRepository>(TOKENS.IUserRepository, { useClass: UserRepository })
@@ -45,4 +51,7 @@ container.register<IOtpService>(TOKENS.IOtpService, { useClass: OtpService })
 container.register<IAdminRepository>(TOKENS.IAdminRepository, { useClass: AdminRepository })
 container.register<IAdminService>(TOKENS.IAdminService, { useClass: AdminService })
 container.register(TOKENS.IAppointmentRepository, { useClass: AppointmentRepository })
-container.register(TOKENS.IAppointmentService, { useClass: AppointmentService })
+container.register<IAppointmentService>(TOKENS.IAppointmentService, { useClass: AppointmentService })
+container.register<IAppointmentRepository>(TOKENS.IAppointmentRepository, { useClass: AppointmentRepository })
+container.register<IPaymentRepository>(TOKENS.IPaymentRepository, { useClass: PaymentRepository })
+container.register<IPaymentService>(TOKENS.IPaymentService, { useClass: PaymentService })
