@@ -11,7 +11,7 @@ const appointmentSchema = new Schema<AppointmentDocument>(
         },
         doctorId: {
             type: Types.ObjectId,
-            ref: 'User',
+            ref: 'Doctor',
             required: true,
         },
         appointmentDate: {
@@ -22,31 +22,30 @@ const appointmentSchema = new Schema<AppointmentDocument>(
             type: String,
             required: true,
         },
-        status: {
+        slotEnd: {
             type: String,
-            enum: ['pending', 'confirmed', 'cancelled', 'completed'],
-            default: 'pending',
+            required: true,
         },
-        paymentStatus: {
-            type: String,
-            enum: ['pending', 'paid', 'failed'],
-            default: 'pending',
-        },
-        razorpayOrderId: {
-            type: String,
-        },
-        razorpayPaymentId: {
-            type: String,
-        },
-        razorpaySignature: {
-            type: String,
-        },
-        amount: {
+        consultationFee: {
             type: Number,
             required: true,
+        },
+        paymentId: {
+            type: Types.ObjectId,
+            ref: 'Payment',
+        },
+        status: {
+            type: String,
+            enum: ['pending_payment', 'confirmed', 'cancelled', 'in_consultation', 'completed'],
+            default: 'pending_payment',
+        },
+        expiredAt: {
+            type: Date,
         },
     },
     { timestamps: true },
 )
+
+appointmentSchema.index({ doctorId: 1, appointmentDate: 1, slotStart: 1 }, { unique: true })
 
 export const AppointmentModel = model<AppointmentDocument>('Appointment', appointmentSchema)
