@@ -10,44 +10,20 @@ import { IAppointmentService } from '../interfaces/appointment.service.interface
 export class AppointmentController {
     constructor(@inject(TOKENS.IAppointmentService) private _appointmentService: IAppointmentService) {}
 
-    createOrder = async (req: Request, res: Response) => {
+    createAppointment = async (req: Request, res: Response) => {
         const patientId = req.user?.userId
         if (!patientId) {
             throw new AppError(HTTP_STATUS.UNAUTHORIZED, 'User not authenticated')
         }
 
-        const { doctorId, appointmentDate, slotStart } = req.body
-
-        if (!doctorId || !appointmentDate || !slotStart) {
-            throw new AppError(HTTP_STATUS.BAD_REQUEST, 'Missing required fields')
-        }
-
-        const order = await this._appointmentService.createOrder(patientId, doctorId, appointmentDate, slotStart)
+        const order = await this._appointmentService.createAppointment({
+            ...req.body,
+            patientId,
+        })
 
         res.status(HTTP_STATUS.CREATED).json({
             success: true,
-            message: 'Order created successfully',
             data: order,
-        })
-    }
-
-    verifyPayment = async (req: Request, res: Response) => {
-        const { razorpayOrderId, razorpayPaymentId, razorpaySignature } = req.body
-
-        if (!razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
-            throw new AppError(HTTP_STATUS.BAD_REQUEST, 'Missing payment details')
-        }
-
-        const appointment = await this._appointmentService.verifyPayment(
-            razorpayOrderId,
-            razorpayPaymentId,
-            razorpaySignature,
-        )
-
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            message: 'Payment verified successfully',
-            data: appointment,
         })
     }
 
