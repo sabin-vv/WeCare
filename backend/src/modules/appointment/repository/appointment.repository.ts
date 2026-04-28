@@ -1,10 +1,12 @@
 import { singleton } from 'tsyringe'
 
+import { BaseRepository } from '../../../core/base/base.repository'
+import { IAppointmentRepository } from '../interfaces/appointment.repository.interface'
 import { AppointmentModel } from '../models/appointment.model'
 import { AppointmentDocument } from '../types/appointment.types'
 
 @singleton()
-export class AppointmentRepository {
+export class AppointmentRepository extends BaseRepository<AppointmentDocument> implements IAppointmentRepository {
     async create(data: Partial<AppointmentDocument>): Promise<AppointmentDocument> {
         return await AppointmentModel.create(data)
     }
@@ -44,5 +46,21 @@ export class AppointmentRepository {
             appointmentDate: { $gte: startOfDay, $lte: endOfDay },
             status: { $in: ['confirmed', 'pending'] },
         })
+    }
+
+    async findActiveByPatientAndDoctor(patientId: string, doctorId: string): Promise<AppointmentDocument | null> {
+        return await AppointmentModel.findOne({
+            patientId,
+            doctorId,
+            $or: [
+                {
+                    status: { $in: ['confirmed', 'in_consultation'] },
+                },
+                {
+                    status: 'pending_payment',
+                    expiredAt: { $gt: new Date() },
+                },
+            ],
+        }).lean()
     }
 }
