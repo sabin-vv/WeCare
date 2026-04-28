@@ -31,6 +31,27 @@ interface RazorpayResponse {
     razorpay_signature: string
 }
 
+const RAZORPAY_SCRIPT_URL = 'https://checkout.razorpay.com/v1/checkout.js'
+
+const loadRazorpayScript = (): Promise<void> => {
+    if (window.Razorpay) {
+        return Promise.resolve()
+    }
+
+    return new Promise((resolve, reject) => {
+        if (window.Razorpay) {
+            resolve()
+            return
+        }
+        const script = document.createElement('script')
+        script.src = RAZORPAY_SCRIPT_URL
+        script.async = true
+        script.onload = () => resolve()
+        script.onerror = () => reject(new Error('Failed to load Razorpay'))
+        document.head.appendChild(script)
+    })
+}
+
 declare global {
     interface Window {
         Razorpay: {
@@ -126,6 +147,8 @@ const DoctorAvailabilityPage = () => {
         try {
             setLoading(true)
 
+            await loadRazorpayScript()
+
             const order = await createAppointment({
                 doctorId: doctorId!,
                 appointmentDate: selectedDate,
@@ -156,7 +179,7 @@ const DoctorAvailabilityPage = () => {
                 prefill: {
                     name: user?.name || '',
                     email: user?.email || '',
-                    Contact: '',
+                    contact: '',
                 },
                 theme: {
                     color: '#007bff',
