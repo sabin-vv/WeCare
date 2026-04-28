@@ -1,4 +1,3 @@
-import crypto from 'crypto'
 import { Types } from 'mongoose'
 import Razorpay from 'razorpay'
 import { inject, injectable } from 'tsyringe'
@@ -9,14 +8,12 @@ import { HTTP_STATUS } from '../../../core/constants/httpStatus'
 import { AppError } from '../../../core/errors/AppError'
 import { IAdminRepository } from '../../admin/interfaces/admin.repository.interface'
 import { IDoctorRepository } from '../../doctor/interfaces/doctor.repository.interface'
+import { IPaymentRepository } from '../../payment/interfaces/payment.repository.interface'
 import { IAppointmentService } from '../interfaces/appointment.service.interface'
 import { RazorpayOrder } from '../interfaces/appointment.service.interface'
-import {
-    AppointmentResponseDTO,
-    toAppointmentListResponseDTO,
-    toAppointmentResponseDTO,
-} from '../mapper/appointment.mapper'
+import { AppointmentResponseDTO, toAppointmentListResponseDTO } from '../mapper/appointment.mapper'
 import { AppointmentRepository } from '../repository/appointment.repository'
+import { CreateAppointmentDTO } from '../validator/appointment.schema'
 
 @injectable()
 export class AppointmentService implements IAppointmentService {
@@ -26,6 +23,7 @@ export class AppointmentService implements IAppointmentService {
         @inject(TOKENS.IAppointmentRepository) private _appointmentRepo: AppointmentRepository,
         @inject(TOKENS.IDoctorRepository) private _doctorRepo: IDoctorRepository,
         @inject(TOKENS.IAdminRepository) private _adminRepo: IAdminRepository,
+        @inject(TOKENS.IPaymentRepository) private _paymentRepo: IPaymentRepository,
     ) {
         this.razorpay = new Razorpay({
             key_id: env.RAZORPAY_KEY_ID,
@@ -33,31 +31,34 @@ export class AppointmentService implements IAppointmentService {
         })
     }
 
-    async createOrder(
-        patientId: string,
-        doctorId: string,
-        appointmentDate: string,
-        slotStart: string,
-    ): Promise<RazorpayOrder> {
-        const doctor = await this._doctorRepo.findById(doctorId)
+    async createAppointment(
+        dto: CreateAppointmentDTO & { patientId: string },
+    ): Promise<{ order: RazorpayOrder; paymentId: string }> {
+        const doctor = await this._doctorRepo.findById(dto.doctorId)
         if (!doctor) {
             throw new AppError(HTTP_STATUS.NOT_FOUND, 'Doctor not found')
         }
 
-        // Check if slot is already booked or being processed
+        const existingAppointment = await this._appointmentRepo.findActiveByPatientAndDoctor(
+            dto.patientId,
+            doctor._id.toString(),
+        )
+        if (existingAppointment) {
+            throw new AppError(HTTP_STATUS.CONFLICT, 'You already have an active appointment with this doctor')
+        }
+
         const activeAppointments = await this._appointmentRepo.findActiveAppointments(
-            doctor.userId.toString(),
-            appointmentDate,
+            doctor._id.toString(),
+            dto.appointmentDate,
         )
 
         const now = new Date()
-        const fifteenMinutesAgo = new Date(now.getTime() - 15 * 60 * 1000)
 
         const isAlreadyBooked = activeAppointments.some((app) => {
-            if (app.slotStart !== slotStart) return false
+            if (app.slotStart !== dto.slotStart) return false
             if (app.status === 'confirmed') return true
-            if (app.status === 'pending') {
-                return new Date(app.createdAt) > fifteenMinutesAgo
+            if (app.status === 'pending_payment') {
+                return app.expiredAt && new Date(app.expiredAt) > now
             }
             return false
         })
@@ -66,64 +67,45 @@ export class AppointmentService implements IAppointmentService {
             throw new AppError(HTTP_STATUS.CONFLICT, 'This slot is already booked or being processed.')
         }
 
-        const settings = await this._adminRepo.getPlatformSettings()
-        const totalAmount = (doctor.consultationFee + settings.platformFee) * 100
+        const expiredAt = new Date(Date.now() + 10 * 60 * 1000)
 
-        const options = {
-            amount: totalAmount,
+        const appointment = await this._appointmentRepo.create({
+            patientId: new Types.ObjectId(dto.patientId),
+            doctorId: new Types.ObjectId(doctor._id),
+            appointmentDate: new Date(dto.appointmentDate),
+            consultationFee: doctor.consultationFee,
+            slotStart: dto.slotStart,
+            slotEnd: dto.slotEnd,
+            status: 'pending_payment',
+            expiredAt,
+        })
+
+        const settings = await this._adminRepo.getPlatformSettings()
+        const totalAmount = doctor.consultationFee + settings.platformFee
+
+        const payment = await this._paymentRepo.create({
+            patientId: new Types.ObjectId(dto.patientId),
+            appointmentId: appointment._id,
+            paymentType: 'consultation',
+            consultationFee: doctor.consultationFee,
+            platformFee: settings.platformFee,
+            totalAmount,
+            status: 'pending',
+        })
+
+        const order = await this.razorpay.orders.create({
+            amount: totalAmount * 100,
             currency: 'INR',
             receipt: `receipt_${Date.now()}`,
-        }
-
-        const order = await this.razorpay.orders.create(options)
-
-        await this._appointmentRepo.create({
-            patientId: new Types.ObjectId(patientId),
-            doctorId: new Types.ObjectId(doctor.userId.toString()),
-            appointmentDate: new Date(appointmentDate),
-            slotStart,
-            amount: totalAmount / 100,
-            status: 'pending',
-            paymentStatus: 'pending',
+        })
+        await this._paymentRepo.updateById(payment._id.toString(), {
             razorpayOrderId: order.id,
         })
-
-        return order as RazorpayOrder
-    }
-
-    async verifyPayment(
-        razorpayOrderId: string,
-        razorpayPaymentId: string,
-        razorpaySignature: string,
-    ): Promise<AppointmentResponseDTO> {
-        const secret = env.RAZORPAY_KEY_SECRET
-        const body = razorpayOrderId + '|' + razorpayPaymentId
-
-        const expectedSignature = crypto.createHmac('sha256', secret).update(body.toString()).digest('hex')
-
-        const isSignatureValid = expectedSignature === razorpaySignature
-
-        if (!isSignatureValid) {
-            throw new AppError(HTTP_STATUS.BAD_REQUEST, 'Invalid payment signature')
-        }
-
-        const appointment = await this._appointmentRepo.findByOrderId(razorpayOrderId)
-        if (!appointment) {
-            throw new AppError(HTTP_STATUS.NOT_FOUND, 'Appointment not found')
-        }
-
-        const updatedAppointment = await this._appointmentRepo.update(appointment._id.toString(), {
-            paymentStatus: 'paid',
-            status: 'confirmed',
-            razorpayPaymentId,
-            razorpaySignature,
+        await this._appointmentRepo.update(payment._id.toString(), {
+            paymentId: payment._id,
         })
 
-        if (!updatedAppointment) {
-            throw new AppError(HTTP_STATUS.INTERNAL_SERVER_ERROR, 'Failed to update appointment')
-        }
-
-        return toAppointmentResponseDTO(updatedAppointment)
+        return { order, paymentId: payment._id.toString() }
     }
 
     async getPatientAppointments(patientId: string): Promise<AppointmentResponseDTO[]> {
