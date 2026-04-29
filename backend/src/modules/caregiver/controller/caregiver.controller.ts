@@ -10,16 +10,6 @@ import { ICaregiverService } from '../interfaces/caregiver.service.interface'
 export class CaregiverController {
     constructor(@inject(TOKENS.ICaregiverService) private _caregiverService: ICaregiverService) {}
 
-    registerCaregiver = async (req: Request, res: Response) => {
-        const result = await this._caregiverService.registerCaregiver(req.body, {})
-
-        res.status(HTTP_STATUS.CREATED).json({
-            success: true,
-            data: result,
-            message: 'Caregiver registered successfully',
-        })
-    }
-
     createProfile = async (req: Request, res: Response) => {
         const userId = req.user?.userId
         if (!userId) {
