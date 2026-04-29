@@ -1,18 +1,31 @@
 import { Document, Types } from 'mongoose'
 
 interface AppointmentPaymentInfo {
-    status?: 'pending' | 'success' | 'failed' | 'refunded'
+    _id?: string | Types.ObjectId
+    status?: 'pending' | 'success' | 'failed' | 'refund_pending' | 'refunded'
     totalAmount?: number
 }
 
+export interface PopulatedAppointmentUser {
+    _id: string | Types.ObjectId
+    name: string
+    email: string
+    mobile: string
+}
+
+export interface PopulatedAppointmentPayment extends AppointmentPaymentInfo {
+    _id: string | Types.ObjectId
+    status?: 'pending' | 'success' | 'failed' | 'refund_pending' | 'refunded'
+}
+
 export interface AppointmentDocument extends Document {
-    patientId: Types.ObjectId
+    patientId: Types.ObjectId | PopulatedAppointmentUser
     doctorId: Types.ObjectId
     appointmentDate: Date
     slotStart: string
     slotEnd: string
     consultationFee: number
-    paymentId?: Types.ObjectId | AppointmentPaymentInfo
+    paymentId?: Types.ObjectId | PopulatedAppointmentPayment
     status: 'pending_payment' | 'confirmed' | 'cancelled' | 'in_consultation' | 'completed'
     expiredAt?: Date
     createdAt: Date

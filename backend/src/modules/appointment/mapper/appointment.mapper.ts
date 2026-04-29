@@ -22,7 +22,7 @@ export interface AppointmentResponseDTO {
 }
 
 interface PopulatedPayment {
-    status?: 'pending' | 'success' | 'failed' | 'refunded'
+    status?: 'pending' | 'success' | 'failed' | 'refund_pending' | 'refunded'
     totalAmount?: number
 }
 
@@ -38,6 +38,8 @@ const mapPaymentStatus = (status?: PopulatedPayment['status']) => {
             return 'failed'
         case 'refunded':
             return 'refunded'
+        case 'refund_pending':
+            return 'refund_pending'
         case 'pending':
             return 'pending'
         default:

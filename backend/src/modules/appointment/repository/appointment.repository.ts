@@ -71,4 +71,24 @@ export class AppointmentRepository extends BaseRepository<AppointmentDocument> i
             ],
         }).lean()
     }
+
+    async findFutureCancellableAppointments(doctorId: string, fromDate: Date): Promise<AppointmentDocument[]> {
+        const startOfDay = new Date(fromDate)
+        startOfDay.setHours(0, 0, 0, 0)
+
+        return await AppointmentModel.find({
+            doctorId,
+            appointmentDate: { $gte: startOfDay },
+            $or: [
+                { status: 'confirmed' },
+                {
+                    status: 'pending_payment',
+                    expiredAt: { $gt: new Date() },
+                },
+            ],
+        })
+            .populate('patientId', 'name email mobile')
+            .populate('paymentId', 'status totalAmount')
+            .sort({ appointmentDate: 1, slotStart: 1 })
+    }
 }
