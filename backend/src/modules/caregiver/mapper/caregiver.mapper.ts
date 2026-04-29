@@ -2,11 +2,11 @@ import { Types } from 'mongoose'
 
 import { MulterFiles, UserDocument } from '../../auth/types/auth.types'
 import { CaregiverDocument, CaregiverEntity, CaregiverProfileResponse } from '../types/caregiver.types'
-import { CreateCaregiverProfileDTO, RegisterCaregiverDTO } from '../validator/caregiver.schema'
+import { CreateCaregiverProfileDTO } from '../validator/caregiver.schema'
 
 export const toCaregiverEntity = (
     userId: Types.ObjectId,
-    dto: RegisterCaregiverDTO | CreateCaregiverProfileDTO,
+    dto: CreateCaregiverProfileDTO,
     files: MulterFiles,
 ): CaregiverEntity => {
     const fromDtoOrFile = (dtoValue: string | undefined, fileField: string) => {
@@ -39,5 +39,15 @@ export const toCaregiverProfileResponse = (
         licenseNumber: caregiver.licenseNumber,
         isActive: caregiver.isActive,
         verificationStatus: caregiver.verificationStatus,
+    }
+}
+export const toCaregiverProfileEntity = (profile: Partial<CaregiverDocument>) => {
+    return {
+        govIdImage: profile.govIdImage,
+        profileImage: profile.profileImage,
+        certificateNumber: profile.certificateNumber,
+        certificateImage: profile.certificateImage,
+        licenseNumber: profile.licenseNumber,
+        licenseImage: profile.licenseImage,
     }
 }
