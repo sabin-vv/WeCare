@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 
 import styles from './AppointmentCard.module.css'
 
-type AppointmentStatus = 'pending_payment' | 'confirmed' | 'in_consultation' | 'completed'
+type AppointmentStatus = 'pending_payment' | 'confirmed' | 'in_consultation' | 'cancelled' | 'completed'
 
 interface Props {
     doctorName: string
@@ -76,7 +76,6 @@ const AppointmentCard = ({ doctorName, specialization, date, time, status }: Pro
                     </span>
                 </div>
                 <div className={styles.actionButton}>
-                    <button className={styles.changeBtn}>Change slot</button>
                     <button className={styles.cancelBtn}>Cancel</button>
                 </div>
             </div>
