@@ -20,7 +20,7 @@ export class AppointmentRepository extends BaseRepository<AppointmentDocument> i
     }
 
     async update(id: string, data: Partial<AppointmentDocument>): Promise<AppointmentDocument | null> {
-        return await AppointmentModel.findByIdAndUpdate(id, data, { new: true })
+        return await AppointmentModel.findByIdAndUpdate(id, data, { returnDocument: 'after' })
     }
 
     async findByPatientId(patientId: string): Promise<AppointmentDocument[]> {

@@ -16,7 +16,7 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
         return this.model.findOne({ userId })
     }
     async updateByUserId(userId: Types.ObjectId, data: Partial<DoctorDocument>): Promise<DoctorDocument> {
-        const doctor = await this.model.findOneAndUpdate({ userId }, data, { new: true })
+        const doctor = await this.model.findOneAndUpdate({ userId }, data, { returnDocument: 'after' })
 
         if (!doctor) {
             throw new Error('Doctor profile not found for update')
@@ -25,7 +25,7 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
         return doctor
     }
     async createOrUpdateByUserId(userId: Types.ObjectId, data: Partial<DoctorDocument>): Promise<DoctorDocument> {
-        const doctor = await this.model.findOneAndUpdate({ userId }, data, { upsert: true, new: true })
+        const doctor = await this.model.findOneAndUpdate({ userId }, data, { upsert: true, returnDocument: 'after' })
 
         if (!doctor) {
             throw new Error('Doctor profile could not be created or updated')

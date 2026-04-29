@@ -17,6 +17,6 @@ export class CaregiverRepository extends BaseRepository<CaregiverDocument> imple
     }
 
     async updateByUserId(userId: Types.ObjectId, data: Partial<CaregiverDocument>): Promise<CaregiverDocument | null> {
-        return this.model.findOneAndUpdate({ userId }, data, { new: true })
+        return this.model.findOneAndUpdate({ userId }, data, { returnDocument: 'after' })
     }
 }

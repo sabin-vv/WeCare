@@ -437,7 +437,7 @@ export class AdminRepository implements IAdminRepository {
     }
 
     async toggleUserStatus(userId: string, isActive: boolean): Promise<{ message: string }> {
-        const updated = await UserModel.findByIdAndUpdate(userId, { isActive }, { new: true })
+        const updated = await UserModel.findByIdAndUpdate(userId, { isActive }, { returnDocument: 'after' })
         if (!updated) {
             throw new AppError(HTTP_STATUS.NOT_FOUND, 'User not found')
         }
@@ -483,7 +483,7 @@ export class AdminRepository implements IAdminRepository {
         const updated = await platFoemSettingsModel.findByIdAndUpdate(
             existingSettings._id,
             { $set: settings },
-            { new: true },
+            { returnDocument: 'after' },
         )
 
         if (!updated) {

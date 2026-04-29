@@ -13,10 +13,10 @@ export class PaymentRepository extends BaseRepository<PaymentDocument> implement
     }
 
     async updateById(id: string, data: Partial<PaymentDocument>) {
-        return await PaymentModel.findByIdAndUpdate(id, data, { new: true })
+        return await PaymentModel.findByIdAndUpdate(id, data, { returnDocument: 'after' })
     }
 
     async updateByOrderId(orderId: string, data: Partial<PaymentDocument>) {
-        return await PaymentModel.findOneAndUpdate({ razorpayOrderId: orderId }, data, { new: true })
+        return await PaymentModel.findOneAndUpdate({ razorpayOrderId: orderId }, data, { returnDocument: 'after' })
     }
 }
