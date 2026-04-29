@@ -5,7 +5,16 @@ import toast from 'react-hot-toast'
 import styles from './PatientSettings.module.css'
 
 import AuthLayout from '@/layout/AuthLayout'
-import { changePassword, getCurrentUser, presignUpload, uploadToS3 } from '@/modules/auth/api/auth.api'
+import {
+    changePassword,
+    getCurrentUser,
+    presignUpload,
+    sendOtp,
+    uploadToS3,
+    verifyOtp,
+} from '@/modules/auth/api/auth.api'
+import OtpVerification from '@/modules/auth/components/OtpVerification'
+import { OtpPurpose } from '@/modules/auth/types/auth.types'
 import DoctorSecuritySection from '@/modules/doctor/form/settings/DoctorSecuritySection'
 import DoctorSettingsActions from '@/modules/doctor/form/settings/DoctorSettingsActions'
 import { getPatientProfile, updatePatientProfile } from '@/modules/patient/api/patient.api'
@@ -14,6 +23,7 @@ import ChangePasswordForm from '@/shared/components/ChangePasswordForm'
 import ImageCropper from '@/shared/components/ImageCropper/ImageCropper'
 import InputField from '@/shared/components/InputField/InputField'
 import MainWrapper from '@/shared/components/MainWrapper.tsx/MainWrapper'
+import Modal from '@/shared/components/Modal/Modal'
 import { Section } from '@/shared/components/Section/Section'
 import { useAuth } from '@/shared/context/AuthContext'
 import { getErrorMessage } from '@/utils/getErrorMessage'
@@ -46,6 +56,11 @@ const PatientSettings = () => {
     const [isChangingPassword, setIsChangingPassword] = useState(false)
     const [imageCrop, setImageCrop] = useState<string | null>(null)
     const [isUploadingImage, setIsUploadingImage] = useState(false)
+
+    const [showEmailOtpModal, setShowEmailOtpModal] = useState(false)
+    const [pendingEmail, setPendingEmail] = useState('')
+    const [isVerifyingEmail, setIsVerifyingEmail] = useState(false)
+    const [otpSent, setOtpSent] = useState(false)
 
     const [isLoadingProfile, setIsLoadingProfile] = useState(false)
     const [savedState, setSavedState] = useState<PatientSettingsForm>(emptyForm)
@@ -83,6 +98,21 @@ const PatientSettings = () => {
         setHasChanges(hasChanges)
     }, [form, savedState])
 
+    useEffect(() => {
+        if (!showEmailOtpModal || !pendingEmail || otpSent) return
+
+        const send = async () => {
+            try {
+                await sendOtp(pendingEmail, OtpPurpose.REGISTER)
+                setOtpSent(true)
+            } catch (error) {
+                toast.error(getErrorMessage(error))
+            }
+        }
+
+        send()
+    }, [showEmailOtpModal, pendingEmail, otpSent])
+
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value })
     }
@@ -92,46 +122,77 @@ const PatientSettings = () => {
     }
 
     const handleSave = () => {
-        const saveProfile = async () => {
-            setIsSaving(true)
-            try {
-                const updatedProfile = await updatePatientProfile({
-                    name: form.name,
-                    email: form.email,
-                    mobile: form.mobile,
-                })
+        const emailChanged = form.email !== savedState.email
 
-                const updatedForm: PatientSettingsForm = {
+        if (emailChanged) {
+            toast('Please verify your new email')
+            setPendingEmail(form.email)
+            setShowEmailOtpModal(true)
+            return
+        }
+
+        saveProfile()
+    }
+
+    const saveProfile = async () => {
+        setIsSaving(true)
+        try {
+            const updatedProfile = await updatePatientProfile({
+                name: form.name,
+                email: form.email,
+                mobile: form.mobile,
+            })
+
+            const updatedForm: PatientSettingsForm = {
+                name: updatedProfile.name,
+                email: updatedProfile.email,
+                mobile: updatedProfile.mobile,
+                dateOfBirth: updatedProfile.dateOfBirth.split('T')[0] || '',
+                gender: updatedProfile.gender,
+            }
+
+            setPatientProfile(updatedProfile)
+            setForm(updatedForm)
+            setSavedState(updatedForm)
+            setIsEditing(false)
+
+            if (user) {
+                setAuth({
+                    ...user,
                     name: updatedProfile.name,
                     email: updatedProfile.email,
                     mobile: updatedProfile.mobile,
-                    dateOfBirth: updatedProfile.dateOfBirth.split('T')[0] || '',
-                    gender: updatedProfile.gender,
-                }
-
-                setPatientProfile(updatedProfile)
-                setForm(updatedForm)
-                setSavedState(updatedForm)
-                setIsEditing(false)
-
-                if (user) {
-                    setAuth({
-                        ...user,
-                        name: updatedProfile.name,
-                        email: updatedProfile.email,
-                        mobile: updatedProfile.mobile,
-                    })
-                }
-
-                toast.success('Patient profile updated successfully')
-            } catch (error) {
-                toast.error(getErrorMessage(error))
-            } finally {
-                setIsSaving(false)
+                })
             }
-        }
 
-        void saveProfile()
+            toast.success('Patient profile updated successfully')
+        } catch (error) {
+            toast.error(getErrorMessage(error))
+        } finally {
+            setIsSaving(false)
+        }
+    }
+
+    const handleVerifyEmailOtp = async (otp: string) => {
+        setIsVerifyingEmail(true)
+        try {
+            await verifyOtp(pendingEmail, otp)
+            setShowEmailOtpModal(false)
+            await saveProfile()
+        } catch (error) {
+            toast.error(getErrorMessage(error))
+        } finally {
+            setIsVerifyingEmail(false)
+        }
+    }
+
+    const handleResendEmailOtp = async () => {
+        try {
+            await sendOtp(pendingEmail, OtpPurpose.REGISTER)
+            toast.success('Verification code sent')
+        } catch (error) {
+            toast.error(getErrorMessage(error))
+        }
     }
 
     const handleDiscard = () => {
@@ -334,6 +395,25 @@ const PatientSettings = () => {
                     onSubmit={handleChangePassword}
                     isLoading={isChangingPassword}
                 />
+
+                {showEmailOtpModal && (
+                    <Modal
+                        isOpen={showEmailOtpModal}
+                        onClose={() => {
+                            setShowEmailOtpModal(false)
+                            setOtpSent(false)
+                        }}
+                        title=""
+                    >
+                        <OtpVerification
+                            email={pendingEmail}
+                            onVerify={handleVerifyEmailOtp}
+                            onResend={handleResendEmailOtp}
+                            onBack={() => setShowEmailOtpModal(false)}
+                            loading={isVerifyingEmail}
+                        />
+                    </Modal>
+                )}
 
                 {imageCrop && (
                     <ImageCropper
