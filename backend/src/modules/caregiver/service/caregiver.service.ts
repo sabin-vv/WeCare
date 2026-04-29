@@ -5,13 +5,11 @@ import { TOKENS } from '../../../container/tokens'
 import { HTTP_STATUS } from '../../../core/constants/httpStatus'
 import { AppError } from '../../../core/errors/AppError'
 import { IUserRepository } from '../../auth/interfaces/user.repository.interface'
-import { toUserEntity } from '../../auth/mapper/auth.mapper'
-import { MulterFiles, UserRole } from '../../auth/types/auth.types'
 import { ICaregiverRepository } from '../interfaces/caregiver.repository.interface'
 import { ICaregiverService } from '../interfaces/caregiver.service.interface'
-import { toCaregiverEntity, toCaregiverProfileResponse } from '../mapper/caregiver.mapper'
+import { toCaregiverEntity, toCaregiverProfileEntity, toCaregiverProfileResponse } from '../mapper/caregiver.mapper'
 import { CaregiverProfileResponse } from '../types/caregiver.types'
-import { CreateCaregiverProfileDTO, RegisterCaregiverDTO } from '../validator/caregiver.schema'
+import { CreateCaregiverProfileDTO } from '../validator/caregiver.schema'
 import { UpdateCaregiverSettingsDTO } from '../validator/updateCaregiverSettings.schema'
 
 @injectable()
@@ -21,18 +19,7 @@ export class CaregiverService implements ICaregiverService {
         @inject(TOKENS.ICaregiverRepository) private _caregiverRepo: ICaregiverRepository,
     ) {}
 
-    async registerCaregiver(dto: RegisterCaregiverDTO, files: MulterFiles) {
-        const existing = await this._userRepo.findByEmail(dto.email)
-        if (existing) throw new AppError(HTTP_STATUS.BAD_REQUEST, 'User already exist')
-
-        const userData = await toUserEntity(dto, UserRole.CAREGIVER)
-        const user = await this._userRepo.create(userData)
-
-        const caregiverData = toCaregiverEntity(user._id, dto, files)
-        return this._caregiverRepo.create(caregiverData)
-    }
-
-    async createProfile(userId: string, dto: CreateCaregiverProfileDTO) {
+    async createProfile(userId: string, dto: CreateCaregiverProfileDTO): Promise<Partial<CaregiverProfileResponse>> {
         const existingCaregiver = await this._caregiverRepo.findByUserId(new Types.ObjectId(userId))
         if (existingCaregiver) {
             throw new AppError(HTTP_STATUS.BAD_REQUEST, 'Caregiver profile already exists')
@@ -42,7 +29,7 @@ export class CaregiverService implements ICaregiverService {
         const caregiver = await this._caregiverRepo.create(caregiverData)
         await this._userRepo.update(userId, { isProfileComplete: true })
 
-        return caregiver
+        return toCaregiverProfileEntity(caregiver)
     }
 
     async getProfile(userId: string): Promise<CaregiverProfileResponse> {
