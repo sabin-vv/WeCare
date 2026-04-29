@@ -50,19 +50,28 @@ const PatientDashboardPage = () => {
         )
     }
 
+    const activeAppointments = appointments.filter((a) => a.status !== 'cancelled')
+
     return (
         <AuthLayout>
             <MainWrapper>
-                {appointments.map((appointment) => (
-                    <AppointmentCard
-                        key={appointment._id}
-                        date={formatDate(appointment.appointmentDate)}
-                        doctorName={appointment.doctorId.name}
-                        specialization={appointment.doctorId.email}
-                        status="pending_payment"
-                        time={appointment.slotStart}
-                    />
-                ))}
+                {activeAppointments.length === 0 ? (
+                    <div className={styles.noAppointments}>
+                        <p>No active appointments scheduled</p>
+                        <p>Book an appointment with a doctor to get started</p>
+                    </div>
+                ) : (
+                    activeAppointments.map((appointment) => (
+                        <AppointmentCard
+                            key={appointment._id}
+                            date={formatDate(appointment.appointmentDate)}
+                            doctorName={appointment.doctorId.userId.name}
+                            specialization={appointment.doctorId.userId.email}
+                            status={appointment.status}
+                            time={appointment.slotStart}
+                        />
+                    ))
+                )}
             </MainWrapper>
         </AuthLayout>
     )
