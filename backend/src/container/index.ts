@@ -20,11 +20,13 @@ import { ICaregiverRepository } from '../modules/caregiver/interfaces/caregiver.
 import { ICaregiverService } from '../modules/caregiver/interfaces/caregiver.service.interface'
 import { CaregiverRepository } from '../modules/caregiver/repository/caregiver.repository'
 import { CaregiverService } from '../modules/caregiver/service/caregiver.service'
+import { IAvailabilityNotificationService } from '../modules/doctor/interfaces/availabilityNotification.service.interface'
 import { IDoctorRepository } from '../modules/doctor/interfaces/doctor.repository.interface'
 import { IDoctorService } from '../modules/doctor/interfaces/doctor.service.interface'
 import { IDoctorAvailabilityRepository } from '../modules/doctor/interfaces/doctor-availability.repository.interface'
 import { DoctorRepository } from '../modules/doctor/repository/doctor.repository'
 import { DoctorAvailabilityRepository } from '../modules/doctor/repository/doctorAvailability.repository'
+import { AvailabilityNotificationService } from '../modules/doctor/service/availabilityNotification.service'
 import { DoctorService } from '../modules/doctor/service/doctor.service'
 import { IPatientRepository } from '../modules/patient/interfaces/patient.repository.interface'
 import { IPatientService } from '../modules/patient/interfaces/patient.service.interface'
@@ -40,6 +42,9 @@ container.register<IUserRepository>(TOKENS.IUserRepository, { useClass: UserRepo
 container.register<IDoctorRepository>(TOKENS.IDoctorRepository, { useClass: DoctorRepository })
 container.register<IDoctorAvailabilityRepository>(TOKENS.IDoctorAvailabilityRepository, {
     useClass: DoctorAvailabilityRepository,
+})
+container.register<IAvailabilityNotificationService>(TOKENS.IAvailabilityNotificationService, {
+    useClass: AvailabilityNotificationService,
 })
 container.register<IDoctorService>(TOKENS.IDoctorService, { useClass: DoctorService })
 container.register<ICaregiverRepository>(TOKENS.ICaregiverRepository, { useClass: CaregiverRepository })
