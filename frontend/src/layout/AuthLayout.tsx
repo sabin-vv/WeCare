@@ -6,11 +6,7 @@ import styles from './AuthLayout.module.css'
 
 import Header from '@/shared/components/Header/Header'
 
-interface LayoutProps {
-    children: ReactNode
-}
-
-const AuthLayout = ({ children }: LayoutProps) => {
+const AuthLayout = ({ children }: { children: ReactNode }) => {
     return (
         <div className={styles.pageLayout}>
             <Header />
