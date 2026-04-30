@@ -41,10 +41,14 @@ export interface CaregiverProfileData {
     email: string
     phoneNumber: string
     profileImage?: string
+    govIdImage: string
     certificateNumber: string
+    certificateImage: string
     licenseNumber: string
+    licenseImage: string
     isActive: boolean
     verificationStatus: VerificationStatus
+    rejectReason?: string
 }
 
 export interface CaregiverProfileResponse extends ApiInterface {

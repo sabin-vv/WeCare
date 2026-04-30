@@ -35,10 +35,14 @@ export const toCaregiverProfileResponse = (
         email: user.email,
         phoneNumber: user.mobile,
         profileImage: caregiver.profileImage,
+        govIdImage: caregiver.govIdImage,
         certificateNumber: caregiver.certificateNumber,
+        certificateImage: caregiver.certificateImage,
         licenseNumber: caregiver.licenseNumber,
+        licenseImage: caregiver.licenseImage,
         isActive: caregiver.isActive,
         verificationStatus: caregiver.verificationStatus,
+        rejectReason: caregiver.rejectReason,
     }
 }
 export const toCaregiverProfileEntity = (profile: Partial<CaregiverDocument>) => {

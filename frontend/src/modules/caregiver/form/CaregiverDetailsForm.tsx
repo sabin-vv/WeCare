@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 
@@ -18,19 +18,23 @@ import { useAuth } from '@/shared/context/AuthContext'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 
 interface CaregiverDocuments {
-    govId: File | null
-    profileImage: File | null
+    govId: File | string | null
+    profileImage: File | string | null
     certificate: {
         number: string
-        document: File | null
+        document: File | string | null
     }
     license: {
         number: string
-        document: File | null
+        document: File | string | null
     }
 }
 
-const CaregiverDetailsForm = () => {
+interface CaregiverDetailsFormProps {
+    documents?: CaregiverDocuments
+}
+
+const CaregiverDetailsForm = ({ documents: initialDocuments }: CaregiverDetailsFormProps) => {
     const { user, setAuth } = useAuth()
     const navigate = useNavigate()
     const [documents, setDocuments] = useState<CaregiverDocuments>({
@@ -47,6 +51,24 @@ const CaregiverDetailsForm = () => {
     })
     const [imageCrop, setImageCrop] = useState<string | null>(null)
     const [isUploading, setIsUploading] = useState(false)
+
+    useEffect(() => {
+        if (initialDocuments) {
+            setDocuments((prev) => ({
+                ...prev,
+                govId: initialDocuments.govId,
+                profileImage: initialDocuments.profileImage,
+                certificate: {
+                    number: initialDocuments.certificate.number,
+                    document: initialDocuments.certificate.document,
+                },
+                license: {
+                    number: initialDocuments.license.number,
+                    document: initialDocuments.license.document,
+                },
+            }))
+        }
+    }, [initialDocuments])
 
     const uploadFileToS3 = async (file: File, folder: string): Promise<string> => {
         try {
