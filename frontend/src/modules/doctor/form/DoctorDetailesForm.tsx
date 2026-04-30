@@ -6,7 +6,7 @@ import { getCurrentUser, presignUpload, uploadToS3 } from '../../auth/api/auth.a
 import FileUploadBox from '../../auth/components/FileUploadBox'
 import { doctorDetailesSchema } from '../../auth/validator/register.schema'
 import { updateProfile } from '../api/doctor.api'
-import type { DoctorDocuments, Specializations } from '../types/doctor.types'
+import type { DoctorDocuments, Specialization } from '../types/doctor.types'
 
 import styles from './DoctorDetailsForm.module.css'
 
@@ -16,12 +16,14 @@ import Card from '@/shared/components/Card/Card'
 import FormWrapper from '@/shared/components/FormWrapper/FormWrapper'
 import ImageCropper from '@/shared/components/ImageCropper/ImageCropper'
 import InputField from '@/shared/components/InputField/InputField'
+import SelectField from '@/shared/components/SelectField/SelectField'
+import { SPECIALIZATIONS } from '@/shared/constants/specializations'
 import { useAuth } from '@/shared/context/AuthContext'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 
 export interface DoctorDetailsProps {
     document?: DoctorDocuments
-    specialization?: Specializations[]
+    specialization?: Specialization[]
 }
 const DoctorDetailsForm = ({ document, specialization }: DoctorDetailsProps) => {
     const { user, setAuth } = useAuth()
@@ -37,10 +39,15 @@ const DoctorDetailsForm = ({ document, specialization }: DoctorDetailsProps) => 
             document: null,
         },
     })
-    const [specializations, setSpecializations] = useState<Specializations[]>([{ name: '', documentImage: null }])
+    const [specializations, setSpecializations] = useState<Specialization[]>([{ name: '', documentImage: null }])
     const [imageCrop, setImageCrop] = useState<string | null>(null)
     const [isUploading, setIsUploading] = useState(false)
     const navigate = useNavigate()
+
+    const options = SPECIALIZATIONS.map((s) => ({
+        label: s,
+        value: s,
+    }))
 
     useEffect(() => {
         if (document) {
@@ -311,9 +318,8 @@ const DoctorDetailsForm = ({ document, specialization }: DoctorDetailsProps) => 
                     {specializations.map((item, index) => (
                         <div key={index} className={styles.specializationCard}>
                             <div className={styles.cardHeader}>
-                                <InputField
-                                    type="text"
-                                    placeholder="Enter your specialization"
+                                <SelectField
+                                    options={options}
                                     value={item.name}
                                     onChange={(e) => handleChange(index, e.target.value)}
                                 />
