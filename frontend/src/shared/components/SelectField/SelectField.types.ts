@@ -6,7 +6,7 @@ export interface Options {
 }
 
 export interface SelectFieldProps extends SelectHTMLAttributes<HTMLSelectElement> {
-    label: string
+    label?: string
     options: Options[]
     errors?: string
 }
