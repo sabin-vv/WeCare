@@ -4,7 +4,7 @@ import Footer from '../shared/components/Footer/Footer'
 
 import styles from './AuthLayout.module.css'
 
-import Header from '@/modules/auth/components/Header'
+import Header from '@/shared/components/Header/Header'
 
 interface LayoutProps {
     children: ReactNode
