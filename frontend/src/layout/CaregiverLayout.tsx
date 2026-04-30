@@ -2,8 +2,8 @@ import { Outlet } from 'react-router-dom'
 
 import styles from './CaregiverLayout.module.css'
 
+import CaregiverHeader from '@/modules/caregiver/components/CaregiverHeader'
 import CaregiverSidebar from '@/modules/caregiver/components/CaregiverSidebar'
-import CaregiverHeader from '@/shared/components/Header/CaregiverHeader'
 
 const CaregiverLayout = () => {
     return (
