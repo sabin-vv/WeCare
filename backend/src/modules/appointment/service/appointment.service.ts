@@ -9,6 +9,7 @@ import { AppError } from '../../../core/errors/AppError'
 import { logger } from '../../../core/logger/logger'
 import { IAdminRepository } from '../../admin/interfaces/admin.repository.interface'
 import { IDoctorRepository } from '../../doctor/interfaces/doctor.repository.interface'
+import { IPatientRepository } from '../../patient/interfaces/patient.repository.interface'
 import { IPaymentRepository } from '../../payment/interfaces/payment.repository.interface'
 import { IAppointmentService } from '../interfaces/appointment.service.interface'
 import { RazorpayOrder } from '../interfaces/appointment.service.interface'
@@ -25,6 +26,7 @@ export class AppointmentService implements IAppointmentService {
         @inject(TOKENS.IDoctorRepository) private _doctorRepo: IDoctorRepository,
         @inject(TOKENS.IAdminRepository) private _adminRepo: IAdminRepository,
         @inject(TOKENS.IPaymentRepository) private _paymentRepo: IPaymentRepository,
+        @inject(TOKENS.IPatientRepository) private _patientRepo: IPatientRepository,
     ) {
         this.razorpay = new Razorpay({
             key_id: env.RAZORPAY_KEY_ID,
@@ -80,6 +82,8 @@ export class AppointmentService implements IAppointmentService {
             status: 'pending_payment',
             expiredAt,
         })
+
+        await this._patientRepo.updateByUserId(new Types.ObjectId(dto.patientId), { primaryDoctorId: doctor._id })
 
         const settings = await this._adminRepo.getPlatformSettings()
         const totalAmount = doctor.consultationFee + settings.platformFee
