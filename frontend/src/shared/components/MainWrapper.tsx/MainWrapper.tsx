@@ -1,12 +1,18 @@
-import type { ReactNode } from 'react'
-
 import styles from './MainWrapper.module.css'
+import type { MainWrapperProps } from './MainWrapper.types'
 
-const MainWrapper = ({ children }: { children: ReactNode }) => {
+const MainWrapper = ({ title, subtitle, children }: MainWrapperProps) => {
     return (
-        <main className={styles.wrapper}>
-            <div className={styles.container}>{children}</div>
-        </main>
+        <div className={styles.wrapper}>
+            <div className={styles.container}>
+                <div className={styles.header}>
+                    <h1 className={styles.title}>{title}</h1>
+                    {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
+                </div>
+
+                <div className={styles.content}>{children}</div>
+            </div>
+        </div>
     )
 }
 export default MainWrapper

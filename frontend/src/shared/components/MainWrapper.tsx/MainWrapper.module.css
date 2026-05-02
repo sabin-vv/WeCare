@@ -1,14 +1,38 @@
 .wrapper {
     width: 100%;
-    min-height: 100vh;
+    min-height: 90vh;
     background: #f9fafb;
     padding: 20px;
+    border-radius: 12px;
 }
 
 .container {
-    max-width: 1100px;
+    max-width: auto;
     margin: 0 auto;
 
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.header {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.content {
     display: flex;
     flex-direction: column;
     gap: 20px;
