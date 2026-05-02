@@ -12,4 +12,6 @@ export interface IUserRepository {
     update(userId: string, data: Partial<UserDocument>): Promise<UserDocument | null>
 
     findById(userId: string): Promise<UserDocument | null>
+
+    findAll(filter: Record<string, unknown>): Promise<UserDocument[]>
 }
