@@ -3,6 +3,7 @@ import type { RouteObject } from 'react-router-dom'
 import AvailabilityPage from '../pages/AvailabilityPage'
 import DoctorDashboard from '../pages/DoctorDashboard'
 import DoctorSettings from '../pages/DoctorSettings'
+import PatientList from '../pages/PatientList'
 
 export const DoctorRoutes: RouteObject[] = [
     {
@@ -16,5 +17,9 @@ export const DoctorRoutes: RouteObject[] = [
     {
         path: '/doctor/availability',
         element: <AvailabilityPage />,
+    },
+    {
+        path: '/doctor/patients',
+        element: <PatientList />,
     },
 ]
