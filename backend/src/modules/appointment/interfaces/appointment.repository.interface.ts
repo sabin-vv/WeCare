@@ -16,4 +16,11 @@ export interface IAppointmentRepository {
     findActiveByPatientAndDoctor(patientId: string, doctorId: string): Promise<AppointmentDocument | null>
 
     findFutureCancellableAppointments(doctorId: string, fromDate: Date): Promise<AppointmentDocument[]>
+
+    findPendingPatientIdsByDoctor(doctorId: string): Promise<string[]>
+
+    findCurrentAppointmentsByDoctorAndPatientIds(
+        doctorId: string,
+        patientIds: string[],
+    ): Promise<AppointmentDocument[]>
 }
