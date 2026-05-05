@@ -15,6 +15,7 @@ import { IAppointmentService } from '../interfaces/appointment.service.interface
 import { RazorpayOrder } from '../interfaces/appointment.service.interface'
 import { AppointmentResponseDTO, toAppointmentListResponseDTO } from '../mapper/appointment.mapper'
 import { AppointmentRepository } from '../repository/appointment.repository'
+import { AppointmentDocument } from '../types/appointment.types'
 import { CreateAppointmentDTO } from '../validator/appointment.schema'
 
 @injectable()
@@ -122,5 +123,20 @@ export class AppointmentService implements IAppointmentService {
     async getDoctorAppointments(doctorId: string): Promise<AppointmentResponseDTO[]> {
         const appointments = await this._appointmentRepo.findByDoctorId(doctorId)
         return toAppointmentListResponseDTO(appointments)
+    }
+    async cancelAppointment(id: string, _reason: string): Promise<AppointmentDocument | null> {
+        const appointment = await this._appointmentRepo.findById(id)
+
+        if (!appointment) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'Appointment not found')
+        }
+
+        const date = new Date()
+
+        if (appointment.appointmentDate <= date) {
+            throw new AppError(HTTP_STATUS.BAD_REQUEST, 'Cannot cancel this appointment')
+        }
+
+        return await this._appointmentRepo.cancelAppointment(id)
     }
 }
