@@ -1,7 +1,8 @@
 import { Types } from 'mongoose'
 
+import { AppointmentDocument } from '../../appointment/types/appointment.types'
 import { UserDocument } from '../../auth/types/auth.types'
-import { PatientDocument, PatientEntity } from '../types/patient.types'
+import { ListPatientMapper, PatientDocument, PatientEntity, PatientProfileResponseDTO } from '../types/patient.types'
 import { RegisterPatientDTO } from '../validator/patient.schema'
 
 export interface PatientResponseDTO {
@@ -35,19 +36,6 @@ export const toPatientResponseDTO = (user: UserDocument, patient: PatientDocumen
     }
 }
 
-export interface PatientProfileResponseDTO {
-    id: string
-    name: string
-    email: string
-    mobile: string
-    patientId: string
-    dateOfBirth: string
-    gender: string
-    conditions: string[]
-    profileImage?: string
-    isActive: boolean
-}
-
 export const toPatientProfileResponseDTO = (
     user: UserDocument,
     patient: PatientDocument,
@@ -63,5 +51,27 @@ export const toPatientProfileResponseDTO = (
         conditions: patient.conditions ?? [],
         profileImage: patient.profileImage,
         isActive: user.isActive,
+    }
+}
+
+export const toListPatientsMapper = (
+    user: UserDocument,
+    patient: PatientDocument,
+    appointment: AppointmentDocument | null,
+    caregiver: UserDocument | null,
+): ListPatientMapper => {
+    const status =
+        appointment?.status === 'pending_payment' || appointment?.status === 'confirmed'
+            ? 'pending_consultation'
+            : appointment?.status || patient.clinicalStatus || patient.accountStatus || 'active'
+
+    return {
+        patientId: patient.patientId,
+        name: user.name,
+        profileImage: patient.profileImage,
+        conditions: patient.conditions || [],
+        riskLevel: patient.riskLevel || 'NILL',
+        caregiver: caregiver?.name || 'Unassigned',
+        status,
     }
 }
