@@ -41,4 +41,15 @@ export class AppointmentController {
             data: appointments,
         })
     }
+    cancellAppointment = async (req: Request, res: Response) => {
+        const { appointmentId } = req.params
+        const reason: string = req.body
+
+        await this._appointmentService.cancelAppointment(appointmentId as string, reason)
+
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            message: 'Appointment cancelled successfully',
+        })
+    }
 }
