@@ -11,10 +11,11 @@ export const createPatientRoutes = () => {
     const router = Router()
     const patientController = container.resolve(PatientController)
 
+    router.get('/', requireAuth, patientController.getPatients)
+
     router.post('/register', validate(registerPatientSchema), patientController.registerPatient)
     router.get('/me', requireAuth, patientController.getProfile)
     router.put('/me', requireAuth, validate(UpdatePatientSettingsSchema), patientController.updateProfile)
 
     return router
 }
-
