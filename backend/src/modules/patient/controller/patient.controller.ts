@@ -49,4 +49,26 @@ export class PatientController {
             message: 'Patient profile updated successfully',
         })
     }
+
+    getPatients = async (req: Request, res: Response) => {
+        const doctorId = req.user?.userId
+
+        if (!doctorId) {
+            throw new AppError(HTTP_STATUS.UNAUTHORIZED, 'User not authorized')
+        }
+        const { search, filter, page, limit } = req.query
+
+        const result = await this._patientService.listPatients(doctorId, {
+            search: (search as string)?.trim() || '',
+            filter: (filter as string) || 'all',
+            page: parseInt(page as string) || 1,
+            limit: parseInt(limit as string) || 8,
+        })
+
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            data: result,
+            message: 'Patient list fetched succesfully',
+        })
+    }
 }
