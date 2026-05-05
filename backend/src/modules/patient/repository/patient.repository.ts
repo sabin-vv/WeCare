@@ -2,7 +2,7 @@ import { Types } from 'mongoose'
 import { injectable } from 'tsyringe'
 
 import { BaseRepository } from '../../../core/base/base.repository'
-import { IPatientRepository } from '../interfaces/patient.repository.interface'
+import { IPatientRepository, ListPatientParams } from '../interfaces/patient.repository.interface'
 import { PatientModel } from '../models/patient.model'
 import { PatientDocument } from '../types/patient.types'
 
@@ -24,5 +24,40 @@ export class PatientRepository extends BaseRepository<PatientDocument> implement
         const lastPatient = await this.model.findOne().sort({ patientId: -1 }).select('patientId').lean()
         return lastPatient?.patientId || null
     }
-}
 
+    async listPatientsByDoctor(
+        doctorId: Types.ObjectId,
+        params: ListPatientParams,
+    ): Promise<{ data: PatientDocument[]; total: number }> {
+        const { search, filter, page, limit, userIds } = params
+        const pageSafe = Math.max(1, page || 1)
+        const limitSafe = Math.max(1, limit || 8)
+        const query: Record<string, unknown> = { primaryDoctorId: doctorId }
+
+        if (filter === 'high_risk') {
+            query.riskLevel = 'high_risk'
+        } else if (filter === 'hospitalized') {
+            query.clinicalStatus = 'hospitalized'
+        } else if (filter === 'pending_consultation') {
+            query.primaryDoctorId = doctorId
+        }
+
+        const skip = (pageSafe - 1) * limitSafe
+
+        if (search) {
+            query.$or = [{ patientId: { $regex: search, $options: 'i' } }]
+        }
+
+        if (userIds && userIds.length > 0) {
+            query.userId = { $in: userIds }
+        }
+
+        const [data, total] = await Promise.all([
+            this.model.find(query).sort({ patientId: 1 }).skip(skip).limit(limitSafe).lean(),
+
+            this.model.countDocuments(query),
+        ])
+
+        return { data, total }
+    }
+}
