@@ -1,0 +1,11 @@
+import Header from '@/shared/components/Header/Header'
+
+const caregiverNavLinks = [
+    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Find Dotors', path: '/doctors' },
+    { label: 'Appointments', path: '/appointments' },
+]
+const PatientHeader = () => {
+    return <Header navLinks={caregiverNavLinks} />
+}
+export default PatientHeader
