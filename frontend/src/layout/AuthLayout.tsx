@@ -4,12 +4,12 @@ import Footer from '../shared/components/Footer/Footer'
 
 import styles from './AuthLayout.module.css'
 
-import Header from '@/shared/components/Header/Header'
+import PatientHeader from '@/modules/patient/component/PatientHeader'
 
 const AuthLayout = ({ children }: { children: ReactNode }) => {
     return (
         <div className={styles.pageLayout}>
-            <Header />
+            <PatientHeader />
             {children}
             <Footer />
         </div>
