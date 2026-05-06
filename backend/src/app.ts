@@ -11,6 +11,7 @@ import { createDoctorRoutes } from './modules/doctor/routes/doctor.route'
 import { createPatientRoutes } from './modules/patient/routes/patient.route'
 import { createPaymentRoutes } from './modules/payment/routes/payment.routes'
 import { createUploadsRoutes } from './modules/uploads/routes/uploads.route'
+import { createWalletRoutes } from './modules/wallet/routes/wallet.route'
 
 const app = express()
 
@@ -35,6 +36,8 @@ app.use('/api/patients', createPatientRoutes())
 app.use('/api/appointments', createAppointmentRoutes())
 
 app.use('/api/payments', createPaymentRoutes())
+
+app.use('/api/wallet', createWalletRoutes())
 
 app.use('/api/uploads', createUploadsRoutes())
 
