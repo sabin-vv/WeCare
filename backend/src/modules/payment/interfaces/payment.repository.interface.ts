@@ -1,6 +1,8 @@
 import { PaymentDocument } from '../types/payment.types'
 
 export interface IPaymentRepository {
+    findById(id: string): Promise<PaymentDocument | null>
+
     create(data: Partial<PaymentDocument>): Promise<PaymentDocument>
 
     findByOrderId(orderId: string): Promise<PaymentDocument | null>
