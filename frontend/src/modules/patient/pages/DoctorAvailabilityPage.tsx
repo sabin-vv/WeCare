@@ -8,7 +8,7 @@ import { type DoctorInfo, type DoctorSlot, type RazorpayResponse } from '../type
 import styles from './DoctorAvailabilityPage.module.css'
 
 import { env } from '@/config/env'
-import AuthLayout from '@/layout/AuthLayout'
+import PatientLayout from '@/layout/PatientLayout'
 import { api } from '@/services/api'
 import Button from '@/shared/components/Button/Button'
 import { useAuth } from '@/shared/context/AuthContext'
@@ -56,13 +56,9 @@ const DoctorAvailabilityPage = () => {
         end: '',
     })
     const [slots, setSlots] = useState<DoctorSlot[]>([])
-
     const [isLoading, setIsLoading] = useState(true)
-
     const [selectedDate, setSelectedDate] = useState<Date | null>(null)
-
     const [loading, setLoading] = useState(false)
-
     const { settings } = usePlatform()
 
     const formatDate = (date: Date) => {
@@ -207,17 +203,17 @@ const DoctorAvailabilityPage = () => {
 
     if (isLoading) {
         return (
-            <AuthLayout>
+            <PatientLayout>
                 <div className={styles.loadingContainer}>
                     <div className={styles.spinner}></div>
                 </div>
-            </AuthLayout>
+            </PatientLayout>
         )
     }
 
     if (!doctor) {
         return (
-            <AuthLayout>
+            <PatientLayout>
                 <main>
                     <div className={styles.errorContainer}>
                         <p>Doctor not found</p>
@@ -226,12 +222,12 @@ const DoctorAvailabilityPage = () => {
                         </button>
                     </div>
                 </main>
-            </AuthLayout>
+            </PatientLayout>
         )
     }
 
     return (
-        <AuthLayout>
+        <PatientLayout>
             <main className={styles.main}>
                 <div className={styles.leftSection}>
                     <h2 className={styles.sectionTitle}>Select Appointment Date & Time</h2>
@@ -376,7 +372,7 @@ const DoctorAvailabilityPage = () => {
                     </div>
                 </div>
             </main>
-        </AuthLayout>
+        </PatientLayout>
     )
 }
 

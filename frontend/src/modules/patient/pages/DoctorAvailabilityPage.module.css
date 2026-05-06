@@ -1,6 +1,7 @@
 .main {
     display: flex;
     gap: 20px;
+    justify-content: center;
 }
 .container {
     max-width: 1200px;
