@@ -130,4 +130,14 @@ export class AppointmentRepository extends BaseRepository<AppointmentDocument> i
             .sort({ updatedAt: -1, appointmentDate: -1, slotStart: -1 })
             .lean()
     }
+
+    async cancelAppointment(id: string): Promise<AppointmentDocument | null> {
+        return await AppointmentModel.findByIdAndUpdate(
+            id,
+            {
+                status: 'cancelled',
+            },
+            { new: true },
+        )
+    }
 }
