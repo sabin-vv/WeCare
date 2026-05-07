@@ -81,9 +81,9 @@ export class WalletService implements IWalletService {
     }
 
     async getWallet(userId: string) {
-        const wallet = await this._walletRepo.findByUserId(userId)
+        let wallet = await this._walletRepo.findByUserId(userId)
         if (!wallet) {
-            return null
+            wallet = await this._walletRepo.createWallet(userId)
         }
 
         return {
