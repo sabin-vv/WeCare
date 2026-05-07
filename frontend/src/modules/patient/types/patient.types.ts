@@ -1,3 +1,5 @@
+import type { ApiInterface } from '@/modules/auth/api/auth.api.types'
+
 export interface Specialist {
     id: string
     name: string
@@ -114,4 +116,19 @@ export interface RazorpayResponse {
     razorpay_order_id: string
     razorpay_payment_id: string
     razorpay_signature: string
+}
+
+export interface Transactions {
+    type: 'credit' | 'debit'
+    amount: number
+    description: string
+    createdAt: Date
+}
+export interface GetWallet {
+    balance: number
+    transactions: Transactions[]
+}
+
+export interface GetWalletResponse extends ApiInterface {
+    data: GetWallet
 }
