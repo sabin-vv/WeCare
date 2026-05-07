@@ -197,3 +197,111 @@
         grid-template-columns: 1fr;
     }
 }
+
+.cancelModalContent {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.cancelModalText {
+    margin: 0;
+    color: #475569;
+    font-size: 0.95rem;
+}
+
+.reasonsList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.reasonOption {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.reasonOption:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+.reasonRadio {
+    width: 18px;
+    height: 18px;
+    accent-color: #dc2626;
+    cursor: pointer;
+}
+
+.reasonLabel {
+    font-size: 0.95rem;
+    color: #334155;
+}
+
+.customReasonTextarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.customReasonTextarea:focus {
+    border-color: #dc2626;
+}
+
+.customReasonTextarea::placeholder {
+    color: #94a3b8;
+}
+
+.modalCancelBtn {
+    padding: 10px 20px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: white;
+    color: #475569;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.modalCancelBtn:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+.modalConfirmBtn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background: #dc2626;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.modalConfirmBtn:hover {
+    background: #b91c1c;
+}
+
+.modalConfirmBtn:active {
+    transform: scale(0.98);
+}
+
+.modalConfirmBtn:disabled {
+    background: #fca5a5;
+    cursor: not-allowed;
+}
