@@ -1,4 +1,4 @@
-import { Calendar, Clock, User, CreditCard, CheckCircle2, AlertCircle } from 'lucide-react'
+import { Calendar, Clock, User, CreditCard, AlertCircle } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 
@@ -109,13 +109,9 @@ const PatientAppointmentsPage = () => {
 
             <div className={styles.cardFooter}>
                 <div className={styles.amount}>₹{appointment.amount}</div>
-                {appointment.paymentStatus === 'paid' && (
-                    <div
-                        className={styles.statusConfirmed}
-                        style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem' }}
-                    >
-                        <CheckCircle2 size={16} /> Paid
-                    </div>
+
+                {new Date(appointment.appointmentDate).getHours() - now.getHours() < 2 && (
+                    <button className={styles.cancelButton}>Cancel</button>
                 )}
             </div>
         </div>
