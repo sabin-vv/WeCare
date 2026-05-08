@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import { useParams, useNavigate } from 'react-router-dom'
 
-import { getDoctorSlots, createAppointment, verifyPayment } from '../api/patient.api'
+import { getDoctorSlots, createAppointment, verifyPayment, getWallet } from '../api/patient.api'
 import { type DoctorInfo, type DoctorSlot, type RazorpayResponse } from '../types/patient.types'
 
 import styles from './DoctorAvailabilityPage.module.css'
@@ -57,9 +57,16 @@ const DoctorAvailabilityPage = () => {
     })
     const [slots, setSlots] = useState<DoctorSlot[]>([])
     const [isLoading, setIsLoading] = useState(true)
+    const [isFetchingSlots, setIsFetchingSlots] = useState(false)
     const [selectedDate, setSelectedDate] = useState<Date | null>(null)
-    const [loading, setLoading] = useState(false)
+    const [isProcessingPayment, setIsProcessingPayment] = useState(false)
+    const [walletbalance, setWalletbalance] = useState<number>(0)
     const { settings } = usePlatform()
+
+    const fetchWallet = async () => {
+        const res = await getWallet()
+        setWalletbalance(res.data.balance)
+    }
 
     const formatDate = (date: Date) => {
         return date.toISOString().split('T')[0]
@@ -67,14 +74,14 @@ const DoctorAvailabilityPage = () => {
 
     const fetchSlots = async (date: Date) => {
         try {
-            setLoading(true)
+            setIsFetchingSlots(true)
             const data = await getDoctorSlots(doctorId!, formatDate(date))
             setSlots(data.slots)
         } catch (err) {
             toast.error(getErrorMessage(err))
             setSlots([])
         } finally {
-            setLoading(false)
+            setIsFetchingSlots(false)
         }
     }
 
@@ -103,6 +110,10 @@ const DoctorAvailabilityPage = () => {
         }
     }, [selectedDate, doctorId])
 
+    useEffect(() => {
+        fetchWallet()
+    }, [])
+
     const groupSlots = (slots: DoctorSlot[]) => ({
         morning: slots.filter((s) => Number(s.start.split(':')[0]) < 12),
         afternoon: slots.filter((s) => {
@@ -116,27 +127,42 @@ const DoctorAvailabilityPage = () => {
 
     const { user } = useAuth()
 
-    const handleBookAppointment = async () => {
+    const validateCheckout = () => {
         if (!selectedTimeSlot || !selectedDate) {
             toast.error('Please select a date and time slot')
-            return
+            return false
         }
         if (!user) {
             toast.error('Please login to continue')
-            return
+            return false
         }
+        return true
+    }
+
+    const handleRazorpayAppointment = async () => {
+        if (!validateCheckout()) return
+        if (!selectedDate) return
+
+        const appointmentDate = selectedDate.toISOString()
 
         try {
-            setLoading(true)
+            setIsProcessingPayment(true)
 
             await loadRazorpayScript()
 
-            const { order, paymentId } = await createAppointment({
+            const response = await createAppointment({
                 doctorId: doctorId!,
-                appointmentDate: selectedDate.toISOString(),
+                appointmentDate,
+                paymentMethod: 'razorpay',
                 slotStart: selectedTimeSlot.start,
                 slotEnd: selectedTimeSlot.end,
             })
+
+            if (response.paymentMethod !== 'razorpay') {
+                throw new Error('Unexpected wallet response for Razorpay checkout')
+            }
+
+            const { order, paymentId } = response
 
             const options = {
                 key: env.RAZORPAY_KEY_ID,
@@ -154,11 +180,11 @@ const DoctorAvailabilityPage = () => {
                             razorpaySignature: response.razorpay_signature,
                         })
                         toast.success('Appointment booked successfully!')
-                        setLoading(false)
+                        setIsProcessingPayment(false)
                         navigate('/appointments')
                     } catch (err) {
                         toast.error(getErrorMessage(err))
-                        setLoading(false)
+                        setIsProcessingPayment(false)
                     }
                 },
                 prefill: {
@@ -171,7 +197,7 @@ const DoctorAvailabilityPage = () => {
                 },
                 modal: {
                     ondismiss: () => {
-                        setLoading(false)
+                        setIsProcessingPayment(false)
                     },
                 },
             }
@@ -180,18 +206,57 @@ const DoctorAvailabilityPage = () => {
 
             await loadRazorpayScript().catch(() => {
                 toast.error('Payment service unavailable')
-                setLoading(false)
+                setIsProcessingPayment(false)
                 throw new Error('Razorpay load failed')
             })
 
             rzp.open()
         } catch (err) {
             toast.error(getErrorMessage(err))
-            setLoading(false)
+            setIsProcessingPayment(false)
+        }
+    }
+
+    const handleWalletAppointment = async () => {
+        if (!validateCheckout()) return
+        if (!selectedDate) return
+
+        const appointmentDate = selectedDate.toISOString()
+
+        if (totalFee > walletbalance) {
+            toast.error('Insufficient wallet balance')
+            return
+        }
+
+        try {
+            setIsProcessingPayment(true)
+
+            const response = await createAppointment({
+                doctorId: doctorId!,
+                appointmentDate,
+                paymentMethod: 'wallet',
+                slotStart: selectedTimeSlot.start,
+                slotEnd: selectedTimeSlot.end,
+            })
+
+            if (response.paymentMethod !== 'wallet') {
+                throw new Error('Unexpected Razorpay response for wallet checkout')
+            }
+
+            setWalletbalance(response.walletBalance)
+            toast.success('Appointment booked successfully')
+            navigate('/appointments')
+        } catch (err) {
+            toast.error(getErrorMessage(err))
+            await fetchWallet().catch(() => null)
+        } finally {
+            setIsProcessingPayment(false)
         }
     }
 
     const totalFee = (doctor?.consultationFee ?? 0) + (settings?.platformFee ?? 0)
+    const canCheckout = Boolean(selectedDate && selectedTimeSlot.start && !isFetchingSlots && !isProcessingPayment)
+    const hasInsufficientWalletBalance = totalFee > walletbalance
 
     const doctorInitials =
         doctor?.name
@@ -240,6 +305,7 @@ const DoctorAvailabilityPage = () => {
                                         ? doctor.profileImage
                                         : `${env.AWS_BASE_URL}${doctor.profileImage}`
                                 }
+                                alt={doctor.name}
                                 className={styles.miniDoctorImage}
                             />
                         ) : (
@@ -288,14 +354,17 @@ const DoctorAvailabilityPage = () => {
                                             <button
                                                 key={slot.start}
                                                 disabled={!slot.available}
+                                                type="button"
                                                 onClick={() =>
                                                     setSelectedTimeSlot({ start: slot.start, end: slot.end })
                                                 }
-                                                className={`
-              ${styles.timeSlot}
-              ${selectedTimeSlot.start === slot.start ? styles.selected : ''}
-              ${!slot.available ? styles.unavailable : ''}
-            `}
+                                                className={[
+                                                    styles.timeSlot,
+                                                    selectedTimeSlot.start === slot.start ? styles.selected : '',
+                                                    !slot.available ? styles.unavailable : '',
+                                                ]
+                                                    .filter(Boolean)
+                                                    .join(' ')}
                                             >
                                                 {slot.start}
                                             </button>
@@ -311,7 +380,6 @@ const DoctorAvailabilityPage = () => {
                     <div className={styles.bookingSummary}>
                         <h2 className={styles.sectionTitle}>Booking Summary</h2>
 
-                        {/* Doctor Info (No Image) */}
                         <div className={styles.doctorInfo}>
                             <div>
                                 <h3 className={styles.doctorName}>{doctor?.name}</h3>
@@ -321,7 +389,6 @@ const DoctorAvailabilityPage = () => {
 
                         <hr className={styles.divider} />
 
-                        {/* Date */}
                         <div className={styles.infoRow}>
                             <span className={styles.infoLabel}>Date</span>
                             <span className={styles.infoValue}>
@@ -335,7 +402,6 @@ const DoctorAvailabilityPage = () => {
 
                         <hr className={styles.divider} />
 
-                        {/* Time */}
                         <div className={styles.infoRow}>
                             <span className={styles.infoLabel}>Time Slot</span>
                             <span className={styles.infoValue}>{selectedTimeSlot.start || 'Not selected'}</span>
@@ -343,7 +409,6 @@ const DoctorAvailabilityPage = () => {
 
                         <hr className={styles.divider} />
 
-                        {/* Fees */}
                         <div className={styles.feeRow}>
                             <span>Consultation Fee</span>
                             <span>₹{doctor?.consultationFee}</span>
@@ -356,19 +421,31 @@ const DoctorAvailabilityPage = () => {
 
                         <hr className={styles.divider} />
 
-                        {/* Total */}
                         <div className={styles.totalRow}>
                             <span>Total</span>
                             <span>₹{totalFee}</span>
                         </div>
 
-                        {/* Button */}
-                        <Button
-                            onClick={handleBookAppointment}
-                            disabled={!selectedDate || !selectedTimeSlot.start || loading}
-                        >
-                            {loading ? 'Processing...' : 'Pay with Razorpay'}
-                        </Button>
+                        <div className={styles.paymentMethods}>
+                            <Button
+                                onClick={handleRazorpayAppointment}
+                                disabled={!canCheckout}
+                                isLoading={isProcessingPayment}
+                            >
+                                Pay with Razorpay
+                            </Button>
+                            <Button
+                                variant="secondary"
+                                disabled={!canCheckout || hasInsufficientWalletBalance}
+                                className={styles.walletButton}
+                                onClick={handleWalletAppointment}
+                            >
+                                Wallet (₹{walletbalance})
+                            </Button>
+                            {hasInsufficientWalletBalance ? (
+                                <p className={styles.paymentHint}>Add money to your wallet to complete this booking.</p>
+                            ) : null}
+                        </div>
                     </div>
                 </div>
             </main>

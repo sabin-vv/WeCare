@@ -173,7 +173,8 @@
 }
 
 .dateRow {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
     gap: 12px;
     margin-bottom: 20px;
 }
@@ -191,6 +192,17 @@
     text-align: center;
     min-width: 60px;
     height: 70px;
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.dateCard:hover {
+    border-color: #86efac;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 16px rgba(16, 185, 129, 0.12);
 }
 
 .activeDate {
@@ -201,7 +213,7 @@
 }
 
 .rightSection {
-    min-width: 320px;
+    min-width: 400px;
     background: #ffffff;
     padding: 20px;
     border-radius: 12px;
@@ -256,14 +268,21 @@
     overflow: hidden;
 }
 
-.timeSlot.selected {
+.timeSlot:hover:not(:disabled) {
+    border-color: #10b981;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 18px rgba(16, 185, 129, 0.12);
+}
+
+.selected {
     background: #059669;
     border-color: #059669;
     color: white;
     transform: none;
+    box-shadow: 0 10px 20px rgba(5, 150, 105, 0.18);
 }
 
-.timeSlot.unavailable {
+.unavailable {
     background: #f9fafb;
     border-color: #e5e7eb;
     color: #d1d5db;
@@ -323,13 +342,22 @@
     font-weight: 700;
 }
 
-.bookButton:hover:not(:disabled) {
-    background: #2563eb;
+.paymentMethods {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 24px;
 }
 
-.bookButton:disabled {
-    background: #d1d5db;
-    cursor: not-allowed;
+.walletButton {
+    border-color: #dbeafe;
+}
+
+.paymentHint {
+    margin: 0;
+    font-size: 13px;
+    color: #b45309;
+    line-height: 1.5;
 }
 
 .loadingContainer {
@@ -392,7 +420,7 @@
 }
 
 @media (max-width: 1024px) {
-    .content {
+    .main {
         grid-template-columns: 1fr;
     }
 
@@ -430,7 +458,11 @@
         gap: 8px;
     }
 
-    .bookButton {
+    .dateRow {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .paymentMethods {
         width: 100%;
     }
 }
