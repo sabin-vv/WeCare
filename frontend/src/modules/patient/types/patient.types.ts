@@ -57,6 +57,7 @@ export interface DoctorSlotsResponse {
 export interface CreateAppointmentRequest {
     doctorId: string
     appointmentDate: Date | string
+    paymentMethod: 'razorpay' | 'wallet'
     slotStart: string
     slotEnd: string
 }
@@ -99,9 +100,20 @@ export interface RazorpayOrder {
 }
 
 export interface CreateAppointmentResponse {
+    paymentMethod: 'razorpay'
     order: RazorpayOrder
     paymentId: string
 }
+
+export interface WalletAppointmentResponse {
+    paymentMethod: 'wallet'
+    paymentId: string
+    appointmentId: string
+    walletBalance: number
+    appointmentConfirmed: true
+}
+
+export type AppointmentCheckoutResponse = CreateAppointmentResponse | WalletAppointmentResponse
 export interface RazorpayOrderResponse {
     id: string
     amount: number | string
