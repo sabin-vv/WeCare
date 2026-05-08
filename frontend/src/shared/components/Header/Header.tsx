@@ -1,4 +1,4 @@
-import { BellRing, Settings, Calendar, User } from 'lucide-react'
+import { BellRing, Settings, Calendar } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -12,7 +12,7 @@ import LogoutButton from '@/shared/components/LogoutButton/LogoutButton'
 import { useAuth } from '@/shared/context/AuthContext'
 import { usePlatform } from '@/shared/context/PlatformContext'
 
-const Header = ({ titlePrefix = '', subtitle, navLinks = [], children }: HeaderProps) => {
+const Header = ({ titlePrefix = '', subtitle, navLinks = [], children, leading }: HeaderProps) => {
     const navigate = useNavigate()
     const { user } = useAuth()
     const { settings } = usePlatform()
@@ -68,6 +68,7 @@ const Header = ({ titlePrefix = '', subtitle, navLinks = [], children }: HeaderP
     return (
         <header className={styles.navbar}>
             <div className={styles.left}>
+                {leading}
                 <img
                     src={`${baseUrl}${settings?.platformLogo}`}
                     alt="logo"
@@ -151,10 +152,6 @@ const Header = ({ titlePrefix = '', subtitle, navLinks = [], children }: HeaderP
                                     >
                                         <Calendar size={18} />
                                         My Appointments
-                                    </button>
-                                    <button className={styles.menuItem} onClick={() => handleLinkClick('/wallet')}>
-                                        <User size={18} />
-                                        Wallet
                                     </button>
                                 </div>
                             )}

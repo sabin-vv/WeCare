@@ -31,6 +31,7 @@
 .left {
     display: flex;
     align-items: center;
+    gap: 12px;
     min-width: 150px;
 }
 
@@ -306,5 +307,9 @@
     .right {
         gap: 8px;
         min-width: auto;
+    }
+
+    .left button {
+        display: flex;
     }
 }
