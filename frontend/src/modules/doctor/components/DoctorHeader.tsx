@@ -1,3 +1,5 @@
+import { Menu } from 'lucide-react'
+
 import Header from '../../../shared/components/Header/Header'
 import type { NavLink } from '../../../shared/components/Header/Header.types'
 
@@ -9,9 +11,41 @@ const doctorNavLinks: NavLink[] = [
     { label: 'Schedule', path: '/doctor/availability' },
 ]
 
-const DoctorHeader = () => {
+interface DoctorHeaderProps {
+    onMenuClick?: () => void
+}
+
+const DoctorHeader = ({ onMenuClick }: DoctorHeaderProps) => {
     const { user } = useAuth()
-    return <Header titlePrefix="Dr. " subtitle={user?.professionalTitle} navLinks={doctorNavLinks} />
+
+    const hamburgerButton = onMenuClick ? (
+        <button
+            onClick={onMenuClick}
+            className="sidebar-toggle-btn"
+            style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '8px',
+            }}
+            aria-label="Toggle sidebar"
+        >
+            <Menu size={24} />
+        </button>
+    ) : null
+
+    return (
+        <Header
+            titlePrefix="Dr. "
+            subtitle={user?.professionalTitle}
+            navLinks={doctorNavLinks}
+            leading={hamburgerButton}
+        />
+    )
 }
 
 export default DoctorHeader
