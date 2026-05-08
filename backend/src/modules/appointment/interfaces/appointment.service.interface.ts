@@ -15,10 +15,24 @@ export interface RazorpayOrder {
     created_at: number
 }
 
+export interface RazorpayAppointmentResponse {
+    paymentMethod: 'razorpay'
+    order: RazorpayOrder
+    paymentId: string
+}
+
+export interface WalletAppointmentResponse {
+    paymentMethod: 'wallet'
+    paymentId: string
+    appointmentId: string
+    walletBalance: number
+    appointmentConfirmed: true
+}
+
+export type CreateAppointmentResult = RazorpayAppointmentResponse | WalletAppointmentResponse
+
 export interface IAppointmentService {
-    createAppointment(
-        dto: CreateAppointmentDTO & { patientId: string },
-    ): Promise<{ order: RazorpayOrder; paymentId: string }>
+    createAppointment(dto: CreateAppointmentDTO & { patientId: string }): Promise<CreateAppointmentResult>
 
     getPatientAppointments(patientId: string): Promise<AppointmentResponseDTO[]>
 
