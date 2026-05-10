@@ -7,6 +7,9 @@ import type {
     DoctorAvailabilityUpdateResult,
     UpdateDoctorProfileData,
     ListPatientsResponse,
+    PatientDetails,
+    PatientDetailsResponse,
+    UpdatePatientConditionPayload,
 } from '../types/doctor.types'
 
 import type { ApiInterface } from '@/modules/auth/api/auth.api.types'
@@ -58,6 +61,27 @@ export const listPatients = async (
             limit,
         },
     })
+
+    return res.data.data
+}
+
+export const getPatientById = async (patientId: string): Promise<PatientDetails> => {
+    const res = await api.get<PatientDetailsResponse>(`/patients/${patientId}`)
+
+    return res.data.data
+}
+
+export const startConsultation = async (patientId: string): Promise<ApiInterface> => {
+    const res = await api.put(`/doctors/patients/${patientId}/start-consultation`)
+
+    return res.data
+}
+
+export const updatePatientCondition = async (
+    patientId: string,
+    data: UpdatePatientConditionPayload,
+): Promise<PatientDetails> => {
+    const res = await api.patch<PatientDetailsResponse>(`/patients/${patientId}/condition`, data)
 
     return res.data.data
 }
