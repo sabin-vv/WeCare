@@ -12,6 +12,7 @@ import { IDoctorRepository } from '../../doctor/interfaces/doctor.repository.int
 import { IPatientRepository } from '../../patient/interfaces/patient.repository.interface'
 import { IPaymentRepository } from '../../payment/interfaces/payment.repository.interface'
 import { IWalletService } from '../../wallet/interfaces/wallet.service.interface'
+import { IAppointmentRepository } from '../interfaces/appointment.repository.interface'
 import {
     CreateAppointmentResult,
     IAppointmentService,
@@ -19,7 +20,6 @@ import {
     WalletAppointmentResponse,
 } from '../interfaces/appointment.service.interface'
 import { AppointmentResponseDTO, toAppointmentListResponseDTO } from '../mapper/appointment.mapper'
-import { AppointmentRepository } from '../repository/appointment.repository'
 import { AppointmentDocument } from '../types/appointment.types'
 import { CreateAppointmentDTO } from '../validator/appointment.schema'
 
@@ -28,7 +28,7 @@ export class AppointmentService implements IAppointmentService {
     private razorpay: Razorpay
 
     constructor(
-        @inject(TOKENS.IAppointmentRepository) private _appointmentRepo: AppointmentRepository,
+        @inject(TOKENS.IAppointmentRepository) private _appointmentRepo: IAppointmentRepository,
         @inject(TOKENS.IDoctorRepository) private _doctorRepo: IDoctorRepository,
         @inject(TOKENS.IAdminRepository) private _adminRepo: IAdminRepository,
         @inject(TOKENS.IPaymentRepository) private _paymentRepo: IPaymentRepository,
@@ -301,5 +301,32 @@ export class AppointmentService implements IAppointmentService {
 
         const cancelled = await this._appointmentRepo.cancelAppointment(id)
         return { appointment: cancelled, refundAmount }
+    }
+
+    async startConsultation(doctorId: string, patientId: string): Promise<void> {
+        const doctor = await this._doctorRepo.findByUserId(new Types.ObjectId(doctorId))
+        if (!doctor) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'Doctor profile not found')
+        }
+
+        const patient = await this._patientRepo.findById(patientId)
+        if (!patient) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'Patient not found')
+        }
+
+        const appointment = await this._appointmentRepo.findCurrentAppointment(
+            doctor._id.toString(),
+            patient.userId.toString(),
+        )
+
+        if (!appointment) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'No active appointment found')
+        }
+
+        if (appointment.status !== 'confirmed') {
+            throw new AppError(HTTP_STATUS.BAD_REQUEST, 'Appointment is not confirmed')
+        }
+
+        await this._appointmentRepo.update(appointment._id.toString(), { status: 'in_consultation' })
     }
 }
