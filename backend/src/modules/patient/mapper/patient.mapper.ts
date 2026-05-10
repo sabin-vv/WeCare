@@ -139,7 +139,7 @@ export const toPatientDetailsDTO = (
         gender: patient.gender,
         profileImage: patient.profileImage,
         conditions: patient.conditions || [],
-        riskLevel: patient.riskLevel || 'NILL',
+        riskLevel: patient.riskLevel,
         caregiver: caregiver?.name || 'Unassigned',
         status,
         clinicalStatus: patient.clinicalStatus || 'active',
