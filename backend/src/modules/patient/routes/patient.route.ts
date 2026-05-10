@@ -13,6 +13,8 @@ export const createPatientRoutes = () => {
 
     router.get('/', requireAuth, patientController.getPatients)
 
+    router.get('/:patientId', requireAuth, patientController.getPatientById)
+
     router.post('/register', validate(registerPatientSchema), patientController.registerPatient)
     router.get('/me', requireAuth, patientController.getProfile)
     router.put('/me', requireAuth, validate(UpdatePatientSettingsSchema), patientController.updateProfile)
