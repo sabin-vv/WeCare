@@ -66,6 +66,7 @@ export const toListPatientsMapper = (
             : appointment?.status || patient.clinicalStatus || patient.accountStatus || 'active'
 
     return {
+        _id: patient._id.toString(),
         patientId: patient.patientId,
         name: user.name,
         profileImage: patient.profileImage,

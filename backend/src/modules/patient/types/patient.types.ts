@@ -42,6 +42,7 @@ export interface PatientProfileResponseDTO {
 }
 
 export interface ListPatientMapper {
+    _id: string
     patientId: string
     name: string
     profileImage?: string
