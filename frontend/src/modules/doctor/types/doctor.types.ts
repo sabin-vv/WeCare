@@ -209,3 +209,66 @@ export interface ListPatientsResponse {
     patients: Patients[]
     pagination: Pagination
 }
+
+export interface PatientDetails {
+    _id: string
+    patientId: string
+    name: string
+    age: number
+    gender: string
+    profileImage?: string
+    conditions: string[]
+    riskLevel: string
+    caregiver: string
+    status: string
+    clinicalStatus: string
+    appointmentStatus: string
+    vitals: PatientVital[]
+    prescriptions: PatientPrescription[]
+}
+
+export interface PatientDetailsResponse {
+    success: boolean
+    data: PatientDetails
+    message: string
+}
+
+export interface PatientVital {
+    _id: string
+    type: 'blood_sugar' | 'blood_pressure' | 'spo2' | 'heart_rate'
+    value?: number
+    systolic?: number
+    diastolic?: number
+    unit: string
+    recordedAt: string
+    recordedBy: string
+}
+
+export interface PatientPrescriptionMedication {
+    name: string
+    dosage: string
+    route: string
+    frequency: string
+    scheduleTimes: string[]
+    isCritical: boolean
+}
+
+export interface PatientPrescription {
+    _id: string
+    patientId: string
+    prescribedBy: string
+    medications: PatientPrescriptionMedication[]
+    note?: string
+    status: 'active' | 'on_hold' | 'discontinued' | 'amended' | 'completed'
+    discontinuedAt?: string
+    discontinuedBy?: string
+    prescribedAt: string
+    updatedAt: string
+}
+
+export type PatientSeverityLevel = 'mild' | 'moderate' | 'severe' | 'high_risk'
+
+export interface UpdatePatientConditionPayload {
+    conditions: string[]
+    riskLevel: PatientSeverityLevel
+}
