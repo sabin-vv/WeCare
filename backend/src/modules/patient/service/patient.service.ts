@@ -23,6 +23,7 @@ import {
 } from '../mapper/patient.mapper'
 import { ListPatientMapper, ListPatientsResponse, PatientProfileResponseDTO } from '../types/patient.types'
 import { RegisterPatientDTO } from '../validator/patient.schema'
+import { UpdatePatientConditionDTO } from '../validator/updatePatientCondition.schema'
 import { UpdatePatientSettingsDTO } from '../validator/updatePatientSettings.schema'
 
 const STARTING_ID = 1000
@@ -42,6 +43,45 @@ export class PatientService implements IPatientService {
         const lastId = await this._patientRepo.getLastPatientId()
         const nextNumber = lastId ? parseInt(lastId, 10) + 1 : STARTING_ID
         return String(nextNumber)
+    }
+
+    private async resolveDoctorPatientContext(doctorId: string, patientId: string) {
+        const doctor = await this._doctorRepo.findByUserId(new Types.ObjectId(doctorId))
+        if (!doctor) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'Doctor profile not found')
+        }
+
+        const patient = await this._patientRepo.findById(patientId)
+        if (!patient) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'Patient not found')
+        }
+
+        if (patient.primaryDoctorId?.toString() !== doctor._id.toString()) {
+            throw new AppError(HTTP_STATUS.FORBIDDEN, 'You are not authorized to view this patient')
+        }
+
+        return { doctor, patient }
+    }
+
+    private async buildPatientDetails(doctorId: string, patient: import('../types/patient.types').PatientDocument) {
+        const user = await this._userRepo.findById(patient.userId.toString())
+        if (!user) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'User not found')
+        }
+
+        const appointment = await this._appointmentRepo.findCurrentAppointment(doctorId, patient.userId.toString())
+
+        let caregiver: import('../../auth/types/auth.types').UserDocument | null = null
+        if (patient.caregiverId) {
+            caregiver = await this._userRepo.findById(patient.caregiverId.toString())
+        }
+
+        const [vitals, prescriptions] = await Promise.all([
+            this._vitalRepo.findByPatientId(patient._id.toString()),
+            this._prescriptionRepo.findByPatientId(patient._id.toString()),
+        ])
+
+        return toPatientDetailsDTO(user, patient, appointment, caregiver, vitals, prescriptions)
     }
 
     async registerPatient(dto: RegisterPatientDTO): Promise<PatientResponseDTO> {
@@ -190,40 +230,26 @@ export class PatientService implements IPatientService {
         doctorId: string,
         patientId: string,
     ): Promise<import('../types/patient.types').PatientDetailsDTO> {
-        const doctor = await this._doctorRepo.findByUserId(new Types.ObjectId(doctorId))
-        if (!doctor) {
-            throw new AppError(HTTP_STATUS.NOT_FOUND, 'Doctor profile not found')
-        }
+        const { doctor, patient } = await this.resolveDoctorPatientContext(doctorId, patientId)
+        return await this.buildPatientDetails(doctor._id.toString(), patient)
+    }
 
-        const patient = await this._patientRepo.findById(patientId)
+    async updatePatientCondition(
+        doctorId: string,
+        patientId: string,
+        dto: UpdatePatientConditionDTO,
+    ): Promise<import('../types/patient.types').PatientDetailsDTO> {
+        const { doctor } = await this.resolveDoctorPatientContext(doctorId, patientId)
+
+        const patient = await this._patientRepo.updateById(patientId, {
+            conditions: dto.conditions,
+            riskLevel: dto.riskLevel,
+        })
+
         if (!patient) {
             throw new AppError(HTTP_STATUS.NOT_FOUND, 'Patient not found')
         }
 
-        if (patient.primaryDoctorId?.toString() !== doctor._id.toString()) {
-            throw new AppError(HTTP_STATUS.FORBIDDEN, 'You are not authorized to view this patient')
-        }
-
-        const user = await this._userRepo.findById(patient.userId.toString())
-        if (!user) {
-            throw new AppError(HTTP_STATUS.NOT_FOUND, 'User not found')
-        }
-
-        const appointment = await this._appointmentRepo.findCurrentAppointment(
-            doctor._id.toString(),
-            patient.userId.toString(),
-        )
-
-        let caregiver: import('../../auth/types/auth.types').UserDocument | null = null
-        if (patient.caregiverId) {
-            caregiver = await this._userRepo.findById(patient.caregiverId.toString())
-        }
-
-        const [vitals, prescriptions] = await Promise.all([
-            this._vitalRepo.findByPatientId(patient._id.toString()),
-            this._prescriptionRepo.findByPatientId(patient._id.toString()),
-        ])
-
-        return toPatientDetailsDTO(user, patient, appointment, caregiver, vitals, prescriptions)
+        return await this.buildPatientDetails(doctor._id.toString(), patient)
     }
 }

@@ -5,6 +5,7 @@ import { requireAuth } from '../../../core/middleware/requireAuth'
 import { validate } from '../../../core/middleware/validateMiddleware'
 import { PatientController } from '../controller/patient.controller'
 import { registerPatientSchema } from '../validator/patient.schema'
+import { UpdatePatientConditionSchema } from '../validator/updatePatientCondition.schema'
 import { UpdatePatientSettingsSchema } from '../validator/updatePatientSettings.schema'
 
 export const createPatientRoutes = () => {
@@ -14,6 +15,12 @@ export const createPatientRoutes = () => {
     router.get('/', requireAuth, patientController.getPatients)
 
     router.get('/:patientId', requireAuth, patientController.getPatientById)
+    router.patch(
+        '/:patientId/condition',
+        requireAuth,
+        validate(UpdatePatientConditionSchema),
+        patientController.updatePatientCondition,
+    )
 
     router.post('/register', validate(registerPatientSchema), patientController.registerPatient)
     router.get('/me', requireAuth, patientController.getProfile)

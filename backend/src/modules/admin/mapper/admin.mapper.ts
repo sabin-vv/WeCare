@@ -2,96 +2,99 @@ import {
     AdminUserProfile,
     PendingCaregiver,
     PendingDoctor,
-    PendingDoctorSpecialization,
     PlatformSettings,
     RecentCaregiver,
     RecentDoctor,
 } from '../types/admin.types'
 
-interface RawRecord extends Record<string, unknown> {
-    _id?: unknown
-    createdAt?: unknown
-    updatedAt?: unknown
-    verifiedAt?: unknown
-    name?: string
-    email?: string
-    profileImage?: string
-    verificationStatus?: unknown
-}
-
-export const toPendingDoctorDTO = (doctor: RawRecord): PendingDoctor => {
+export const toPendingDoctorDTO = (doctor: PendingDoctor): PendingDoctor => {
     return {
-        _id: (doctor._id as { toString(): string })?.toString() || '',
-        name: doctor.name || '',
-        email: doctor.email || '',
+        _id: doctor._id,
+        name: doctor.name,
+        email: doctor.email,
         profileImage: doctor.profileImage || '',
-        medicalCouncilRegisterNumber: (doctor.medicalCouncilRegisterNumber as string) || '',
-        medicalCertificateNumber: (doctor.medicalCertificateNumber as string) || '',
-        medicalCouncilImage: (doctor.medicalCouncilImage as string) || '',
-        medicalCertificateImage: (doctor.medicalCertificateImage as string) || '',
-        govIdImage: (doctor.govIdImage as string) || '',
-        specializations: (doctor.specializations as PendingDoctorSpecialization[]) || [],
-        createdAt: (doctor.createdAt as { toString(): string })?.toString() || '',
-        verificationStatus: doctor.verificationStatus as 'verified' | 'rejected' | 'pending',
+        medicalCouncilRegisterNumber: doctor.medicalCouncilRegisterNumber || '',
+        medicalCertificateNumber: doctor.medicalCertificateNumber || '',
+        medicalCouncilImage: doctor.medicalCouncilImage || '',
+        medicalCertificateImage: doctor.medicalCertificateImage || '',
+        govIdImage: doctor.govIdImage || '',
+        specializations: doctor.specializations || [],
+        createdAt: doctor.createdAt,
+        verificationStatus: doctor.verificationStatus,
     }
 }
 
-export const toRecentDoctorDTO = (doctor: RawRecord): RecentDoctor => {
-    const pending = toPendingDoctorDTO(doctor)
+export const toRecentDoctorDTO = (doctor: RecentDoctor): RecentDoctor => {
     return {
-        ...pending,
-        medicalCouncilImage: pending.medicalCouncilImage || '',
-        medicalCertificateImage: pending.medicalCertificateImage || '',
-        govIdImage: pending.govIdImage || '',
-        updatedAt: ((doctor.updatedAt || doctor.verifiedAt) as { toString(): string })?.toString() || '',
-        verificationStatus: doctor.verificationStatus as 'verified' | 'rejected',
-        rejectReason: (doctor.rejectReason as string) || '',
+        _id: doctor._id,
+        name: doctor.name,
+        email: doctor.email,
+        profileImage: doctor.profileImage || '',
+        medicalCouncilRegisterNumber: doctor.medicalCouncilRegisterNumber || '',
+        medicalCertificateNumber: doctor.medicalCertificateNumber || '',
+        medicalCouncilImage: doctor.medicalCouncilImage || '',
+        medicalCertificateImage: doctor.medicalCertificateImage || '',
+        govIdImage: doctor.govIdImage || '',
+        specializations: doctor.specializations || [],
+        createdAt: doctor.createdAt,
+        updatedAt: doctor.updatedAt,
+        verificationStatus: doctor.verificationStatus,
+        rejectReason: doctor.rejectReason || '',
     }
 }
 
-export const toPendingCaregiverDTO = (caregiver: RawRecord): PendingCaregiver => {
+export const toPendingCaregiverDTO = (caregiver: PendingCaregiver): PendingCaregiver => {
     return {
-        _id: (caregiver._id as { toString(): string })?.toString() || '',
-        name: caregiver.name || '',
-        email: caregiver.email || '',
+        _id: caregiver._id,
+        name: caregiver.name,
+        email: caregiver.email,
         profileImage: caregiver.profileImage || '',
-        certificateNumber: (caregiver.certificateNumber as string) || '',
-        licenseNumber: (caregiver.licenseNumber as string) || '',
-        certificateImage: (caregiver.certificateImage as string) || '',
-        licenseImage: (caregiver.licenseImage as string) || '',
-        govIdImage: (caregiver.govIdImage as string) || '',
-        createdAt: (caregiver.createdAt as { toString(): string })?.toString() || '',
-        verificationStatus: caregiver.verificationStatus as 'verified' | 'rejected' | 'pending',
+        certificateNumber: caregiver.certificateNumber || '',
+        licenseNumber: caregiver.licenseNumber || '',
+        certificateImage: caregiver.certificateImage || '',
+        licenseImage: caregiver.licenseImage || '',
+        govIdImage: caregiver.govIdImage || '',
+        createdAt: caregiver.createdAt,
+        verificationStatus: caregiver.verificationStatus,
     }
 }
 
-export const toRecentCaregiverDTO = (caregiver: RawRecord): RecentCaregiver => {
+export const toRecentCaregiverDTO = (caregiver: RecentCaregiver): RecentCaregiver => {
     return {
-        ...toPendingCaregiverDTO(caregiver),
-        updatedAt: ((caregiver.updatedAt || caregiver.verifiedAt) as { toString(): string })?.toString() || '',
-        verificationStatus: caregiver.verificationStatus as 'verified' | 'rejected',
+        _id: caregiver._id,
+        name: caregiver.name,
+        email: caregiver.email,
+        profileImage: caregiver.profileImage || '',
+        certificateNumber: caregiver.certificateNumber || '',
+        licenseNumber: caregiver.licenseNumber || '',
+        certificateImage: caregiver.certificateImage || '',
+        licenseImage: caregiver.licenseImage || '',
+        govIdImage: caregiver.govIdImage || '',
+        createdAt: caregiver.createdAt,
+        updatedAt: caregiver.updatedAt,
+        verificationStatus: caregiver.verificationStatus,
     }
 }
 
-export const toAdminUserProfileDTO = (user: RawRecord): AdminUserProfile => {
+export const toAdminUserProfileDTO = (user: AdminUserProfile): AdminUserProfile => {
     return {
-        _id: (user._id as { toString(): string })?.toString() || '',
-        name: user.name || '',
-        email: user.email || '',
-        role: user.role as 'doctor' | 'caregiver' | 'patient',
-        isActive: !!user.isActive,
-        createdAt: (user.createdAt as { toString(): string })?.toString() || '',
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        isActive: user.isActive,
+        createdAt: user.createdAt,
         profileImage: user.profileImage || '',
     }
 }
 
-export const toPlatformSettingsDTO = (settings: RawRecord): PlatformSettings => {
+export const toPlatformSettingsDTO = (settings: PlatformSettings): PlatformSettings => {
     return {
-        platformName: (settings.platformName as string) || '',
-        contactEmail: (settings.contactEmail as string) || '',
-        address: (settings.address as string) || '',
-        platformFee: (settings.platformFee as number) || 0,
-        platformLogo: (settings.platformLogo as string) || '',
-        platformIcon: (settings.platformIcon as string) || '',
+        platformName: settings.platformName || '',
+        contactEmail: settings.contactEmail || '',
+        address: settings.address || '',
+        platformFee: settings.platformFee || 0,
+        platformLogo: settings.platformLogo || '',
+        platformIcon: settings.platformIcon || '',
     }
 }

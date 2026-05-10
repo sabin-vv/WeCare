@@ -5,13 +5,14 @@ import { HTTP_STATUS } from '../../../core/constants/httpStatus'
 import { AppError } from '../../../core/errors/AppError'
 import { IAdminRepository } from '../interfaces/admin.repository.interface'
 import { IAdminService } from '../interfaces/admin.service.interface'
-import { 
-    toAdminUserProfileDTO, 
-    toPendingCaregiverDTO, 
-    toPendingDoctorDTO, 
-    toPlatformSettingsDTO, 
-    toRecentCaregiverDTO, 
-    toRecentDoctorDTO} from '../mapper/admin.mapper'
+import {
+    toAdminUserProfileDTO,
+    toPendingCaregiverDTO,
+    toPendingDoctorDTO,
+    toPlatformSettingsDTO,
+    toRecentCaregiverDTO,
+    toRecentDoctorDTO,
+} from '../mapper/admin.mapper'
 import {
     AdminVerificationStatus,
     PendingCaregiversResponse,
