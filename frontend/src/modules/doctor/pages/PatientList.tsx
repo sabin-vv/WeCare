@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom'
 
 import { listPatients } from '../api/doctor.api'
 import type { Pagination as PaginationMeta, Patients } from '../types/doctor.types'
@@ -39,14 +40,7 @@ const PatientAvatar = ({ name, profileImage }: { name: string; profileImage?: st
         return <div className={styles.avatarFallback}>{getInitials(name)}</div>
     }
 
-    return (
-        <img
-            src={imageUrl}
-            alt={name}
-            className={styles.profileImage}
-            onError={() => setHasImageError(true)}
-        />
-    )
+    return <img src={imageUrl} alt={name} className={styles.profileImage} onError={() => setHasImageError(true)} />
 }
 
 const PatientList = () => {
@@ -61,6 +55,8 @@ const PatientList = () => {
         totalPages: 1,
     })
     const [isLoading, setIsLoading] = useState<boolean>(false)
+
+    const navigate = useNavigate()
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -152,7 +148,11 @@ const PatientList = () => {
         {
             header: 'Action',
             key: 'patientId',
-            render: () => <button className={styles.actionBtn}>View</button>,
+            render: (item: Patients) => (
+                <button className={styles.actionBtn} onClick={() => navigate(`/doctor/patients/${item._id}`)}>
+                    View
+                </button>
+            ),
         },
     ]
 
