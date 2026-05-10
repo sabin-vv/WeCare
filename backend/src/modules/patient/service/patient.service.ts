@@ -9,11 +9,14 @@ import { IUserRepository } from '../../auth/interfaces/user.repository.interface
 import { toUserEntity } from '../../auth/mapper/auth.mapper'
 import { UserRole } from '../../auth/types/auth.types'
 import { IDoctorRepository } from '../../doctor/interfaces/doctor.repository.interface'
+import { IPrescriptionRepository } from '../../prescription/interfaces/prescription.repository.interface'
+import { IVitalRepository } from '../../vital/interfaces/vital.repository.interface'
 import { IPatientRepository } from '../interfaces/patient.repository.interface'
 import { IPatientService } from '../interfaces/patient.service.interface'
 import {
     type PatientResponseDTO,
     toListPatientsMapper,
+    toPatientDetailsDTO,
     toPatientEntity,
     toPatientProfileResponseDTO,
     toPatientResponseDTO,
@@ -31,6 +34,8 @@ export class PatientService implements IPatientService {
         @inject(TOKENS.IAppointmentRepository) private _appointmentRepo: IAppointmentRepository,
         @inject(TOKENS.IDoctorRepository) private _doctorRepo: IDoctorRepository,
         @inject(TOKENS.IPatientRepository) private _patientRepo: IPatientRepository,
+        @inject(TOKENS.IVitalRepository) private _vitalRepo: IVitalRepository,
+        @inject(TOKENS.IPrescriptionRepository) private _prescriptionRepo: IPrescriptionRepository,
     ) {}
 
     private async generateNextPatientId(): Promise<string> {
@@ -179,5 +184,46 @@ export class PatientService implements IPatientService {
                 totalPages: Math.max(1, Math.ceil(total / limit)),
             },
         }
+    }
+
+    async getPatientById(
+        doctorId: string,
+        patientId: string,
+    ): Promise<import('../types/patient.types').PatientDetailsDTO> {
+        const doctor = await this._doctorRepo.findByUserId(new Types.ObjectId(doctorId))
+        if (!doctor) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'Doctor profile not found')
+        }
+
+        const patient = await this._patientRepo.findById(patientId)
+        if (!patient) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'Patient not found')
+        }
+
+        if (patient.primaryDoctorId?.toString() !== doctor._id.toString()) {
+            throw new AppError(HTTP_STATUS.FORBIDDEN, 'You are not authorized to view this patient')
+        }
+
+        const user = await this._userRepo.findById(patient.userId.toString())
+        if (!user) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'User not found')
+        }
+
+        const appointment = await this._appointmentRepo.findCurrentAppointment(
+            doctor._id.toString(),
+            patient.userId.toString(),
+        )
+
+        let caregiver: import('../../auth/types/auth.types').UserDocument | null = null
+        if (patient.caregiverId) {
+            caregiver = await this._userRepo.findById(patient.caregiverId.toString())
+        }
+
+        const [vitals, prescriptions] = await Promise.all([
+            this._vitalRepo.findByPatientId(patient._id.toString()),
+            this._prescriptionRepo.findByPatientId(patient._id.toString()),
+        ])
+
+        return toPatientDetailsDTO(user, patient, appointment, caregiver, vitals, prescriptions)
     }
 }
