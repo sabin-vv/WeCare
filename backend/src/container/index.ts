@@ -36,6 +36,14 @@ import { IPaymentRepository } from '../modules/payment/interfaces/payment.reposi
 import { IPaymentService } from '../modules/payment/interfaces/payment.service.interface'
 import { PaymentRepository } from '../modules/payment/repository/payment.repository'
 import { PaymentService } from '../modules/payment/services/payment.service'
+import { IPrescriptionRepository } from '../modules/prescription/interfaces/prescription.repository.interface'
+import { IPrescriptionService } from '../modules/prescription/interfaces/prescription.service.interface'
+import { PrescriptionRepository } from '../modules/prescription/repository/prescription.repository'
+import { PrescriptionService } from '../modules/prescription/service/prescription.service'
+import { IVitalRepository } from '../modules/vital/interfaces/vital.repository.interface'
+import { IVitalService } from '../modules/vital/interfaces/vital.service.interface'
+import { VitalRepository } from '../modules/vital/repository/vital.repository'
+import { VitalService } from '../modules/vital/service/vital.service'
 import { IWalletRepository } from '../modules/wallet/interfaces/wallet.repository.interface'
 import { IWalletService } from '../modules/wallet/interfaces/wallet.service.interface'
 import { WalletRepository } from '../modules/wallet/repository/wallet.repository'
@@ -43,26 +51,38 @@ import { WalletService } from '../modules/wallet/services/wallet.service'
 import { TOKENS } from './tokens'
 
 container.register<IUserRepository>(TOKENS.IUserRepository, { useClass: UserRepository })
+
 container.register<IDoctorRepository>(TOKENS.IDoctorRepository, { useClass: DoctorRepository })
+container.register<IDoctorService>(TOKENS.IDoctorService, { useClass: DoctorService })
 container.register<IDoctorAvailabilityRepository>(TOKENS.IDoctorAvailabilityRepository, {
     useClass: DoctorAvailabilityRepository,
 })
 container.register<IAvailabilityNotificationService>(TOKENS.IAvailabilityNotificationService, {
     useClass: AvailabilityNotificationService,
 })
-container.register<IDoctorService>(TOKENS.IDoctorService, { useClass: DoctorService })
 container.register<ICaregiverRepository>(TOKENS.ICaregiverRepository, { useClass: CaregiverRepository })
 container.register<ICaregiverService>(TOKENS.ICaregiverService, { useClass: CaregiverService })
+
 container.register<IPatientRepository>(TOKENS.IPatientRepository, { useClass: PatientRepository })
 container.register<IPatientService>(TOKENS.IPatientService, { useClass: PatientService })
+
 container.register<IAuthService>(TOKENS.IAuthService, { useClass: AuthService })
 container.register<IOtpService>(TOKENS.IOtpService, { useClass: OtpService })
+
 container.register<IAdminRepository>(TOKENS.IAdminRepository, { useClass: AdminRepository })
 container.register<IAdminService>(TOKENS.IAdminService, { useClass: AdminService })
+
 container.register<IAppointmentService>(TOKENS.IAppointmentService, { useClass: AppointmentService })
 container.register<IAppointmentRepository>(TOKENS.IAppointmentRepository, { useClass: AppointmentRepository })
+
 container.register<IPaymentRepository>(TOKENS.IPaymentRepository, { useClass: PaymentRepository })
 container.register<IPaymentService>(TOKENS.IPaymentService, { useClass: PaymentService })
+
+container.register<IPrescriptionRepository>(TOKENS.IPrescriptionRepository, { useClass: PrescriptionRepository })
+container.register<IPrescriptionService>(TOKENS.IPrescriptionService, { useClass: PrescriptionService })
+
+container.register<IVitalRepository>(TOKENS.IVitalRepository, { useClass: VitalRepository })
+container.register<IVitalService>(TOKENS.IVitalService, { useClass: VitalService })
 
 container.register<IWalletRepository>(TOKENS.IWalletRepository, { useClass: WalletRepository })
 container.register<IWalletService>(TOKENS.IWalletService, { useClass: WalletService })
