@@ -2,7 +2,17 @@ import { Types } from 'mongoose'
 
 import { AppointmentDocument } from '../../appointment/types/appointment.types'
 import { UserDocument } from '../../auth/types/auth.types'
-import { ListPatientMapper, PatientDocument, PatientEntity, PatientProfileResponseDTO } from '../types/patient.types'
+import { PrescriptionDocument } from '../../prescription/types/prescription.types'
+import { VitalDocument } from '../../vital/types/vital.types'
+import {
+    ListPatientMapper,
+    PatientDetailsDTO,
+    PatientDocument,
+    PatientEntity,
+    PatientPrescriptionDTO,
+    PatientProfileResponseDTO,
+    PatientVitalDTO,
+} from '../types/patient.types'
 import { RegisterPatientDTO } from '../validator/patient.schema'
 
 export interface PatientResponseDTO {
@@ -71,8 +81,70 @@ export const toListPatientsMapper = (
         name: user.name,
         profileImage: patient.profileImage,
         conditions: patient.conditions || [],
+        riskLevel: patient.riskLevel,
+        caregiver: caregiver?.name || 'Unassigned',
+        status,
+    }
+}
+
+export const toPatientDetailsDTO = (
+    user: UserDocument,
+    patient: PatientDocument,
+    appointment: AppointmentDocument | null,
+    caregiver: UserDocument | null,
+    vitals: VitalDocument[],
+    prescriptions: PrescriptionDocument[],
+): PatientDetailsDTO => {
+    const status =
+        appointment?.status === 'pending_payment' || appointment?.status === 'confirmed'
+            ? 'pending_consultation'
+            : appointment?.status || patient.clinicalStatus || patient.accountStatus || 'active'
+
+    const age = new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()
+    const mappedVitals: PatientVitalDTO[] = vitals.map((vital) => ({
+        _id: vital._id.toString(),
+        type: vital.type,
+        value: vital.value,
+        systolic: vital.systolic,
+        diastolic: vital.diastolic,
+        unit: vital.unit,
+        recordedAt: vital.recordedAt.toISOString(),
+        recordedBy: vital.recordedBy.toString(),
+    }))
+    const mappedPrescriptions: PatientPrescriptionDTO[] = prescriptions.map((prescription) => ({
+        _id: prescription._id.toString(),
+        patientId: prescription.patientId.toString(),
+        prescribedBy: prescription.prescribedBy.toString(),
+        medications: prescription.medications.map((medication) => ({
+            name: medication.name,
+            dosage: medication.dosage,
+            route: medication.route,
+            frequency: medication.frequency,
+            scheduleTimes: medication.scheduleTimes,
+            isCritical: medication.isCritical,
+        })),
+        note: prescription.note,
+        status: prescription.status,
+        discontinuedAt: prescription.discontinuedAt?.toISOString(),
+        discontinuedBy: prescription.discontinuedBy?.toString(),
+        prescribedAt: prescription.prescribedAt.toISOString(),
+        updatedAt: prescription.updatedAt.toISOString(),
+    }))
+
+    return {
+        _id: patient._id.toString(),
+        patientId: patient.patientId,
+        name: user.name,
+        age,
+        gender: patient.gender,
+        profileImage: patient.profileImage,
+        conditions: patient.conditions || [],
         riskLevel: patient.riskLevel || 'NILL',
         caregiver: caregiver?.name || 'Unassigned',
         status,
+        clinicalStatus: patient.clinicalStatus || 'active',
+        appointmentStatus: appointment?.status || 'no_appointment',
+        vitals: mappedVitals,
+        prescriptions: mappedPrescriptions,
     }
 }
