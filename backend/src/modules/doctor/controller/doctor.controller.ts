@@ -4,11 +4,15 @@ import { inject, injectable } from 'tsyringe'
 import { TOKENS } from '../../../container/tokens'
 import { HTTP_STATUS } from '../../../core/constants/httpStatus'
 import { AppError } from '../../../core/errors/AppError'
+import { IAppointmentService } from '../../appointment/interfaces/appointment.service.interface'
 import { IDoctorService } from '../interfaces/doctor.service.interface'
 
 @injectable()
 export class DoctorController {
-    constructor(@inject(TOKENS.IDoctorService) private _doctorService: IDoctorService) {}
+    constructor(
+        @inject(TOKENS.IDoctorService) private _doctorService: IDoctorService,
+        @inject(TOKENS.IAppointmentService) private _appointmentService: IAppointmentService,
+    ) {}
 
     getProfile = async (req: Request, res: Response) => {
         const userId = req.user?.userId
@@ -111,6 +115,25 @@ export class DoctorController {
         res.status(HTTP_STATUS.OK).json({
             success: true,
             data: result,
+        })
+    }
+
+    startConsultation = async (req: Request, res: Response) => {
+        const doctorId = req.user?.userId
+        if (!doctorId) {
+            throw new AppError(HTTP_STATUS.UNAUTHORIZED, 'User not authenticated')
+        }
+
+        const { patientId } = req.params
+        if (!patientId) {
+            throw new AppError(HTTP_STATUS.BAD_REQUEST, 'Patient ID is required')
+        }
+
+        await this._appointmentService.startConsultation(doctorId, patientId as string)
+
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            message: 'Consultation started successfully',
         })
     }
 }
