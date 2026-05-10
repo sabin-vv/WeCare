@@ -23,5 +23,7 @@ export interface IAppointmentRepository {
 
     findCurrentAppointmentsByDoctorAndPatientIds(doctorId: string, patientIds: string[]): Promise<AppointmentDocument[]>
 
+    findCurrentAppointment(doctorId: string, patientUserId: string): Promise<AppointmentDocument | null>
+
     cancelAppointment(id: string): Promise<AppointmentDocument | null>
 }
