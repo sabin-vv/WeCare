@@ -63,3 +63,53 @@ export interface ListPatientsResponse {
     patients: ListPatientMapper[]
     pagination: PatientListPagination
 }
+
+export interface PatientDetailsDTO {
+    _id: string
+    patientId: string
+    name: string
+    age: number
+    gender: string
+    profileImage?: string
+    conditions: string[]
+    riskLevel: string
+    caregiver: string
+    status: string
+    clinicalStatus: string
+    appointmentStatus: string
+    vitals: PatientVitalDTO[]
+    prescriptions: PatientPrescriptionDTO[]
+}
+
+export interface PatientVitalDTO {
+    _id: string
+    type: string
+    value?: number
+    systolic?: number
+    diastolic?: number
+    unit: string
+    recordedAt: string
+    recordedBy: string
+}
+
+export interface PatientPrescriptionMedicationDTO {
+    name: string
+    dosage: string
+    route: string
+    frequency: string
+    scheduleTimes: string[]
+    isCritical: boolean
+}
+
+export interface PatientPrescriptionDTO {
+    _id: string
+    patientId: string
+    prescribedBy: string
+    medications: PatientPrescriptionMedicationDTO[]
+    note?: string
+    status: string
+    discontinuedAt?: string
+    discontinuedBy?: string
+    prescribedAt: string
+    updatedAt: string
+}
