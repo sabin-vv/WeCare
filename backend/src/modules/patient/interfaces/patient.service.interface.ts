@@ -1,5 +1,5 @@
 import { PatientResponseDTO } from '../mapper/patient.mapper'
-import { ListPatientsResponse, PatientProfileResponseDTO } from '../types/patient.types'
+import { ListPatientsResponse, PatientDetailsDTO, PatientProfileResponseDTO } from '../types/patient.types'
 import { RegisterPatientDTO } from '../validator/patient.schema'
 import { UpdatePatientSettingsDTO } from '../validator/updatePatientSettings.schema'
 
@@ -17,4 +17,6 @@ export interface IPatientService {
             limit: number
         },
     ): Promise<ListPatientsResponse>
+
+    getPatientById(doctorId: string, patientId: string): Promise<PatientDetailsDTO>
 }
