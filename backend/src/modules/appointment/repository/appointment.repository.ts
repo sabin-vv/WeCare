@@ -131,6 +131,20 @@ export class AppointmentRepository extends BaseRepository<AppointmentDocument> i
             .lean()
     }
 
+    async findCurrentAppointment(doctorId: string, patientUserId: string): Promise<AppointmentDocument | null> {
+        return await AppointmentModel.findOne({
+            doctorId,
+            patientId: patientUserId,
+            $or: [
+                {
+                    status: { $in: ['confirmed', 'in_consultation', 'pending_payment'] },
+                },
+            ],
+        })
+            .sort({ appointmentDate: -1, slotStart: -1 })
+            .lean()
+    }
+
     async cancelAppointment(id: string): Promise<AppointmentDocument | null> {
         return await AppointmentModel.findByIdAndUpdate(
             id,
