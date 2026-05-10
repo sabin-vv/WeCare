@@ -1,5 +1,6 @@
 .searchWrapper {
     width: 100%;
+    position: relative;
 }
 
 .searchInput {
@@ -16,4 +17,37 @@
 .searchInput:focus {
     border-color: #137fec;
     box-shadow: 0 0 0 2px rgba(19, 127, 236, 0.1);
+}
+
+.suggestionsList {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-top: 4px;
+    padding: 0;
+    list-style: none;
+    background: white;
+    z-index: 100;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.suggestionItem {
+    padding: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.suggestionItem:hover {
+    background-color: #f7fafc;
+}
+
+.loading {
+    padding: 12px;
+    color: #718096;
+    font-size: 14px;
 }
