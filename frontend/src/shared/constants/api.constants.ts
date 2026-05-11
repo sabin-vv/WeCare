@@ -4,7 +4,7 @@ export const DOCTORS_API = '/doctors'
 
 export const PATIENTS_API = '/patients'
 
-export const CAREGIVER_API = '/caregivers'
+export const CAREGIVERS_API = '/caregivers'
 
 export const UPLOADS_API = '/uploads'
 
