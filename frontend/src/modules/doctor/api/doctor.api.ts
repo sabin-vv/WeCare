@@ -10,6 +10,8 @@ import type {
     PatientDetails,
     PatientDetailsResponse,
     UpdatePatientConditionPayload,
+    AddPrescriptionPayload,
+    PatientPrescription,
 } from '../types/doctor.types'
 
 import type { ApiInterface } from '@/modules/auth/api/auth.api.types'
@@ -82,6 +84,15 @@ export const updatePatientCondition = async (
     data: UpdatePatientConditionPayload,
 ): Promise<PatientDetails> => {
     const res = await api.patch<PatientDetailsResponse>(`/patients/${patientId}/condition`, data)
+
+    return res.data.data
+}
+
+export const addPrescription = async (patientId: string, data: AddPrescriptionPayload): Promise<PatientPrescription> => {
+    const res = await api.post('/prescriptions', {
+        ...data,
+        patientId,
+    })
 
     return res.data.data
 }
