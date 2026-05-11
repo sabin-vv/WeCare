@@ -9,7 +9,7 @@ import type {
 } from './auth.api.types'
 
 import { api } from '@/services/api'
-import { AUTH_API, CAREGIVER_API, PATIENTS_API, UPLOADS_API } from '@/shared/constants/api.constants'
+import { AUTH_API, CAREGIVERS_API, PATIENTS_API, UPLOADS_API } from '@/shared/constants/api.constants'
 import type { PatientRegister } from '@/shared/types/model.types'
 
 export const sendOtp = async (email: string, purpose: string): Promise<ApiInterface> => {
@@ -39,7 +39,7 @@ export const patientRegister = async (data: PatientRegister): Promise<ApiInterfa
 }
 
 export const caregiverRegister = async (formData: FormData): Promise<ApiInterface> => {
-    const res = await api.post(`${CAREGIVER_API}/register`, formData)
+    const res = await api.post(`${CAREGIVERS_API}/register`, formData)
     return res.data
 }
 
