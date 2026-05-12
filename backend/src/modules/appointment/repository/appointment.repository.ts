@@ -1,3 +1,4 @@
+import { Types } from 'mongoose'
 import { singleton } from 'tsyringe'
 
 import { BaseRepository } from '../../../core/base/base.repository'
@@ -145,11 +146,14 @@ export class AppointmentRepository extends BaseRepository<AppointmentDocument> i
             .lean()
     }
 
-    async cancelAppointment(id: string): Promise<AppointmentDocument | null> {
+    async cancelAppointment(id: string, reason: string, cancelledBy: string): Promise<AppointmentDocument | null> {
         return await AppointmentModel.findByIdAndUpdate(
             id,
             {
                 status: 'cancelled',
+                cancelledAt: new Date(),
+                cancelledBy: new Types.ObjectId(cancelledBy),
+                cancellationReason: reason,
             },
             { new: true },
         )
