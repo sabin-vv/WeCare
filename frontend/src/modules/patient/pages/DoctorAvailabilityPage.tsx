@@ -14,37 +14,7 @@ import Button from '@/shared/components/Button/Button'
 import { useAuth } from '@/shared/context/AuthContext'
 import { usePlatform } from '@/shared/context/PlatformContext'
 import { getErrorMessage } from '@/utils/getErrorMessage'
-
-const RAZORPAY_SCRIPT_URL = 'https://checkout.razorpay.com/v1/checkout.js'
-
-const loadRazorpayScript = (): Promise<void> => {
-    if (window.Razorpay) {
-        return Promise.resolve()
-    }
-
-    return new Promise((resolve, reject) => {
-        if (window.Razorpay) {
-            resolve()
-            return
-        }
-        const script = document.createElement('script')
-        script.src = RAZORPAY_SCRIPT_URL
-        script.async = true
-        script.onload = () => resolve()
-        script.onerror = () => reject(new Error('Failed to load Razorpay'))
-        document.head.appendChild(script)
-    })
-}
-
-declare global {
-    interface Window {
-        Razorpay: {
-            new (options: unknown): {
-                open(): void
-            }
-        }
-    }
-}
+import { loadRazorpayScript } from '@/utils/loadRazorpay'
 
 const DoctorAvailabilityPage = () => {
     const { doctorId } = useParams<{ doctorId: string }>()
