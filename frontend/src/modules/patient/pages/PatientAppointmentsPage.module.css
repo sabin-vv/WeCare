@@ -70,9 +70,10 @@
     color: #1a1a1a;
 }
 
-.doctorEmail {
+.doctorSpecialize {
     font-size: 0.85rem;
     color: #666;
+    text-transform: capitalize;
 }
 
 .statusBadge {
@@ -139,6 +140,10 @@
 .amount {
     font-weight: 700;
     color: #1a1a1a;
+}
+
+.paymentStatus {
+    text-transform: capitalize;
 }
 
 .emptyState {
