@@ -167,3 +167,17 @@ export interface PaymentMethodModalProps {
     onSelectWallet: () => void
     walletBalance?: number
 }
+
+export type RetryPaymentResponse =
+    | {
+          paymentMethod: 'razorpay'
+          order: { id: string; amount: number; currency: string }
+          paymentId: string
+      }
+    | {
+          paymentMethod: 'wallet'
+          paymentId: string
+          appointmentId: string
+          walletBalance: number
+          appointmentConfirmed: true
+      }
