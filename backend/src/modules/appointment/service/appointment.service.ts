@@ -59,14 +59,10 @@ export class AppointmentService implements IAppointmentService {
             dto.appointmentDate,
         )
 
-        const now = new Date()
-
         const isAlreadyBooked = activeAppointments.some((app) => {
             if (app.slotStart !== dto.slotStart) return false
             if (app.status === 'confirmed') return true
-            if (app.status === 'pending_payment') {
-                return app.expiredAt && new Date(app.expiredAt) > now
-            }
+            if (app.status === 'pending_payment') return true
             return false
         })
 
