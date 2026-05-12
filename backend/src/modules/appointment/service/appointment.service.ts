@@ -299,7 +299,7 @@ export class AppointmentService implements IAppointmentService {
             }
         }
 
-        const cancelled = await this._appointmentRepo.cancelAppointment(id)
+        const cancelled = await this._appointmentRepo.cancelAppointment(id, reason, appointment.patientId.toString())
         return { appointment: cancelled, refundAmount }
     }
 
