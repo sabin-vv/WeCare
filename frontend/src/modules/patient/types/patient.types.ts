@@ -158,3 +158,12 @@ export interface CancelModalContentProps {
     customReason: string
     setCustomReason: (reason: string) => void
 }
+
+export interface PaymentMethodModalProps {
+    isOpen: boolean
+    onClose: () => void
+    amount: number
+    onSelectRazorpay: () => void
+    onSelectWallet: () => void
+    walletBalance?: number
+}
