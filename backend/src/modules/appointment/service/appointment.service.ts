@@ -170,6 +170,7 @@ export class AppointmentService implements IAppointmentService {
         let appointment: AppointmentDocument | null = null
         let paymentId: string | null = null
         let walletDebited = false
+        let doctorName = 'Doctor'
 
         try {
             appointment = await this.createBaseAppointment(dto, consultationFee, 'pending_payment')
@@ -190,10 +191,13 @@ export class AppointmentService implements IAppointmentService {
                 throw new AppError(HTTP_STATUS.INTERNAL_SERVER_ERROR, 'Failed to attach payment to appointment')
             }
 
+            const doctor = await this._doctorRepo.findByIdWithUser(dto.doctorId)
+            doctorName = (doctor?.userId as unknown as { name?: string })?.name ?? 'Doctor'
+
             const wallet = await this._walletService.debit(
                 dto.patientId,
                 totalAmount,
-                `Consultation payment for appointment ${appointment._id.toString()}`,
+                `Consultation payment for Dr. ${doctorName}`,
                 appointment._id.toString(),
             )
             walletDebited = true
@@ -209,6 +213,7 @@ export class AppointmentService implements IAppointmentService {
             const confirmedAppointment = await this._appointmentRepo.update(appointment._id.toString(), {
                 paymentId: payment._id,
                 status: 'confirmed',
+                confirmedAt: new Date(),
                 expiredAt: undefined,
             })
             if (!confirmedAppointment) {
@@ -228,7 +233,7 @@ export class AppointmentService implements IAppointmentService {
                     .credit(
                         dto.patientId,
                         totalAmount,
-                        `Wallet payment reversal for appointment ${appointment._id.toString()}`,
+                        `Wallet payment reversal for Dr. ${doctorName}`,
                         appointment._id.toString(),
                     )
                     .catch(() => null)
@@ -330,7 +335,10 @@ export class AppointmentService implements IAppointmentService {
         await this._appointmentRepo.update(appointment._id.toString(), { status: 'in_consultation' })
     }
 
-    async retryPayment(appointmentId: string, dto: RetryPaymentDTO & { patientId: string }): Promise<CreateAppointmentResult> {
+    async retryPayment(
+        appointmentId: string,
+        dto: RetryPaymentDTO & { patientId: string },
+    ): Promise<CreateAppointmentResult> {
         const appointment = await this._appointmentRepo.findById(appointmentId)
 
         if (!appointment) {
@@ -356,10 +364,13 @@ export class AppointmentService implements IAppointmentService {
                 appointmentId,
             )
 
-            await this._appointmentRepo.update(appointmentId, { status: 'confirmed' })
+            await this._appointmentRepo.update(appointmentId, { status: 'confirmed', confirmedAt: new Date() })
 
             if (appointment.paymentId) {
-                await this._paymentRepo.updateById(appointment.paymentId.toString(), { status: 'success', paidAt: new Date() })
+                await this._paymentRepo.updateById(appointment.paymentId.toString(), {
+                    status: 'success',
+                    paidAt: new Date(),
+                })
             }
 
             return {
