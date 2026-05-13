@@ -1,7 +1,9 @@
-import { VitalDocument } from '../types/vital.types'
-import { CreateVitalDTO } from '../validator/vital.schema'
+import { VitalDocument, VitalPlanDocument } from '../types/vital.types'
+import { CreateVitalDTO, CreateVitalPlanDTO } from '../validator/vital.schema'
 
 export interface IVitalService {
     createVital(recordedBy: string, dto: CreateVitalDTO): Promise<VitalDocument>
     getPatientVitals(patientId: string, type?: string): Promise<VitalDocument[]>
+    createVitalPlan(doctorUserId: string, dto: CreateVitalPlanDTO): Promise<VitalPlanDocument>
+    getPatientVitalPlans(patientId: string, status?: string): Promise<VitalPlanDocument[]>
 }
