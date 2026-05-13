@@ -70,6 +70,18 @@ const MedicationTable = ({ patientId, patientName, prescriptions, hasConditions,
             render: (item) => item.frequency,
         },
         {
+            header: 'End Time',
+            key: 'endDate' as keyof (typeof flattenedMedications)[number],
+            render: (item) =>
+                item.endDate
+                    ? new Date(item.endDate).toLocaleString([], {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                      })
+                    : 'N/A',
+        },
+        {
             header: 'Status',
             key: 'prescriptionStatus' as keyof (typeof flattenedMedications)[number],
             render: (item) => (
@@ -217,9 +229,9 @@ const MedicationTable = ({ patientId, patientName, prescriptions, hasConditions,
             name: med.name,
             dosage: med.dosage,
             frequency: med.frequency,
-            duration: 7,
-            durationUnit: 'Days',
-            priority: med.isCritical ? 'Critical' : 'Medium',
+            duration: med.duration || 7,
+            durationUnit: med.durationUnit || 'Days',
+            priority: med.priority || '',
             route: med.route === 'IV' ? 'Intravenous' : med.route === 'injection' ? 'Intramuscular' : med.route,
             scheduleTimes: med.scheduleTimes.map((time, i) => ({
                 id: `${prescription._id}-${index}-${i}`,
@@ -357,8 +369,10 @@ const MedicationTable = ({ patientId, patientName, prescriptions, hasConditions,
                               : med.route.toLowerCase(),
                     frequency: med.frequency,
                     scheduleTimes: med.scheduleTimes.map((t) => t.time).filter(Boolean),
-                    isCritical: med.priority === 'Critical',
+                    priority: med.priority,
                     instructions: med.instructions,
+                    duration: med.duration,
+                    durationUnit: med.durationUnit,
                 })),
             })
 
@@ -413,7 +427,11 @@ const MedicationTable = ({ patientId, patientName, prescriptions, hasConditions,
         )
     }
 
-    const handleUpdateVitalPreference = (vitalId: VitalPlanOptionId, field: 'frequency' | 'duration', value: string) => {
+    const handleUpdateVitalPreference = (
+        vitalId: VitalPlanOptionId,
+        field: 'frequency' | 'duration',
+        value: string,
+    ) => {
         setVitalsPreferences((current) => ({
             ...current,
             [vitalId]: {
@@ -444,7 +462,9 @@ const MedicationTable = ({ patientId, patientName, prescriptions, hasConditions,
         }
     }
 
-    const parseDuration = (value: string): { durationValue: number; durationUnit: 'hours' | 'days' | 'weeks' | 'months' } => {
+    const parseDuration = (
+        value: string,
+    ): { durationValue: number; durationUnit: 'hours' | 'days' | 'weeks' | 'months' } => {
         const match = value.match(/(?:Next|For) (\d+) (hour|hours|day|days|week|weeks|month|months)/i)
         if (!match) {
             return { durationValue: 24, durationUnit: 'hours' }
