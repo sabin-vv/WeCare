@@ -4,7 +4,7 @@ import { container } from 'tsyringe'
 import { requireAuth } from '../../../core/middleware/requireAuth'
 import { validate } from '../../../core/middleware/validateMiddleware'
 import { VitalController } from '../controller/vital.controller'
-import { createVitalSchema } from '../validator/vital.schema'
+import { createVitalPlanSchema, createVitalSchema } from '../validator/vital.schema'
 
 export const createVitalRoutes = () => {
     const router = Router()
@@ -14,6 +14,8 @@ export const createVitalRoutes = () => {
 
     router.post('/', validate(createVitalSchema), vitalController.createVital)
     router.get('/patient/:patientId', vitalController.getPatientVitals)
+    router.post('/plans', validate(createVitalPlanSchema), vitalController.createVitalPlan)
+    router.get('/plans/patient/:patientId', vitalController.getPatientVitalPlans)
 
     return router
 }

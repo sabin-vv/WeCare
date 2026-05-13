@@ -39,4 +39,34 @@ export class VitalController {
             data: result,
         })
     }
+
+    createVitalPlan = async (req: Request, res: Response) => {
+        const doctorUserId = req.user?.userId
+        if (!doctorUserId) {
+            throw new AppError(HTTP_STATUS.UNAUTHORIZED, 'User not authenticated')
+        }
+
+        const result = await this._vitalService.createVitalPlan(doctorUserId, req.body)
+
+        res.status(HTTP_STATUS.CREATED).json({
+            success: true,
+            message: 'Vital plan created successfully',
+            data: result,
+        })
+    }
+
+    getPatientVitalPlans = async (req: Request, res: Response) => {
+        const { patientId } = req.params
+        if (typeof patientId !== 'string' || !patientId) {
+            throw new AppError(HTTP_STATUS.BAD_REQUEST, 'Patient ID is required')
+        }
+
+        const status = typeof req.query.status === 'string' ? req.query.status : undefined
+        const result = await this._vitalService.getPatientVitalPlans(patientId, status)
+
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            data: result,
+        })
+    }
 }
