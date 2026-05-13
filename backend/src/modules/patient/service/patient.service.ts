@@ -8,6 +8,7 @@ import { IAppointmentRepository } from '../../appointment/interfaces/appointment
 import { IUserRepository } from '../../auth/interfaces/user.repository.interface'
 import { toUserEntity } from '../../auth/mapper/auth.mapper'
 import { UserRole } from '../../auth/types/auth.types'
+import { ICaregiverRepository } from '../../caregiver/interfaces/caregiver.repository.interface'
 import { IDoctorRepository } from '../../doctor/interfaces/doctor.repository.interface'
 import { IPrescriptionRepository } from '../../prescription/interfaces/prescription.repository.interface'
 import { IVitalRepository } from '../../vital/interfaces/vital.repository.interface'
@@ -34,6 +35,7 @@ export class PatientService implements IPatientService {
         @inject(TOKENS.IUserRepository) private _userRepo: IUserRepository,
         @inject(TOKENS.IAppointmentRepository) private _appointmentRepo: IAppointmentRepository,
         @inject(TOKENS.IDoctorRepository) private _doctorRepo: IDoctorRepository,
+        @inject(TOKENS.ICaregiverRepository) private _caregiverRepo: ICaregiverRepository,
         @inject(TOKENS.IPatientRepository) private _patientRepo: IPatientRepository,
         @inject(TOKENS.IVitalRepository) private _vitalRepo: IVitalRepository,
         @inject(TOKENS.IPrescriptionRepository) private _prescriptionRepo: IPrescriptionRepository,
@@ -258,6 +260,33 @@ export class PatientService implements IPatientService {
         const patient = await this._patientRepo.updateById(patientId, {
             conditions: dto.conditions,
             riskLevel: dto.riskLevel,
+        })
+
+        if (!patient) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'Patient not found')
+        }
+
+        return await this.buildPatientDetails(doctor._id.toString(), patient)
+    }
+
+    async assignCaregiver(
+        doctorId: string,
+        patientId: string,
+        caregiverId: string,
+    ): Promise<import('../types/patient.types').PatientDetailsDTO> {
+        const { doctor } = await this.resolveDoctorPatientContext(doctorId, patientId)
+
+        const caregiver = await this._caregiverRepo.findByUserId(new Types.ObjectId(caregiverId))
+        if (!caregiver) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'Caregiver not found')
+        }
+
+        if (!caregiver.isActive) {
+            throw new AppError(HTTP_STATUS.BAD_REQUEST, 'Caregiver is not active')
+        }
+
+        const patient = await this._patientRepo.updateById(patientId, {
+            caregiverId: new Types.ObjectId(caregiverId),
         })
 
         if (!patient) {
