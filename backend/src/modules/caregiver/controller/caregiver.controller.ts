@@ -54,4 +54,16 @@ export class CaregiverController {
             message: 'Profile updated successfully',
         })
     }
+
+    listCaregivers = async (req: Request, res: Response) => {
+        const { search } = req.query
+
+        const result = await this._caregiverService.listCaregivers(search as string | undefined)
+
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            data: result,
+            message: 'Caregivers list fetched',
+        })
+    }
 }
