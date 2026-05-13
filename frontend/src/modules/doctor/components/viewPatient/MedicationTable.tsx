@@ -1,8 +1,8 @@
-import { OctagonMinus, Pencil } from 'lucide-react'
+import { Activity, Droplets, Heart, OctagonMinus, Pencil } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
 
-import { addPrescription, updatePrescriptionStatus } from '../../api/doctor.api'
+import { addPrescription, createVitalPlan, updatePrescriptionStatus } from '../../api/doctor.api'
 import { getMedicineNames, getMedicineStrengths } from '../../api/medicine.api'
 import type { MedicationProps, PatientPrescription, SelectedMedication } from '../../types/doctor.types'
 
@@ -16,8 +16,11 @@ import DataTable from '@/shared/components/Table/DataTable'
 import type { Column } from '@/shared/components/Table/dataTable.types'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 
-const MedicationTable = ({ patientId, prescriptions, hasConditions, onSuccess }: MedicationProps) => {
+type VitalPlanOptionId = 'blood_pressure' | 'heart_rate' | 'oxygen_saturation' | 'blood_sugar'
+
+const MedicationTable = ({ patientId, patientName, prescriptions, hasConditions, onSuccess }: MedicationProps) => {
     const [showPrescriptionModal, setShowPrescriptionModal] = useState(false)
+    const [showVitalsModal, setShowVitalsModal] = useState(false)
     const [editingPrescription, setEditingPrescription] = useState<PatientPrescription | null>(null)
     const [isEditMode, setIsEditMode] = useState(false)
     const [originalPrescription, setOriginalPrescription] = useState<SelectedMedication[]>([])
@@ -112,6 +115,47 @@ const MedicationTable = ({ patientId, prescriptions, hasConditions, onSuccess }:
     const [isSearchingMedicines, setIsSearchingMedicines] = useState(false)
     const [selectedMedicineName, setSelectedMedicineName] = useState('')
     const [isSaving, setIsSaving] = useState(false)
+    const [isSavingVitalPlan, setIsSavingVitalPlan] = useState(false)
+    const [selectedVitals, setSelectedVitals] = useState<VitalPlanOptionId[]>([])
+    const [vitalsInstructions, setVitalsInstructions] = useState('')
+    const [vitalsPreferences, setVitalsPreferences] = useState<
+        Record<VitalPlanOptionId, { frequency: string; duration: string }>
+    >({
+        blood_pressure: { frequency: 'Every 2 hours', duration: 'Next 24 hours' },
+        heart_rate: { frequency: 'Every 2 hours', duration: 'Next 24 hours' },
+        oxygen_saturation: { frequency: 'Every 2 hours', duration: 'Next 24 hours' },
+        blood_sugar: { frequency: 'Every 2 hours', duration: 'Next 24 hours' },
+    })
+
+    const vitalOptions = [
+        {
+            id: 'blood_pressure',
+            label: 'Blood Pressure',
+            icon: <Activity size={18} />,
+            iconClassName: styles.vitalOptionIconBlue,
+        },
+        {
+            id: 'heart_rate',
+            label: 'Heart Rate',
+            icon: <Heart size={18} />,
+            iconClassName: styles.vitalOptionIconRed,
+        },
+        {
+            id: 'oxygen_saturation',
+            label: 'SpO2',
+            icon: <Activity size={18} />,
+            iconClassName: styles.vitalOptionIconGreen,
+        },
+        {
+            id: 'blood_sugar',
+            label: 'Blood Sugar',
+            icon: <Droplets size={18} />,
+            iconClassName: styles.vitalOptionIconPurple,
+        },
+    ] as const
+
+    const frequencyOptions = ['Every 1 hour', 'Every 2 hours', 'Every 6 hours', 'Every 1 day', 'Every 1 week']
+    const durationOptions = ['Next 12 hours', 'Next 24 hours', 'Next 48 hours', 'For 7 days', 'For 4 weeks']
 
     const handleRemoveMedication = (id: string) => {
         setSelectedMedications(selectedMedications.filter((med) => med.id !== id))
@@ -347,6 +391,105 @@ const MedicationTable = ({ patientId, prescriptions, hasConditions, onSuccess }:
         setOriginalPrescription([])
     }
 
+    const handleOpenVitalsModal = () => {
+        setShowVitalsModal(true)
+    }
+
+    const handleCloseVitalsModal = () => {
+        setShowVitalsModal(false)
+        setSelectedVitals([])
+        setVitalsInstructions('')
+        setVitalsPreferences({
+            blood_pressure: { frequency: 'Every 2 hours', duration: 'Next 24 hours' },
+            heart_rate: { frequency: 'Every 2 hours', duration: 'Next 24 hours' },
+            oxygen_saturation: { frequency: 'Every 2 hours', duration: 'Next 24 hours' },
+            blood_sugar: { frequency: 'Every 2 hours', duration: 'Next 24 hours' },
+        })
+    }
+
+    const handleToggleVital = (vitalId: VitalPlanOptionId) => {
+        setSelectedVitals((current) =>
+            current.includes(vitalId) ? current.filter((id) => id !== vitalId) : [...current, vitalId],
+        )
+    }
+
+    const handleUpdateVitalPreference = (vitalId: VitalPlanOptionId, field: 'frequency' | 'duration', value: string) => {
+        setVitalsPreferences((current) => ({
+            ...current,
+            [vitalId]: {
+                ...current[vitalId],
+                [field]: value,
+            },
+        }))
+    }
+
+    const parseFrequency = (value: string): { frequencyValue: number; frequencyUnit: 'hours' | 'days' | 'weeks' } => {
+        const match = value.match(/Every (\d+) (hour|hours|day|days|week|weeks)/i)
+        if (!match) {
+            return { frequencyValue: 2, frequencyUnit: 'hours' }
+        }
+
+        const unitMap = {
+            hour: 'hours',
+            hours: 'hours',
+            day: 'days',
+            days: 'days',
+            week: 'weeks',
+            weeks: 'weeks',
+        } as const
+
+        return {
+            frequencyValue: Number(match[1]),
+            frequencyUnit: unitMap[match[2].toLowerCase() as keyof typeof unitMap],
+        }
+    }
+
+    const parseDuration = (value: string): { durationValue: number; durationUnit: 'hours' | 'days' | 'weeks' | 'months' } => {
+        const match = value.match(/(?:Next|For) (\d+) (hour|hours|day|days|week|weeks|month|months)/i)
+        if (!match) {
+            return { durationValue: 24, durationUnit: 'hours' }
+        }
+
+        const unitMap = {
+            hour: 'hours',
+            hours: 'hours',
+            day: 'days',
+            days: 'days',
+            week: 'weeks',
+            weeks: 'weeks',
+            month: 'months',
+            months: 'months',
+        } as const
+
+        return {
+            durationValue: Number(match[1]),
+            durationUnit: unitMap[match[2].toLowerCase() as keyof typeof unitMap],
+        }
+    }
+
+    const handleConfirmVitalsRequest = async () => {
+        if (!patientId || selectedVitals.length === 0) return
+
+        setIsSavingVitalPlan(true)
+        try {
+            await createVitalPlan(patientId, {
+                vitals: selectedVitals.map((vitalId) => ({
+                    type: vitalId,
+                    ...parseFrequency(vitalsPreferences[vitalId].frequency),
+                    ...parseDuration(vitalsPreferences[vitalId].duration),
+                })),
+                instructions: vitalsInstructions.trim() || undefined,
+            })
+
+            toast.success('Vitals check request created')
+            handleCloseVitalsModal()
+        } catch (error) {
+            toast.error(getErrorMessage(error))
+        } finally {
+            setIsSavingVitalPlan(false)
+        }
+    }
+
     const hasChanges = isEditMode && JSON.stringify(selectedMedications) !== JSON.stringify(originalPrescription)
 
     const hasValidScheduleTimes = selectedMedications.every(
@@ -387,7 +530,7 @@ const MedicationTable = ({ patientId, prescriptions, hasConditions, onSuccess }:
                         >
                             Prescription
                         </Button>
-                        <Button disabled={!hasConditions} className={styles.vitalsBtn}>
+                        <Button disabled={!hasConditions} className={styles.vitalsBtn} onClick={handleOpenVitalsModal}>
                             Vitals
                         </Button>
                     </div>
@@ -639,6 +782,135 @@ const MedicationTable = ({ patientId, prescriptions, hasConditions, onSuccess }:
                                 </div>
                             ))}
                         </div>
+                    )}
+                </div>
+            </Modal>
+
+            <Modal
+                isOpen={showVitalsModal}
+                onClose={handleCloseVitalsModal}
+                title="Create Vitals Check Request"
+                size="lg"
+                footer={
+                    <div className={styles.modalFooter}>
+                        <button className={styles.cancelBtn} onClick={handleCloseVitalsModal} type="button">
+                            Cancel
+                        </button>
+                        <button
+                            className={styles.addPrescriptionBtn}
+                            onClick={handleConfirmVitalsRequest}
+                            disabled={selectedVitals.length === 0 || isSavingVitalPlan}
+                            type="button"
+                        >
+                            {isSavingVitalPlan ? 'Saving...' : 'Confirm'}
+                        </button>
+                    </div>
+                }
+            >
+                <div className={styles.vitalsModalContent}>
+                    <p className={styles.vitalsSubtext}>{patientName} needs specific vital monitoring.</p>
+
+                    <div className={styles.vitalsStep}>
+                        <span className={styles.stepBadge}>1</span>
+                        <span className={styles.stepTitle}>Select Vitals to Monitor</span>
+                    </div>
+
+                    <div className={styles.vitalsOptionsGrid}>
+                        {vitalOptions.map((vital) => {
+                            const isSelected = selectedVitals.includes(vital.id)
+                            return (
+                                <button
+                                    key={vital.id}
+                                    type="button"
+                                    className={`${styles.vitalOptionCard} ${isSelected ? styles.vitalOptionCardActive : ''}`}
+                                    onClick={() => handleToggleVital(vital.id)}
+                                >
+                                    <span className={`${styles.vitalOptionIcon} ${vital.iconClassName}`}>
+                                        {vital.icon}
+                                    </span>
+                                    <span className={styles.vitalOptionLabel}>{vital.label}</span>
+                                </button>
+                            )
+                        })}
+                    </div>
+
+                    {selectedVitals.length > 0 && (
+                        <>
+                            <div className={styles.vitalsStep}>
+                                <span className={styles.stepBadge}>2</span>
+                                <span className={styles.stepTitle}>Set Individual Monitoring Frequency</span>
+                            </div>
+
+                            <div className={styles.vitalsMonitorList}>
+                                {vitalOptions
+                                    .filter((vital) => selectedVitals.includes(vital.id))
+                                    .map((vital) => (
+                                        <div key={vital.id} className={styles.vitalMonitorCard}>
+                                            <div className={styles.vitalMonitorHeader}>
+                                                <span className={`${styles.vitalOptionIcon} ${vital.iconClassName}`}>
+                                                    {vital.icon}
+                                                </span>
+                                                <span className={styles.vitalMonitorTitle}>{vital.label}</span>
+                                            </div>
+
+                                            <div className={styles.vitalMonitorFields}>
+                                                <div className={styles.fieldGroup}>
+                                                    <label className={styles.vitalFieldLabel}>Frequency</label>
+                                                    <select
+                                                        className={styles.fieldSelect}
+                                                        value={vitalsPreferences[vital.id].frequency}
+                                                        onChange={(e) =>
+                                                            handleUpdateVitalPreference(
+                                                                vital.id,
+                                                                'frequency',
+                                                                e.target.value,
+                                                            )
+                                                        }
+                                                    >
+                                                        {frequencyOptions.map((option) => (
+                                                            <option key={option} value={option}>
+                                                                {option}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+
+                                                <div className={styles.fieldGroup}>
+                                                    <label className={styles.vitalFieldLabel}>Duration</label>
+                                                    <select
+                                                        className={styles.fieldSelect}
+                                                        value={vitalsPreferences[vital.id].duration}
+                                                        onChange={(e) =>
+                                                            handleUpdateVitalPreference(
+                                                                vital.id,
+                                                                'duration',
+                                                                e.target.value,
+                                                            )
+                                                        }
+                                                    >
+                                                        {durationOptions.map((option) => (
+                                                            <option key={option} value={option}>
+                                                                {option}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                            </div>
+                            <div className={styles.instructionsSection}>
+                                <label className={styles.instructionsLabel}>
+                                    Instructions for Nursing Staff (Optional)
+                                </label>
+                                <textarea
+                                    className={styles.instructionsInput}
+                                    placeholder="e.g., Please wake patient if asleep for BP check..."
+                                    value={vitalsInstructions}
+                                    onChange={(e) => setVitalsInstructions(e.target.value)}
+                                />
+                            </div>
+                        </>
                     )}
                 </div>
             </Modal>
