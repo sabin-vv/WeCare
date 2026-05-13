@@ -250,8 +250,11 @@ export interface PatientPrescriptionMedication {
     route: string
     frequency: string
     scheduleTimes: string[]
-    isCritical: boolean
+    priority?: string
     instructions?: string
+    duration: number
+    durationUnit: string
+    endDate?: string
 }
 
 export interface PatientPrescription {
@@ -264,6 +267,7 @@ export interface PatientPrescription {
     discontinuedAt?: string
     discontinuedBy?: string
     prescribedAt: string
+    endDate?: string
     updatedAt: string
 }
 
@@ -280,7 +284,10 @@ export interface AddPrescriptionMedication {
     route: string
     frequency: string
     scheduleTimes: string[]
-    isCritical: boolean
+    priority: string
+    duration: number
+    durationUnit: string
+    instructions?: string
 }
 
 export interface AddPrescriptionPayload {

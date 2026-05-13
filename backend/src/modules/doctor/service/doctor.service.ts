@@ -4,7 +4,6 @@ import { inject, injectable } from 'tsyringe'
 import { TOKENS } from '../../../container/tokens'
 import { HTTP_STATUS } from '../../../core/constants/httpStatus'
 import { AppError } from '../../../core/errors/AppError'
-import { logger } from '../../../core/logger/logger'
 import { IAppointmentRepository } from '../../appointment/interfaces/appointment.repository.interface'
 import { IUserRepository } from '../../auth/interfaces/user.repository.interface'
 import { IPaymentRepository } from '../../payment/interfaces/payment.repository.interface'
@@ -340,7 +339,6 @@ export class DoctorService implements IDoctorService {
         }
 
         const availability = await this._doctorAvailabilityRepo.findByDoctorId(doctor._id as Types.ObjectId)
-        logger.info({ AVAILABILITY: availability })
         const selectedSlot = new Date(date)
 
         if (availability?.startDate && selectedSlot < availability.startDate) {
