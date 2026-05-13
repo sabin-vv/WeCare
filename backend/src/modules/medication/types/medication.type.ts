@@ -21,3 +21,16 @@ export interface MedicationScheduleModel extends Document {
     createdAt: Date
     updatedAt: Date
 }
+
+export type MedicationScheduleInput = {
+    prescriptionId: Types.ObjectId
+    patientId: Types.ObjectId
+    caregiverId: Types.ObjectId
+    medicineName: string
+    dosage: string
+    route: 'oral' | 'injection' | 'IV' | 'inhalation'
+    scheduleDate: Date
+    scheduleTime: Date
+    priority: 'low' | 'medium' | 'high' | 'critical'
+    status: 'pending'
+}
