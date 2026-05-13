@@ -288,6 +288,19 @@ export interface AddPrescriptionPayload {
     note?: string
 }
 
+export interface VitalPlanItemPayload {
+    type: 'blood_pressure' | 'blood_sugar' | 'heart_rate' | 'temperature' | 'oxygen_saturation'
+    frequencyValue: number
+    frequencyUnit: 'hours' | 'days' | 'weeks'
+    durationValue: number
+    durationUnit: 'hours' | 'days' | 'weeks' | 'months'
+}
+
+export interface AddVitalPlanPayload {
+    vitals: VitalPlanItemPayload[]
+    instructions?: string
+}
+
 export interface ScheduleTime {
     id: string
     time: string
@@ -308,6 +321,7 @@ export interface SelectedMedication {
 
 export interface MedicationProps {
     patientId: string
+    patientName: string
     clinicalStatus: string
     prescriptions: PatientPrescription[]
     hasConditions: boolean
