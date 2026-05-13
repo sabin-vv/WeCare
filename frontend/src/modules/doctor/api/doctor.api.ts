@@ -108,3 +108,7 @@ export const addPrescription = async (
 
     return res.data.data
 }
+
+export const updatePrescriptionStatus = async (prescriptionId: string, status: string): Promise<void> => {
+    await api.patch(`${PRESCRIPTIONS_API}/${prescriptionId}/status`, { status })
+}
