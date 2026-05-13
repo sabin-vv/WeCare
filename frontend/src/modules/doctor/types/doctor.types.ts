@@ -251,6 +251,7 @@ export interface PatientPrescriptionMedication {
     frequency: string
     scheduleTimes: string[]
     isCritical: boolean
+    instructions?: string
 }
 
 export interface PatientPrescription {
@@ -302,6 +303,7 @@ export interface SelectedMedication {
     priority: string
     route: string
     scheduleTimes: ScheduleTime[]
+    instructions?: string
 }
 
 export interface MedicationProps {
