@@ -74,4 +74,18 @@ export class CaregiverService implements ICaregiverService {
 
         return toCaregiverProfileResponse(updatedUser, caregiver)
     }
+
+    async listCaregivers(search?: string): Promise<CaregiverProfileResponse[]> {
+        const caregivers = await this._caregiverRepo.findAllActive(search)
+        const caregiversWithUser: CaregiverProfileResponse[] = []
+
+        for (const caregiver of caregivers) {
+            const user = await this._userRepo.findById(caregiver.userId.toString())
+            if (user) {
+                caregiversWithUser.push(toCaregiverProfileResponse(user, caregiver))
+            }
+        }
+
+        return caregiversWithUser
+    }
 }
