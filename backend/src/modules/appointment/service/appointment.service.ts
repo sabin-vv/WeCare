@@ -331,6 +331,33 @@ export class AppointmentService implements IAppointmentService {
         await this._appointmentRepo.update(appointment._id.toString(), { status: 'in_consultation' })
     }
 
+    async completeConsultation(doctorId: string, patientId: string): Promise<void> {
+        const doctor = await this._doctorRepo.findByUserId(new Types.ObjectId(doctorId))
+        if (!doctor) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'Doctor profile not found')
+        }
+
+        const patient = await this._patientRepo.findById(patientId)
+        if (!patient) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'Patient not found')
+        }
+
+        const appointment = await this._appointmentRepo.findDoctorVisibleCurrentAppointment(
+            doctor._id.toString(),
+            patient.userId.toString(),
+        )
+
+        if (!appointment) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'No active appointment found')
+        }
+
+        if (appointment.status !== 'in_consultation') {
+            throw new AppError(HTTP_STATUS.BAD_REQUEST, 'Appointment is not in consultation')
+        }
+
+        await this._appointmentRepo.update(appointment._id.toString(), { status: 'completed' })
+    }
+
     async retryPayment(
         appointmentId: string,
         dto: RetryPaymentDTO & { patientId: string },

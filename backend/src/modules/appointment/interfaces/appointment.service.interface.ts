@@ -45,5 +45,7 @@ export interface IAppointmentService {
 
     startConsultation(doctorId: string, patientId: string): Promise<void>
 
+    completeConsultation(doctorId: string, patientId: string): Promise<void>
+
     retryPayment(appointmentId: string, dto: RetryPaymentDTO & { patientId: string }): Promise<CreateAppointmentResult>
 }
