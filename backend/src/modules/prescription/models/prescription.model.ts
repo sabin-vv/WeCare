@@ -28,9 +28,25 @@ const medicationSchema = new Schema(
             type: [String],
             default: [],
         },
-        isCritical: {
-            type: Boolean,
-            default: false,
+        priority: {
+            type: String,
+            enum: ['Critical', 'High', 'Medium', 'Low'],
+            default: 'Medium',
+        },
+        duration: {
+            type: Number,
+            required: true,
+        },
+        durationUnit: {
+            type: String,
+            enum: ['Days', 'Weeks', 'Months'],
+            required: true,
+        },
+        endDate: {
+            type: Date,
+        },
+        instructions: {
+            type: String,
         },
     },
     { _id: false },
@@ -75,6 +91,9 @@ const prescriptionSchema = new Schema<PrescriptionDocument>(
         prescribedAt: {
             type: Date,
             default: Date.now,
+        },
+        endDate: {
+            type: Date,
         },
     },
     { timestamps: true },
