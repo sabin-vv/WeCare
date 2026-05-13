@@ -7,4 +7,5 @@ export interface SearchFieldProps {
     suggestions?: string[]
     isLoading?: boolean
     onSelect?: (value: string) => void
+    disabled?: boolean
 }

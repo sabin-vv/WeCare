@@ -12,6 +12,7 @@ const SearchField = ({
     suggestions = [],
     isLoading = false,
     onSelect,
+    disabled = false,
 }: SearchFieldProps) => {
     const isFirstMount = useRef(true)
     const [showSuggestions, setShowSuggestions] = useState(false)
@@ -71,6 +72,7 @@ const SearchField = ({
                 onFocus={() => setShowSuggestions(true)}
                 placeholder={placeholder}
                 className={styles.searchInput}
+                disabled={disabled}
             />
             {showSuggestions && suggestions.length > 0 && (
                 <ul className={styles.suggestionsList}>
