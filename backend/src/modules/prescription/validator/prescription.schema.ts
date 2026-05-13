@@ -6,7 +6,11 @@ export const medicationItemSchema = z.object({
     route: z.enum(['oral', 'injection', 'IV', 'inhalation']),
     frequency: z.string().min(1, 'Frequency is required'),
     scheduleTimes: z.array(z.string().min(1, 'Schedule time is required')).default([]),
-    isCritical: z.boolean().default(false),
+    priority: z.enum(['Critical', 'High', 'Medium', 'Low']).default('Medium'),
+    duration: z.number().min(1, 'Duration is required'),
+    durationUnit: z.enum(['Days', 'Weeks', 'Months'], { errorMap: () => ({ message: 'Duration unit must be Days, Weeks, or Months' }) }),
+    endDate: z.string().datetime().optional(),
+    instructions: z.string().optional(),
 })
 
 export const createPrescriptionSchema = z.object({
