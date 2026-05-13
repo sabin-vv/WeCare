@@ -98,7 +98,11 @@ export interface PatientPrescriptionMedicationDTO {
     route: string
     frequency: string
     scheduleTimes: string[]
-    isCritical: boolean
+    priority: string
+    instructions?: string
+    duration: number
+    durationUnit: string
+    endDate?: string
 }
 
 export interface PatientPrescriptionDTO {
@@ -111,5 +115,6 @@ export interface PatientPrescriptionDTO {
     discontinuedAt?: string
     discontinuedBy?: string
     prescribedAt: string
+    endDate?: string
     updatedAt: string
 }
