@@ -1,9 +1,10 @@
+import { OctagonMinus, Pencil } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
 
-import { addPrescription } from '../../api/doctor.api'
+import { addPrescription, updatePrescriptionStatus } from '../../api/doctor.api'
 import { getMedicineNames, getMedicineStrengths } from '../../api/medicine.api'
-import type { MedicationProps, SelectedMedication } from '../../types/doctor.types'
+import type { MedicationProps, PatientPrescription, SelectedMedication } from '../../types/doctor.types'
 
 import styles from './MedicationTable.module.css'
 
@@ -11,20 +12,102 @@ import Button from '@/shared/components/Button/Button'
 import Modal from '@/shared/components/Modal/Modal'
 import SearchField from '@/shared/components/SearchField/SearchField'
 import { Section } from '@/shared/components/Section/Section'
+import DataTable from '@/shared/components/Table/DataTable'
+import type { Column } from '@/shared/components/Table/dataTable.types'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 
 const MedicationTable = ({ patientId, prescriptions, hasConditions, onSuccess }: MedicationProps) => {
     const [showPrescriptionModal, setShowPrescriptionModal] = useState(false)
+    const [editingPrescription, setEditingPrescription] = useState<PatientPrescription | null>(null)
+    const [isEditMode, setIsEditMode] = useState(false)
+    const [originalPrescription, setOriginalPrescription] = useState<SelectedMedication[]>([])
 
-    const activePrescriptions = prescriptions.filter((prescription) =>
-        ['active', 'amended', 'on_hold'].includes(prescription.status),
-    )
+    const flattenedMedications = [...prescriptions]
+        .sort((a, b) => new Date(b.prescribedAt).getTime() - new Date(a.prescribedAt).getTime())
+        .flatMap((prescription) =>
+            prescription.medications.map((med) => ({
+                prescriptionId: prescription._id,
+                prescriptionStatus: prescription.status,
+                prescribedAt: prescription.prescribedAt,
+                ...med,
+            })),
+        )
+
+    const getStatusClass = (status: string) => {
+        switch (status) {
+            case 'active':
+                return styles.statusActive
+            case 'on_hold':
+                return styles.statusOnHold
+            case 'amended':
+                return styles.statusAmended
+            case 'completed':
+                return styles.statusCompleted
+            case 'discontinued':
+                return styles.statusDiscontinued
+            default:
+                return ''
+        }
+    }
+
+    const medicationColumns: Column<(typeof flattenedMedications)[number]>[] = [
+        {
+            header: 'Medication',
+            key: 'name' as keyof (typeof flattenedMedications)[number],
+            render: (item) => <span className={styles.medicationCell}>{item.name}</span>,
+        },
+        {
+            header: 'Dosage',
+            key: 'dosage' as keyof (typeof flattenedMedications)[number],
+            render: (item) => item.dosage,
+        },
+        {
+            header: 'Frequency',
+            key: 'frequency' as keyof (typeof flattenedMedications)[number],
+            render: (item) => item.frequency,
+        },
+        {
+            header: 'Status',
+            key: 'prescriptionStatus' as keyof (typeof flattenedMedications)[number],
+            render: (item) => (
+                <span className={`${styles.statusBadge} ${getStatusClass(item.prescriptionStatus)}`}>
+                    {item.prescriptionStatus.replace('_', ' ')}
+                </span>
+            ),
+        },
+        {
+            header: 'Actions',
+            key: 'prescriptionId' as keyof (typeof flattenedMedications)[number],
+            render: (item) => {
+                if (item.prescriptionStatus !== 'active') return null
+
+                const prescription = prescriptions.find((p) => p._id === item.prescriptionId)
+                return (
+                    <div className={styles.actionButtons}>
+                        <button
+                            className={styles.actionIconBtn}
+                            title="Edit"
+                            onClick={() => handleEditPrescription(prescription)}
+                        >
+                            <Pencil size={18} className={styles.editIcon} />
+                        </button>
+                        <button
+                            className={`${styles.actionIconBtn} ${styles.deleteBtn}`}
+                            title="Delete"
+                            onClick={() => handleDeletePrescription(prescription)}
+                        >
+                            <OctagonMinus size={18} className={styles.deleteIcon} />
+                        </button>
+                    </div>
+                )
+            },
+        },
+    ]
 
     const [medicationSearch, setMedicationSearch] = useState('')
     const [dosage, setDosage] = useState('')
     const [availableStrengths, setAvailableStrengths] = useState<string[]>([])
     const [selectedMedications, setSelectedMedications] = useState<SelectedMedication[]>([])
-    const [instructions, setInstructions] = useState('')
     const [medicineSuggestions, setMedicineSuggestions] = useState<string[]>([])
     const [isSearchingMedicines, setIsSearchingMedicines] = useState(false)
     const [selectedMedicineName, setSelectedMedicineName] = useState('')
@@ -76,6 +159,65 @@ const MedicationTable = ({ patientId, prescriptions, hasConditions, onSuccess }:
                 return med
             }),
         )
+    }
+
+    const handleEditPrescription = async (prescription: PatientPrescription | undefined) => {
+        if (!prescription || prescription.medications.length === 0) return
+        setEditingPrescription(prescription)
+        setIsEditMode(true)
+
+        const firstMed = prescription.medications[0]
+
+        const mappedMedications: SelectedMedication[] = prescription.medications.map((med, index) => ({
+            id: `${prescription._id}-${index}`,
+            name: med.name,
+            dosage: med.dosage,
+            frequency: med.frequency,
+            duration: 7,
+            durationUnit: 'Days',
+            priority: med.isCritical ? 'Critical' : 'Medium',
+            route: med.route === 'IV' ? 'Intravenous' : med.route === 'injection' ? 'Intramuscular' : med.route,
+            scheduleTimes: med.scheduleTimes.map((time, i) => ({
+                id: `${prescription._id}-${index}-${i}`,
+                time: time,
+            })),
+            instructions: med.instructions || '',
+        }))
+
+        setSelectedMedications(mappedMedications)
+        setOriginalPrescription([...mappedMedications])
+        setMedicationSearch(firstMed.name)
+        setSelectedMedicineName(firstMed.name)
+
+        try {
+            setIsSearchingMedicines(true)
+            const strengths = await getMedicineStrengths(firstMed.name)
+            setAvailableStrengths(strengths)
+            if (strengths.includes(firstMed.dosage)) {
+                setDosage(firstMed.dosage)
+            } else if (strengths.length > 0) {
+                setDosage(strengths[0])
+            }
+        } catch (error) {
+            console.error('Error fetching strengths:', error)
+            setAvailableStrengths([])
+        } finally {
+            setIsSearchingMedicines(false)
+        }
+
+        setShowPrescriptionModal(true)
+    }
+
+    const handleDeletePrescription = async (prescription: PatientPrescription | undefined) => {
+        if (!prescription) return
+
+        try {
+            await updatePrescriptionStatus(prescription._id, 'discontinued')
+            toast.success('Prescription discontinued')
+            onSuccess()
+        } catch (error) {
+            toast.error(getErrorMessage(error))
+        }
     }
 
     const handleMedicineSearch = useCallback(async (query: string) => {
@@ -172,10 +314,17 @@ const MedicationTable = ({ patientId, prescriptions, hasConditions, onSuccess }:
                     frequency: med.frequency,
                     scheduleTimes: med.scheduleTimes.map((t) => t.time).filter(Boolean),
                     isCritical: med.priority === 'Critical',
+                    instructions: med.instructions,
                 })),
-                note: instructions,
             })
-            toast.success('Prescription added successfully')
+
+            if (isEditMode && editingPrescription) {
+                await updatePrescriptionStatus(editingPrescription._id, 'amended')
+                toast.success('Prescription updated successfully')
+            } else {
+                toast.success('Prescription added successfully')
+            }
+
             onSuccess()
             handleClosePrescriptionModal()
         } catch (error) {
@@ -192,9 +341,13 @@ const MedicationTable = ({ patientId, prescriptions, hasConditions, onSuccess }:
         setAvailableStrengths([])
         setSelectedMedicineName('')
         setSelectedMedications([])
-        setInstructions('')
         setMedicineSuggestions([])
+        setEditingPrescription(null)
+        setIsEditMode(false)
+        setOriginalPrescription([])
     }
+
+    const hasChanges = isEditMode && JSON.stringify(selectedMedications) !== JSON.stringify(originalPrescription)
 
     const hasValidScheduleTimes = selectedMedications.every(
         (med) => med.scheduleTimes.length > 0 && med.scheduleTimes.every((t) => t.time && t.time.trim() !== ''),
@@ -208,10 +361,15 @@ const MedicationTable = ({ patientId, prescriptions, hasConditions, onSuccess }:
             <button
                 className={styles.addPrescriptionBtn}
                 onClick={handleAddPrescription}
-                disabled={selectedMedications.length === 0 || isSaving || !hasValidScheduleTimes}
+                disabled={
+                    selectedMedications.length === 0 ||
+                    isSaving ||
+                    !hasValidScheduleTimes ||
+                    (isEditMode && !hasChanges)
+                }
                 type="button"
             >
-                {isSaving ? 'Saving...' : 'Add Prescription'}
+                {isSaving ? 'Saving...' : isEditMode ? 'Update Prescription' : 'Add Prescription'}
             </button>
         </div>
     )
@@ -221,102 +379,29 @@ const MedicationTable = ({ patientId, prescriptions, hasConditions, onSuccess }:
             <Section
                 title="Current Medication"
                 actions={
-                    <div style={{ display: 'flex', gap: '8px' }}>
+                    <div className={styles.sectionActions}>
                         <Button
                             disabled={!hasConditions}
                             onClick={() => setShowPrescriptionModal(true)}
-                            style={{
-                                padding: '8px 20px',
-                                opacity: hasConditions ? 1 : 0.5,
-                                cursor: hasConditions ? 'pointer' : 'not-allowed',
-                            }}
+                            className={styles.prescriptionBtn}
                         >
                             Prescription
                         </Button>
-                        <Button
-                            disabled={!hasConditions}
-                            style={{
-                                padding: '8px 20px',
-                                opacity: hasConditions ? 1 : 0.5,
-                                cursor: hasConditions ? 'pointer' : 'not-allowed',
-                            }}
-                        >
+                        <Button disabled={!hasConditions} className={styles.vitalsBtn}>
                             Vitals
                         </Button>
                     </div>
                 }
             >
-                {activePrescriptions.length === 0 ? (
-                    <p style={{ margin: 0, color: '#64748b' }}>No prescriptions available for this patient.</p>
+                {flattenedMedications.length === 0 ? (
+                    <p className={styles.emptyMessage}>No prescriptions available for this patient.</p>
                 ) : (
-                    <div style={{ display: 'grid', gap: '16px' }}>
-                        {activePrescriptions.map((prescription) => (
-                            <div
-                                key={prescription._id}
-                                style={{
-                                    border: '1px solid #e2e8f0',
-                                    borderRadius: '14px',
-                                    padding: '16px',
-                                    background: '#fff',
-                                }}
-                            >
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        gap: '12px',
-                                        marginBottom: '12px',
-                                        flexWrap: 'wrap',
-                                    }}
-                                >
-                                    <strong style={{ color: '#0f172a' }}>
-                                        {prescription.status.replace('_', ' ')}
-                                    </strong>
-                                    <span className={styles.prescriptionDate}>
-                                        Prescribed {new Date(prescription.prescribedAt).toLocaleDateString()}
-                                    </span>
-                                </div>
-
-                                <div className={styles.medicationsList}>
-                                    {prescription.medications.map((medication, index) => (
-                                        <div
-                                            key={`${prescription._id}-${medication.name}-${index}`}
-                                            className={`${styles.medicationItem} ${
-                                                medication.isCritical
-                                                    ? styles.medicationItemCritical
-                                                    : styles.medicationItemNormal
-                                            }`}
-                                        >
-                                            <div className={styles.medicationItemHeader}>
-                                                <strong>{medication.name}</strong>
-                                                <span
-                                                    className={
-                                                        medication.isCritical
-                                                            ? styles.medicationRouteCritical
-                                                            : styles.medicationRoute
-                                                    }
-                                                >
-                                                    {medication.isCritical ? 'Critical' : medication.route}
-                                                </span>
-                                            </div>
-                                            <p className={styles.medicationDosage}>
-                                                {medication.dosage} • {medication.frequency}
-                                            </p>
-                                            {medication.scheduleTimes.length > 0 && (
-                                                <p className={styles.medicationTimes}>
-                                                    Times: {medication.scheduleTimes.join(', ')}
-                                                </p>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-
-                                {prescription.note && (
-                                    <p className={styles.prescriptionNote}>Note: {prescription.note}</p>
-                                )}
-                            </div>
-                        ))}
+                    <div className={styles.tableSection}>
+                        <DataTable
+                            data={flattenedMedications}
+                            columns={medicationColumns}
+                            keyExtractor={(item) => `${item.prescriptionId}-${item.name}`}
+                        />
                     </div>
                 )}
             </Section>
@@ -324,7 +409,7 @@ const MedicationTable = ({ patientId, prescriptions, hasConditions, onSuccess }:
             <Modal
                 isOpen={showPrescriptionModal}
                 onClose={handleClosePrescriptionModal}
-                title="Prescription"
+                title={isEditMode ? 'Edit Prescription' : 'Prescription'}
                 size="lg"
                 footer={footerContent}
             >
@@ -340,15 +425,25 @@ const MedicationTable = ({ patientId, prescriptions, hasConditions, onSuccess }:
                                 suggestions={medicineSuggestions}
                                 isLoading={isSearchingMedicines}
                                 onSelect={handleMedicineSelect}
+                                disabled={isEditMode}
                             />
                         </div>
                         <div className={styles.dosageField}>
                             <label className={styles.dosageLabel}>Dosage</label>
-                            <div style={{ display: 'flex', gap: '8px' }}>
+                            <div className={styles.dosageRow}>
                                 <select
                                     className={styles.dosageSelect}
                                     value={dosage}
-                                    onChange={(e) => setDosage(e.target.value)}
+                                    onChange={(e) => {
+                                        setDosage(e.target.value)
+                                        if (isEditMode && selectedMedications.length > 0) {
+                                            setSelectedMedications(
+                                                selectedMedications.map((med, i) =>
+                                                    i === 0 ? { ...med, dosage: e.target.value } : med,
+                                                ),
+                                            )
+                                        }
+                                    }}
                                     disabled={availableStrengths.length === 0}
                                 >
                                     <option value="" disabled>
@@ -360,13 +455,15 @@ const MedicationTable = ({ patientId, prescriptions, hasConditions, onSuccess }:
                                         </option>
                                     ))}
                                 </select>
-                                <Button
-                                    onClick={handleAddMedicationToList}
-                                    disabled={!selectedMedicineName || !dosage}
-                                    style={{ padding: '8px 16px' }}
-                                >
-                                    Add
-                                </Button>
+                                {!isEditMode && (
+                                    <Button
+                                        onClick={handleAddMedicationToList}
+                                        disabled={!selectedMedicineName || !dosage}
+                                        className={styles.addMedicationBtn}
+                                    >
+                                        Add
+                                    </Button>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -522,20 +619,27 @@ const MedicationTable = ({ patientId, prescriptions, hasConditions, onSuccess }:
                                             </button>
                                         </div>
                                     </div>
+                                    <div className={styles.instructionsSection}>
+                                        <label className={styles.instructionsLabel}>
+                                            Instructions about Medication
+                                        </label>
+                                        <textarea
+                                            className={styles.instructionsInput}
+                                            placeholder="e.g. Take with food, finish the entire course"
+                                            value={medication.instructions || ''}
+                                            onChange={(e) =>
+                                                handleUpdateMedicationField(
+                                                    medication.id,
+                                                    'instructions',
+                                                    e.target.value,
+                                                )
+                                            }
+                                        />
+                                    </div>
                                 </div>
                             ))}
                         </div>
                     )}
-
-                    <div className={styles.instructionsSection}>
-                        <label className={styles.instructionsLabel}>Instructions about Medication</label>
-                        <textarea
-                            className={styles.instructionsInput}
-                            placeholder="e.g. Take with food, finish the entire course"
-                            value={instructions}
-                            onChange={(e) => setInstructions(e.target.value)}
-                        />
-                    </div>
                 </div>
             </Modal>
         </>
