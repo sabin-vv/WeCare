@@ -25,4 +25,5 @@ export interface IPatientService {
         patientId: string,
         dto: UpdatePatientConditionDTO,
     ): Promise<PatientDetailsDTO>
+    assignCaregiver(doctorId: string, patientId: string, caregiverId: string): Promise<PatientDetailsDTO>
 }
