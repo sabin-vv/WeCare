@@ -28,6 +28,10 @@ import { DoctorRepository } from '../modules/doctor/repository/doctor.repository
 import { DoctorAvailabilityRepository } from '../modules/doctor/repository/doctorAvailability.repository'
 import { AvailabilityNotificationService } from '../modules/doctor/service/availabilityNotification.service'
 import { DoctorService } from '../modules/doctor/service/doctor.service'
+import { IMedicationRepository } from '../modules/medication/interfaces/medication.repository.interface'
+import { IMedicationService } from '../modules/medication/interfaces/medication.service.interface'
+import { MedicationRepository } from '../modules/medication/repository/medication.repository'
+import { MedicationService } from '../modules/medication/service/medication.service'
 import { IPatientRepository } from '../modules/patient/interfaces/patient.repository.interface'
 import { IPatientService } from '../modules/patient/interfaces/patient.service.interface'
 import { PatientRepository } from '../modules/patient/repository/patient.repository'
@@ -86,3 +90,6 @@ container.register<IVitalService>(TOKENS.IVitalService, { useClass: VitalService
 
 container.register<IWalletRepository>(TOKENS.IWalletRepository, { useClass: WalletRepository })
 container.register<IWalletService>(TOKENS.IWalletService, { useClass: WalletService })
+
+container.register<IMedicationRepository>(TOKENS.IMedicationRepository, { useClass: MedicationRepository })
+container.register<IMedicationService>(TOKENS.IMedicationService, { useClass: MedicationService })
