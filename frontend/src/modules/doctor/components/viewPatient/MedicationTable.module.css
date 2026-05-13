@@ -458,3 +458,110 @@
     display: flex;
     gap: 8px;
 }
+
+.tableSection {
+    width: 100%;
+}
+
+.sectionActions {
+    display: flex;
+    gap: 8px;
+}
+
+.prescriptionBtn,
+.vitalsBtn {
+    padding: 8px 20px;
+}
+
+.prescriptionBtn:disabled,
+.vitalsBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.addMedicationBtn {
+    padding: 8px 16px;
+}
+
+.medicationCell {
+    font-weight: 600;
+}
+
+.editIcon {
+    color: #16a34a;
+}
+
+.deleteIcon {
+    color: #dc2626;
+}
+
+.statusBadge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.statusActive {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.statusOnHold {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.statusAmended {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.statusCompleted {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+.statusDiscontinued {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.actionButtons {
+    display: flex;
+    gap: 8px;
+}
+
+.actionIconBtn {
+    background: none;
+    border: none;
+    padding: 4px 8px;
+    cursor: pointer;
+    color: #64748b;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.actionIconBtn:hover {
+    border-radius: 6px;
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+.deleteBtn:hover {
+    color: #dc2626;
+    background: #fef2f2;
+}
+
+.emptyMessage {
+    color: #64748b;
+    font-size: 14px;
+    padding: 20px;
+    text-align: center;
+}
