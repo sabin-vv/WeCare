@@ -565,3 +565,157 @@
     padding: 20px;
     text-align: center;
 }
+
+.vitalsModalContent {
+    padding: 8px 4px 0;
+}
+
+.vitalsSubtext {
+    margin: 0 0 20px;
+    font-size: 14px;
+    color: #94a3b8;
+}
+
+.vitalsStep {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.stepBadge {
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    background: #2563eb;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.stepTitle {
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.vitalsOptionsGrid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 28px;
+}
+
+.vitalOptionCard {
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    border-radius: 12px;
+    min-height: 92px;
+    padding: 14px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.vitalOptionCard:hover {
+    border-color: #93c5fd;
+    background: #f8fbff;
+}
+
+.vitalOptionCardActive {
+    border-color: #60a5fa;
+    background: #eff6ff;
+    box-shadow: 0 0 0 1px #bfdbfe inset;
+}
+
+.vitalOptionIcon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vitalOptionIconBlue {
+    background: #e0ecff;
+    color: #2563eb;
+}
+
+.vitalOptionIconRed {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+.vitalOptionIconGreen {
+    background: #dcfce7;
+    color: #10b981;
+}
+
+.vitalOptionIconPurple {
+    background: #f3e8ff;
+    color: #8b5cf6;
+}
+
+.vitalOptionLabel {
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    text-align: center;
+}
+
+.vitalsMonitorList {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.vitalMonitorCard {
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #ffffff;
+    padding: 18px;
+}
+
+.vitalMonitorHeader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.vitalMonitorTitle {
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.vitalMonitorFields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.vitalFieldLabel {
+    font-size: 12px;
+    font-weight: 500;
+    color: #94a3b8;
+}
+
+@media (max-width: 768px) {
+    .vitalsOptionsGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .vitalMonitorFields {
+        grid-template-columns: 1fr;
+    }
+}
