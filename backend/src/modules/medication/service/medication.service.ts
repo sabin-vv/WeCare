@@ -15,7 +15,7 @@ export class MedicationService implements IMedicationService {
         @inject(TOKENS.IPatientRepository) private _patientRepo: IPatientRepository,
     ) {}
 
-    async generateDailySchedule(date: Date): Promise<{ created: number; skipped: number }> {
+    async generateDailySchedule(date: Date): Promise<{ created: number; skipped: number } | undefined> {
         const startOfDay = new Date(date)
         startOfDay.setHours(0, 0, 0, 0)
 
@@ -35,7 +35,10 @@ export class MedicationService implements IMedicationService {
             const patient = await this._patientRepo.findById(prescription.patientId.toString())
             if (!patient) continue
 
-            const caregiverId = patient.caregiverId || new Types.ObjectId()
+            const caregiverId = patient.caregiverId
+            if (!caregiverId) {
+                return
+            }
 
             for (const medication of prescription.medications) {
                 if (!medication.scheduleTimes || medication.scheduleTimes.length === 0) continue
