@@ -4,7 +4,6 @@ import { inject, injectable } from 'tsyringe'
 import { TOKENS } from '../../../container/tokens'
 import { HTTP_STATUS } from '../../../core/constants/httpStatus'
 import { AppError } from '../../../core/errors/AppError'
-import { logger } from '../../../core/logger/logger'
 import { IAppointmentRepository } from '../../appointment/interfaces/appointment.repository.interface'
 import { IUserRepository } from '../../auth/interfaces/user.repository.interface'
 import { toUserEntity } from '../../auth/mapper/auth.mapper'
@@ -221,7 +220,6 @@ export class PatientService implements IPatientService {
             }
         }
 
-        logger.info({ patients: patients })
         const mappedPatients = patients
             .map((patient) => {
                 const user = usersMap.get(patient.userId.toString())
