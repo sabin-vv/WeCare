@@ -93,3 +93,11 @@ container.register<IWalletService>(TOKENS.IWalletService, { useClass: WalletServ
 
 container.register<IMedicationRepository>(TOKENS.IMedicationRepository, { useClass: MedicationRepository })
 container.register<IMedicationService>(TOKENS.IMedicationService, { useClass: MedicationService })
+
+import { ISubscriptionRepository } from '../modules/subscription/interfaces/subscription.repository.interface'
+import { ISubscriptionService } from '../modules/subscription/interfaces/subscription.service.interface'
+import { SubscriptionRepository } from '../modules/subscription/repository/subscription.repository'
+import { SubscriptionService } from '../modules/subscription/service/subscription.service'
+
+container.register<ISubscriptionRepository>(TOKENS.ISubscriptionRepository, { useClass: SubscriptionRepository })
+container.register<ISubscriptionService>(TOKENS.ISubscriptionService, { useClass: SubscriptionService })
