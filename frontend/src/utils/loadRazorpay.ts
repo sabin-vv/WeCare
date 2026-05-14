@@ -1,3 +1,5 @@
+import type { RazorpayOptions } from '@/shared/types/model.types'
+
 const RAZORPAY_SCRIPT_URL = 'https://checkout.razorpay.com/v1/checkout.js'
 
 export const loadRazorpayScript = (): Promise<void> => {
@@ -6,10 +8,6 @@ export const loadRazorpayScript = (): Promise<void> => {
     }
 
     return new Promise((resolve, reject) => {
-        if (window.Razorpay) {
-            resolve()
-            return
-        }
         const script = document.createElement('script')
         script.src = RAZORPAY_SCRIPT_URL
         script.async = true
@@ -22,8 +20,10 @@ export const loadRazorpayScript = (): Promise<void> => {
 declare global {
     interface Window {
         Razorpay: {
-            new (options: unknown): {
+            new (options: RazorpayOptions): {
                 open(): void
+                on(event: 'payment.failed', handler: (origin: unknown, error: { description: string }) => void): void
+                on(event: 'modal.closed', handler: () => void): void
             }
         }
     }
