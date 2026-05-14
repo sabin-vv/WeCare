@@ -3,6 +3,7 @@ import { Types } from 'mongoose'
 export type MedicationStatus = 'pending' | 'administered' | 'missed' | 'skipped' | 'cancelled'
 
 export interface MedicationScheduleModel extends Document {
+    _id: Types.ObjectId
     prescriptionId: Types.ObjectId
     patientId: Types.ObjectId
     caregiverId: Types.ObjectId
@@ -33,4 +34,15 @@ export type MedicationScheduleInput = {
     scheduleTime: Date
     priority: 'low' | 'medium' | 'high' | 'critical'
     status: 'pending'
+}
+
+export interface MedicationScheduleDTO {
+    _id: string
+    medicineName: string
+    dosage: string
+    route: string
+    scheduleTime: string
+    priority: 'low' | 'medium' | 'high' | 'critical'
+    status: MedicationStatus
+    administeredAt?: string
 }
