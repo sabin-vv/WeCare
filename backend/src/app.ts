@@ -8,6 +8,7 @@ import { createAppointmentRoutes } from './modules/appointment/routes/appointmen
 import { createAuthRoutes } from './modules/auth/routes/auth.route'
 import { createCaregiverRoutes } from './modules/caregiver/routes/caregiver.route'
 import { createDoctorRoutes } from './modules/doctor/routes/doctor.route'
+import { createMedicationRoutes } from './modules/medication/routes/medication.route'
 import { createPatientRoutes } from './modules/patient/routes/patient.route'
 import { createPaymentRoutes } from './modules/payment/routes/payment.routes'
 import { createPrescriptionRoutes } from './modules/prescription/routes/prescription.route'
@@ -41,6 +42,8 @@ app.use('/api/appointments', createAppointmentRoutes())
 app.use('/api/payments', createPaymentRoutes())
 
 app.use('/api/prescriptions', createPrescriptionRoutes())
+
+app.use('/api/medications', createMedicationRoutes())
 
 app.use('/api/subscriptions', createSubscriptionRoutes())
 
