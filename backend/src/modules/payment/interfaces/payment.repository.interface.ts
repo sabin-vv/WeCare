@@ -7,6 +7,8 @@ export interface IPaymentRepository {
 
     findByOrderId(orderId: string): Promise<PaymentDocument | null>
 
+    findBySubscriptionId(subscriptionId: string): Promise<PaymentDocument | null>
+
     updateById(id: string, data: Partial<PaymentDocument>): Promise<PaymentDocument | null>
 
     updateByOrderId(id: string, data: Partial<PaymentDocument>): Promise<PaymentDocument | null>
