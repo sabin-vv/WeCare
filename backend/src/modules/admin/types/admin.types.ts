@@ -124,6 +124,8 @@ export interface PlatformSettingsDocument extends Document {
     platformFee: number
     platformLogo: string
     platformIcon: string
+    subscriptionFee: number
+    billingCycle: 'monthly' | 'yearly'
 }
 
 export interface PlatformSettings {
@@ -133,4 +135,6 @@ export interface PlatformSettings {
     platformFee: number
     platformLogo?: string
     platformIcon?: string
+    subscriptionFee?: number
+    billingCycle?: 'monthly' | 'yearly'
 }
