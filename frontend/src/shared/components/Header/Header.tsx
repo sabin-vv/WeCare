@@ -1,4 +1,4 @@
-import { BellRing, Settings, Calendar } from 'lucide-react'
+import { BellRing, Settings } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -142,16 +142,7 @@ const Header = ({ titlePrefix = '', subtitle, navLinks = [], children, leading }
                                         className={styles.menuItem}
                                         onClick={() => handleLinkClick(currentRoutes?.settings || '/')}
                                     >
-                                        <Settings size={18} />
                                         Settings
-                                    </button>
-
-                                    <button
-                                        className={styles.menuItem}
-                                        onClick={() => handleLinkClick('/appointments')}
-                                    >
-                                        <Calendar size={18} />
-                                        My Appointments
                                     </button>
                                 </div>
                             )}
