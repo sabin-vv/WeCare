@@ -17,7 +17,7 @@ import type {
 
 import type { ApiInterface } from '@/modules/auth/api/auth.api.types'
 import { api } from '@/services/api'
-import { DOCTORS_API, PATIENTS_API, PRESCRIPTIONS_API, VITALS_API } from '@/shared/constants/api.constants'
+import { DOCTORS_API, PATIENTS_API, PRESCRIPTIONS_API, VITALS_API, CAREGIVERS_API } from '@/shared/constants/api.constants'
 
 export const updateProfile = async (data: FormData, hasExistingProfile = false): Promise<ApiInterface> => {
     const res = hasExistingProfile
@@ -119,4 +119,24 @@ export const createVitalPlan = async (patientId: string, data: AddVitalPlanPaylo
         ...data,
         patientId,
     })
+}
+
+export const assignCaregiver = async (patientId: string, caregiverId: string): Promise<PatientDetails> => {
+    const res = await api.patch<PatientDetailsResponse>(`${PATIENTS_API}/${patientId}/caregiver`, { caregiverId })
+
+    return res.data.data
+}
+
+export const listCaregivers = async (search?: string) => {
+    const res = await api.get(`${CAREGIVERS_API}/`, {
+        params: { search },
+    })
+
+    return res.data.data as {
+        id: string
+        fullName: string
+        email: string
+        phoneNumber: string
+        profileImage: string
+    }[]
 }
