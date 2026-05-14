@@ -7,7 +7,7 @@ import { AppError } from '../../../core/errors/AppError'
 import { IUserRepository } from '../../auth/interfaces/user.repository.interface'
 import { ICaregiverRepository } from '../interfaces/caregiver.repository.interface'
 import { ICaregiverService } from '../interfaces/caregiver.service.interface'
-import { toCaregiverEntity, toCaregiverProfileEntity, toCaregiverProfileResponse } from '../mapper/caregiver.mapper'
+import { toCaregiverEntity, toCaregiverProfileEntity, toCaregiverProfileResponse, toCaregiverProfileResponseFromAggregation } from '../mapper/caregiver.mapper'
 import { CaregiverProfileResponse } from '../types/caregiver.types'
 import { CreateCaregiverProfileDTO } from '../validator/caregiver.schema'
 import { UpdateCaregiverSettingsDTO } from '../validator/updateCaregiverSettings.schema'
@@ -77,15 +77,7 @@ export class CaregiverService implements ICaregiverService {
 
     async listCaregivers(search?: string): Promise<CaregiverProfileResponse[]> {
         const caregivers = await this._caregiverRepo.findAllActive(search)
-        const caregiversWithUser: CaregiverProfileResponse[] = []
 
-        for (const caregiver of caregivers) {
-            const user = await this._userRepo.findById(caregiver.userId.toString())
-            if (user) {
-                caregiversWithUser.push(toCaregiverProfileResponse(user, caregiver))
-            }
-        }
-
-        return caregiversWithUser
+        return caregivers.map(toCaregiverProfileResponseFromAggregation)
     }
 }
