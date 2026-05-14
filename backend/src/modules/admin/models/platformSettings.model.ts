@@ -25,6 +25,15 @@ const platFormSettingsSchema = new Schema<PlatformSettingsDocument>(
         platformIcon: {
             type: String,
         },
+        subscriptionFee: {
+            type: Number,
+            default: 0,
+        },
+        billingCycle: {
+            type: String,
+            enum: ['monthly', 'yearly'],
+            default: 'monthly',
+        },
     },
     { timestamps: true },
 )
