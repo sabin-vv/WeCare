@@ -19,6 +19,7 @@ export interface PatientProfileData {
     gender: string
     conditions: string[]
     profileImage?: string
+    caregiver?: string
     isActive: boolean
 }
 
@@ -181,3 +182,59 @@ export type RetryPaymentResponse =
           walletBalance: number
           appointmentConfirmed: true
       }
+
+type AppointmentStatus = 'pending_payment' | 'confirmed' | 'in_consultation' | 'cancelled' | 'completed'
+export interface AppointmentCardProps {
+    doctorName: string
+    date: string
+    time: string
+    status: AppointmentStatus
+}
+
+export interface SubscriptionData {
+    subscriptionId: string
+    status: 'pending_payment' | 'active' | 'expired' | 'cancelled'
+    paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded'
+    billingCycle: 'monthly' | 'yearly'
+    subscriptionFee: number
+    startDate: string
+    endDate: string
+    caregiver: {
+        id: string
+        name: string
+    } | null
+}
+
+export interface SubscriptionResponse {
+    success: boolean
+    message: string
+    data: SubscriptionData | null
+}
+
+export interface PatientData {
+    appointments: Appointment[]
+    subscription: SubscriptionData | null
+    walletBalance: number
+    subscriptionFee: number
+    billingCycle: 'monthly' | 'yearly'
+}
+
+export interface CreateSubscriptionResponse {
+    success: boolean
+    message: string
+    data:
+        | {
+              subscriptionId: string
+              paymentId: string
+              orderId: string
+              amount: number
+              currency: string
+              keyId: string
+          }
+        | {
+              subscriptionId: string
+              paymentId: string
+              walletBalance: number
+              subscriptionConfirmed: true
+          }
+}
