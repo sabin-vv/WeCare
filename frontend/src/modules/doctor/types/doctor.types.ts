@@ -347,4 +347,5 @@ export interface ProfileCardProps {
     onStartConsultation?: () => void
     onCompleteConsultation?: () => void
     onAddCondition?: () => void
+    onAssignCaregiver?: () => void
 }
