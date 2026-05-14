@@ -1,85 +1,35 @@
-import { ArrowRight } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+
+import type { AppointmentCardProps } from '../types/patient.types'
 
 import styles from './AppointmentCard.module.css'
 
-type AppointmentStatus = 'pending_payment' | 'confirmed' | 'in_consultation' | 'cancelled' | 'completed'
-
-interface Props {
-    doctorName: string
-    specialization: string
-    date: string
-    time: string
-    status: AppointmentStatus
-}
-
-const steps = ['BOOKED', 'PAYMENT', 'CONSULTATION', 'MEDICAL PLAN']
-
-const getStepIndex = (status: AppointmentStatus) => {
-    switch (status) {
-        case 'pending_payment':
-            return 1
-        case 'confirmed':
-            return 2
-        case 'in_consultation':
-            return 2
-        case 'completed':
-            return 3
-        default:
-            return 0
-    }
-}
-
-const AppointmentCard = ({ doctorName, specialization, date, time, status }: Props) => {
+const AppointmentCard = ({ doctorName, date, time, status }: AppointmentCardProps) => {
     const navigate = useNavigate()
-    const currentStep = getStepIndex(status)
-
     return (
         <div className={styles.card}>
-            <div className={styles.header}>
-                <h3>Your Consultation is Scheduled</h3>
-                <span className={styles.statusBadge}>✓ Confirmed</span>
-            </div>
+            <p className={styles.header}>Your Appointment</p>
 
-            <div className={styles.infoRow}>
-                <div>
-                    <p className={styles.label}>Doctor</p>
-                    <p className={styles.value}>Dr.{doctorName}</p>
-                    <span className={styles.sub}>{specialization}</span>
+            <div className={styles.mainRow}>
+                <div className={styles.info}>
+                    <span className={styles.doctorName}>Dr. {doctorName}</span>
+                    <span className={styles.dot}>•</span>
+                    <span className={styles.meta}>{date}</span>
+                    <span className={styles.dot}>•</span>
+                    <span className={styles.meta}>{time}</span>
+                    <span className={styles.dot}>•</span>
+                    <span className={`${styles.statusBadge} ${styles[status.replace('_', '')]}`}>{status}</span>
                 </div>
 
-                <div>
-                    <p className={styles.label}>Date & Time</p>
-                    <p className={styles.value}>{date}</p>
-                    <span className={styles.sub}>{time}</span>
-                </div>
-            </div>
-
-            <div className={styles.stepper}>
-                <div className={styles.progressBar} />
-
-                {steps.map((step, index) => (
-                    <div key={step} className={styles.step}>
-                        <div className={`${styles.circle} ${index <= currentStep ? styles.active : ''}`}>
-                            {index < currentStep ? '✓' : index + 1}
-                        </div>
-
-                        <p className={styles.label}>{step}</p>
-                    </div>
-                ))}
-            </div>
-
-            <div className={styles.actions}>
-                <div className={styles.recent} onClick={() => navigate('/appointments')}>
-                    <span>
-                        View Recent <ArrowRight size={18} />
-                    </span>
-                </div>
-                <div className={styles.actionButton}>
+                <div className={styles.actions}>
+                    <button className={styles.viewBtn} onClick={() => navigate('/appointments')}>
+                        View
+                    </button>
                     <button className={styles.cancelBtn}>Cancel</button>
                 </div>
             </div>
         </div>
     )
 }
+
 export default AppointmentCard
