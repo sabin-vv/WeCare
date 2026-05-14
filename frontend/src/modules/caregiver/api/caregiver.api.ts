@@ -18,3 +18,57 @@ export const updateCaregiverProfile = async (data: Record<string, unknown>): Pro
     const res = await api.put<CaregiverProfileResponse>(`${CAREGIVERS_API}/me`, data)
     return res.data
 }
+
+export interface MedicationSchedule {
+    _id: string
+    medicineName: string
+    dosage: string
+    route: string
+    scheduleTime: string
+    priority: string
+    status: string
+    administeredAt?: string
+}
+
+export interface VitalPlanItem {
+    type: string
+    frequencyValue: number
+    frequencyUnit: string
+    durationValue: number
+    durationUnit: string
+}
+
+export interface PatientSummary {
+    _id: string
+    patientId: string
+    userName: string
+    userMobile: string
+    userEmail: string
+    dateOfBirth: string
+    gender: string
+    conditions: string[]
+    riskLevel: string
+    clinicalStatus: string
+    profileImage?: string
+}
+
+export const getPatientMedications = async (patientId: string): Promise<MedicationSchedule[]> => {
+    const res = await api.get<{ success: boolean; data: MedicationSchedule[]; message: string }>(
+        `${CAREGIVERS_API}/patients/${patientId}/medications`,
+    )
+    return res.data.data
+}
+
+export const getPatientVitalPlans = async (patientId: string): Promise<VitalPlanItem[]> => {
+    const res = await api.get<{ success: boolean; data: VitalPlanItem[]; message: string }>(
+        `${CAREGIVERS_API}/patients/${patientId}/vital-plans`,
+    )
+    return res.data.data
+}
+
+export const getMyPatients = async (): Promise<PatientSummary[]> => {
+    const res = await api.get<{ success: boolean; data: PatientSummary[]; message: string }>(
+        `${CAREGIVERS_API}/patients`,
+    )
+    return res.data.data
+}

@@ -73,12 +73,33 @@
     border-radius: 999px;
 }
 
+.riskCritical {
+    background: #fff1f0;
+    color: #ff4d4f;
+}
+
+.riskHigh {
+    background: #fff3de;
+    color: #d17a00;
+}
+
+.riskModerate {
+    background: #fff9eb;
+    color: #b8860b;
+}
+
+.riskMild {
+    background: #ebfff2;
+    color: #22a65f;
+}
+
 .metaRow {
     display: flex;
     align-items: center;
     gap: 8px;
     color: #8a8a8a;
     font-size: 14px;
+    text-transform: capitalize;
 }
 
 .metaDot {
@@ -115,6 +136,9 @@
 }
 
 .viewBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     background: #5f55ff;
     color: white;
     border: none;
@@ -124,6 +148,7 @@
     font-weight: 500;
     cursor: pointer;
     transition: 0.2s ease;
+    text-decoration: none;
 }
 
 .viewBtn:hover {
@@ -148,4 +173,50 @@
     .viewBtn {
         width: 100%;
     }
+
+    .riskCritical,
+    .riskHigh,
+    .riskModerate,
+    .riskMild {
+        background: #ebfff2;
+        color: #22a65f;
+    }
+}
+
+.loadingContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #5f55ff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.emptyText {
+    color: #8091a5;
+    font-size: 14px;
+    text-align: center;
+    padding: 40px 0;
+}
+
+.avatar span {
+    font-size: 24px;
+    font-weight: 600;
+    color: #5f55ff;
 }
