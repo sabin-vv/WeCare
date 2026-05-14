@@ -1,3 +1,5 @@
+import { Types } from 'mongoose'
+
 import { BaseRepository } from '../../../core/base/base.repository'
 import { IPaymentRepository } from '../interfaces/payment.repository.interface'
 import { PaymentModel } from '../models/payment.model'
@@ -21,5 +23,9 @@ export class PaymentRepository extends BaseRepository<PaymentDocument> implement
 
     async updateByOrderId(orderId: string, data: Partial<PaymentDocument>) {
         return await PaymentModel.findOneAndUpdate({ razorpayOrderId: orderId }, data, { returnDocument: 'after' })
+    }
+
+    async findBySubscriptionId(subscriptionId: string) {
+        return await PaymentModel.findOne({ subscriptionId: new Types.ObjectId(subscriptionId) })
     }
 }
