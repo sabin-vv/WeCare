@@ -1,7 +1,7 @@
 import { Types } from 'mongoose'
 
 import { MulterFiles, UserDocument } from '../../auth/types/auth.types'
-import { CaregiverDocument, CaregiverEntity, CaregiverProfileResponse } from '../types/caregiver.types'
+import { CaregiverDocument, CaregiverEntity, CaregiverProfileResponse, CaregiverWithUser } from '../types/caregiver.types'
 import { CreateCaregiverProfileDTO } from '../validator/caregiver.schema'
 
 export const toCaregiverEntity = (
@@ -53,5 +53,23 @@ export const toCaregiverProfileEntity = (profile: Partial<CaregiverDocument>) =>
         certificateImage: profile.certificateImage,
         licenseNumber: profile.licenseNumber,
         licenseImage: profile.licenseImage,
+    }
+}
+
+export const toCaregiverProfileResponseFromAggregation = (caregiver: CaregiverWithUser): CaregiverProfileResponse => {
+    return {
+        id: caregiver._id.toString(),
+        fullName: caregiver.user?.name || 'Unnamed Caregiver',
+        email: caregiver.user?.email || '',
+        phoneNumber: caregiver.user?.mobile || '',
+        profileImage: caregiver.profileImage,
+        govIdImage: caregiver.govIdImage,
+        certificateNumber: caregiver.certificateNumber,
+        certificateImage: caregiver.certificateImage,
+        licenseNumber: caregiver.licenseNumber,
+        licenseImage: caregiver.licenseImage,
+        isActive: caregiver.isActive,
+        verificationStatus: caregiver.verificationStatus,
+        rejectReason: caregiver.rejectReason,
     }
 }
