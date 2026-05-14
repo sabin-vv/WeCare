@@ -14,8 +14,13 @@ export const createPatientRoutes = () => {
     const patientController = container.resolve(PatientController)
 
     router.get('/', requireAuth, patientController.getPatients)
+    router.post('/register', validate(registerPatientSchema), patientController.registerPatient)
+
+    router.get('/me', requireAuth, patientController.getProfile)
+    router.put('/me', requireAuth, validate(UpdatePatientSettingsSchema), patientController.updateProfile)
 
     router.get('/:patientId', requireAuth, patientController.getPatientById)
+
     router.patch(
         '/:patientId/condition',
         requireAuth,
@@ -28,10 +33,6 @@ export const createPatientRoutes = () => {
         validate(assignCaregiverSchema),
         patientController.assignCaregiver,
     )
-
-    router.post('/register', validate(registerPatientSchema), patientController.registerPatient)
-    router.get('/me', requireAuth, patientController.getProfile)
-    router.put('/me', requireAuth, validate(UpdatePatientSettingsSchema), patientController.updateProfile)
 
     return router
 }
