@@ -20,6 +20,39 @@
     gap: 40px;
 }
 
+.billingCycleWrapper {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.billingCycleLabel {
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+.radioGroup {
+    display: flex;
+    gap: 20px;
+}
+
+.radioLabel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+}
+
+.radioLabel input[type='radio'] {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+}
+
 .logoWrapper {
     display: flex;
     flex-direction: column;
