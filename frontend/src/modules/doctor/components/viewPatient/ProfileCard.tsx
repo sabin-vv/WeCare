@@ -12,6 +12,7 @@ const ProfileCard = ({
     patinetId,
     conditions,
     profileImage,
+    caregiver,
     appointmentStatus,
     onStartConsultation,
     onCompleteConsultation,
@@ -87,9 +88,25 @@ const ProfileCard = ({
                 </div>
             ) : (
                 <div className={styles.rightSection}>
-                    <button className={styles.caregiverBtn} onClick={onAssignCaregiver}>
-                        Assign Caregiver ▼
-                    </button>
+                    {caregiver ? (
+                        <div className={styles.caregiverInfo}>
+                            <span className={styles.caregiverLabel}>Assigned Caregiver</span>
+                            <div className={styles.caregiverNameRow}>
+                                <span className={styles.caregiverName}>{caregiver}</span>
+                                <button
+                                    className={styles.editIconBtn}
+                                    onClick={onAssignCaregiver}
+                                    title="Change Caregiver"
+                                >
+                                    ✎
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <button className={styles.caregiverBtn} onClick={onAssignCaregiver}>
+                            Assign Caregiver ▼
+                        </button>
+                    )}
 
                     <div className={styles.actions}>
                         <button className={styles.hospitalBtn}>Admit to Hospital</button>
