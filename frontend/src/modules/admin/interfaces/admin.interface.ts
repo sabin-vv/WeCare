@@ -72,4 +72,6 @@ export interface PlatformSettings {
     platformFee: number
     platformLogo?: string
     platformIcon?: string
+    subscriptionFee: number
+    billingCycle: 'monthly' | 'yearly'
 }
