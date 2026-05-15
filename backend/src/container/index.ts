@@ -30,8 +30,12 @@ import { AvailabilityNotificationService } from '../modules/doctor/service/avail
 import { DoctorService } from '../modules/doctor/service/doctor.service'
 import { IMedicationRepository } from '../modules/medication/interfaces/medication.repository.interface'
 import { IMedicationService } from '../modules/medication/interfaces/medication.service.interface'
+import { IMedicationLogRepository } from '../modules/medication/interfaces/medicationLog.repository.interface'
+import { IMedicationLogService } from '../modules/medication/interfaces/medicationLog.service.interface'
 import { MedicationRepository } from '../modules/medication/repository/medication.repository'
+import { MedicationLogRepository } from '../modules/medication/repository/medicationLog.repository'
 import { MedicationService } from '../modules/medication/service/medication.service'
+import { MedicationLogService } from '../modules/medication/service/medicationLog.service'
 import { IPatientRepository } from '../modules/patient/interfaces/patient.repository.interface'
 import { IPatientService } from '../modules/patient/interfaces/patient.service.interface'
 import { PatientRepository } from '../modules/patient/repository/patient.repository'
@@ -44,10 +48,22 @@ import { IPrescriptionRepository } from '../modules/prescription/interfaces/pres
 import { IPrescriptionService } from '../modules/prescription/interfaces/prescription.service.interface'
 import { PrescriptionRepository } from '../modules/prescription/repository/prescription.repository'
 import { PrescriptionService } from '../modules/prescription/service/prescription.service'
+import { ISubscriptionRepository } from '../modules/subscription/interfaces/subscription.repository.interface'
+import { ISubscriptionService } from '../modules/subscription/interfaces/subscription.service.interface'
+import { SubscriptionRepository } from '../modules/subscription/repository/subscription.repository'
+import { SubscriptionService } from '../modules/subscription/service/subscription.service'
+import { ISymptomLogRepository } from '../modules/symptom/interfaces/symptomLog.repository.interface'
+import { ISymptomLogService } from '../modules/symptom/interfaces/symptomLog.service.interface'
+import { SymptomLogRepository } from '../modules/symptom/repository/symptomLog.repository'
+import { SymptomLogService } from '../modules/symptom/service/symptomLog.service'
 import { IVitalRepository } from '../modules/vital/interfaces/vital.repository.interface'
 import { IVitalService } from '../modules/vital/interfaces/vital.service.interface'
+import { IVitalLogRepository } from '../modules/vital/interfaces/vitalLog.repository.interface'
+import { IVitalLogService } from '../modules/vital/interfaces/vitalLog.service.interface'
 import { VitalRepository } from '../modules/vital/repository/vital.repository'
+import { VitalLogRepository } from '../modules/vital/repository/vitalLog.repository'
 import { VitalService } from '../modules/vital/service/vital.service'
+import { VitalLogService } from '../modules/vital/service/vitalLog.service'
 import { IWalletRepository } from '../modules/wallet/interfaces/wallet.repository.interface'
 import { IWalletService } from '../modules/wallet/interfaces/wallet.service.interface'
 import { WalletRepository } from '../modules/wallet/repository/wallet.repository'
@@ -59,10 +75,10 @@ container.register<IUserRepository>(TOKENS.IUserRepository, { useClass: UserRepo
 container.register<IDoctorRepository>(TOKENS.IDoctorRepository, { useClass: DoctorRepository })
 container.register<IDoctorService>(TOKENS.IDoctorService, { useClass: DoctorService })
 container.register<IDoctorAvailabilityRepository>(TOKENS.IDoctorAvailabilityRepository, {
-    useClass: DoctorAvailabilityRepository,
+  useClass: DoctorAvailabilityRepository,
 })
 container.register<IAvailabilityNotificationService>(TOKENS.IAvailabilityNotificationService, {
-    useClass: AvailabilityNotificationService,
+  useClass: AvailabilityNotificationService,
 })
 container.register<ICaregiverRepository>(TOKENS.ICaregiverRepository, { useClass: CaregiverRepository })
 container.register<ICaregiverService>(TOKENS.ICaregiverService, { useClass: CaregiverService })
@@ -94,10 +110,18 @@ container.register<IWalletService>(TOKENS.IWalletService, { useClass: WalletServ
 container.register<IMedicationRepository>(TOKENS.IMedicationRepository, { useClass: MedicationRepository })
 container.register<IMedicationService>(TOKENS.IMedicationService, { useClass: MedicationService })
 
-import { ISubscriptionRepository } from '../modules/subscription/interfaces/subscription.repository.interface'
-import { ISubscriptionService } from '../modules/subscription/interfaces/subscription.service.interface'
-import { SubscriptionRepository } from '../modules/subscription/repository/subscription.repository'
-import { SubscriptionService } from '../modules/subscription/service/subscription.service'
+container.register<IMedicationLogRepository>(TOKENS.IMedicationLogRepository, {
+  useClass: MedicationLogRepository,
+})
+container.register<IMedicationLogService>(TOKENS.IMedicationLogService, { useClass: MedicationLogService })
+
+container.register<IVitalLogRepository>(TOKENS.IVitalLogRepository, { useClass: VitalLogRepository })
+container.register<IVitalLogService>(TOKENS.IVitalLogService, { useClass: VitalLogService })
+
+container.register<ISymptomLogRepository>(TOKENS.ISymptomLogRepository, {
+  useClass: SymptomLogRepository,
+})
+container.register<ISymptomLogService>(TOKENS.ISymptomLogService, { useClass: SymptomLogService })
 
 container.register<ISubscriptionRepository>(TOKENS.ISubscriptionRepository, { useClass: SubscriptionRepository })
 container.register<ISubscriptionService>(TOKENS.ISubscriptionService, { useClass: SubscriptionService })
