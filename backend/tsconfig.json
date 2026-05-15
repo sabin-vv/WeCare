@@ -1,4 +1,7 @@
 {
+    "ts-node": {
+        "files": true
+    },
     "compilerOptions": {
         "rootDir": "./src",
         "outDir": "./dist",
@@ -8,5 +11,6 @@
         "strict": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true
-    }
+    },
+    "include": ["src/**/*.ts", "src/**/*.d.ts"]
 }
