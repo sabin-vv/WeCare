@@ -2,7 +2,7 @@ import type { NavLink } from '@/shared/components/Header/Header.types'
 
 export const patientNavLinks: NavLink[] = [
     { label: 'Dashboard', path: '/dashboard' },
-    { label: 'Find Dotors', path: '/doctors' },
+    { label: 'Book a doctor', path: '/doctors' },
     { label: 'Appointments', path: '/appointments' },
     { label: 'Wallet', path: '/wallet' },
 ]
