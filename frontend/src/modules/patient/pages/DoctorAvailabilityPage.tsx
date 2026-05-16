@@ -19,20 +19,22 @@ import { loadRazorpayScript } from '@/utils/loadRazorpay'
 
 const DoctorAvailabilityPage = () => {
     const { doctorId } = useParams<{ doctorId: string }>()
-    const navigate = useNavigate()
     const [doctor, setDoctor] = useState<DoctorInfo | null>(null)
 
+    const [slots, setSlots] = useState<DoctorSlot[]>([])
+    const [isLoading, setIsLoading] = useState(true)
+
+    const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+    const [isProcessingPayment, setIsProcessingPayment] = useState(false)
+    const [walletbalance, setWalletbalance] = useState<number>(0)
+    const [isFetchingSlots, setIsFetchingSlots] = useState(false)
     const [selectedTimeSlot, setSelectedTimeSlot] = useState<Omit<DoctorSlot, 'available'>>({
         start: '',
         end: '',
     })
-    const [slots, setSlots] = useState<DoctorSlot[]>([])
-    const [isLoading, setIsLoading] = useState(true)
-    const [isFetchingSlots, setIsFetchingSlots] = useState(false)
-    const [selectedDate, setSelectedDate] = useState<Date | null>(null)
-    const [isProcessingPayment, setIsProcessingPayment] = useState(false)
-    const [walletbalance, setWalletbalance] = useState<number>(0)
     const { settings } = usePlatform()
+    const { user } = useAuth()
+    const navigate = useNavigate()
 
     const fetchWallet = async () => {
         const res = await getWallet()
@@ -85,7 +87,7 @@ const DoctorAvailabilityPage = () => {
     }, [selectedDate, doctorId])
 
     useEffect(() => {
-        fetchWallet()
+        if (user) fetchWallet()
     }, [])
 
     const groupSlots = (slots: DoctorSlot[]) => ({
@@ -99,23 +101,22 @@ const DoctorAvailabilityPage = () => {
 
     const groupedSlots = groupSlots(slots)
 
-    const { user } = useAuth()
-
     const validateCheckout = () => {
         if (!selectedTimeSlot || !selectedDate) {
             toast.error('Please select a date and time slot')
             return false
         }
-        if (!user) {
-            toast.error('Please login to continue')
-            return false
-        }
+
         return true
     }
 
     const handleRazorpayAppointment = async () => {
         if (!validateCheckout()) return
         if (!selectedDate) return
+        if (!user) {
+            toast.error('Please login first')
+            return
+        }
 
         const appointmentDate = selectedDate.toISOString()
 
