@@ -103,6 +103,8 @@
 }
 
 .patientName {
+    display: inline-flex;
+    white-space: nowrap;
     font-weight: 600;
     color: #333;
 }
@@ -149,9 +151,12 @@
 }
 
 .status {
-    padding: 4px 12px;
-    border-radius: 12px;
+    padding: 6px 14px;
+    border-radius: 999px;
     font-size: 12px;
+    display: inline-flex;
+    white-space: nowrap;
+    min-width: fit-content;
     font-weight: 500;
 }
 
@@ -160,7 +165,7 @@
     color: #155724;
 }
 
-.status.pending_consultation {
+.status.confirmed {
     background-color: #fff3cd;
     color: #856404;
 }
