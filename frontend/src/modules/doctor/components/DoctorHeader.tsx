@@ -1,17 +1,11 @@
 import { Menu } from 'lucide-react'
 
 import Header from '../../../shared/components/Header/Header'
-import type { NavLink } from '../../../shared/components/Header/Header.types'
 
 import styles from './DoctorHeader.module.css'
 
+import { doctorNavLinks } from '@/shared/constants/navLinks'
 import { useAuth } from '@/shared/context/AuthContext'
-
-const doctorNavLinks: NavLink[] = [
-    { label: 'Dashboard', path: '/doctor/dashboard' },
-    { label: 'Patient List', path: '/doctor/patients' },
-    { label: 'Schedule', path: '/doctor/availability' },
-]
 
 interface DoctorHeaderProps {
     onMenuClick?: () => void
