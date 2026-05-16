@@ -10,13 +10,6 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.tableContainer:hover {
-    transform: translateY(-4px);
-    box-shadow:
-        0 25px 30px -5px rgba(0, 0, 0, 0.08),
-        0 15px 15px -5px rgba(0, 0, 0, 0.03);
-}
-
 .table {
     width: 100%;
     min-width: 600px;
@@ -28,6 +21,11 @@
         -apple-system,
         sans-serif;
 }
+thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
 
 .th {
     padding: 16px 24px;
@@ -38,15 +36,21 @@
     letter-spacing: 0.05em;
     border-bottom: 1px solid #f1f5f9;
     background: #f8fafc;
-    text-align: left;
+    text-align: center;
 }
 
 .tr {
-    transition: background-color 0.2s ease;
+    transition:
+        background-color 0.18s ease,
+        transform 0.12s ease;
 }
 
 .tr:hover {
-    background-color: #f8fafc;
+    background: #f8fafc;
+}
+
+.tr:nth-child(even) {
+    background: #fcfdff;
 }
 
 .td {
@@ -55,6 +59,9 @@
     vertical-align: middle;
     color: #334155;
     font-size: 14px;
+    text-align: center;
+}
+.td:first-child {
     text-align: left;
 }
 
