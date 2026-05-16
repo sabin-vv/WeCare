@@ -1,33 +1,81 @@
 .roleSelectorWrapper {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
+}
+
+.title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #475569;
 }
 
 .roleSelector {
-    width: 100%;
-    height: 48px;
-    padding: 5px;
-    border-radius: 8px;
-    display: flex;
-    justify-content: space-between;
-    background: #f0f2f4;
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 4px;
+    border-radius: 14px;
+    background: #eef2f6;
+    overflow: hidden;
+    isolation: isolate;
 }
 
-.roleSelector button {
-    font-size: 14px;
-    color: #617589;
-    font-weight: 600;
+/* Sliding background */
+
+.activeIndicator {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: calc((100% - 8px) / 3);
+    height: calc(100% - 8px);
+    border-radius: 10px;
+    background: #ffffff;
+    box-shadow:
+        0 4px 10px rgba(15, 23, 42, 0.08),
+        0 1px 2px rgba(15, 23, 42, 0.06);
+    transition:
+        transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+        width 0.2s ease;
+    z-index: 0;
+}
+
+/* Buttons */
+
+.roleButton {
+    position: relative;
+    z-index: 1;
+    height: 46px;
     border: none;
-    padding: 0 20px;
-    border-radius: 8px;
-}
+    background: transparent;
+    border-radius: 10px;
 
-.roleSelector button:hover {
+    font-size: 14px;
+    font-weight: 600;
+    color: #64748b;
+
+    transition:
+        color 0.22s ease,
+        transform 0.15s ease;
+
     cursor: pointer;
 }
 
+.roleButton:hover {
+    color: #0f172a;
+}
+
+.roleButton:active {
+    transform: scale(0.97);
+}
+
+.roleButton:focus-visible {
+    outline: 2px solid #137fec;
+    outline-offset: 2px;
+}
+
+/* Active */
+
 .active {
-    color: #137fec !important;
-    background: #ffffff;
+    color: #137fec;
 }

@@ -118,9 +118,9 @@ const LoginForm = () => {
                     {isLoading ? 'Signing In...' : 'Sign In'}
                 </Button>
             </form>
-            <button onClick={() => navigate('/auth/patients/register')} className={styles.patientRegister}>
+            <Button onClick={() => navigate('/auth/patients/register')} className={styles.patientRegister}>
                 Register as Patient
-            </button>
+            </Button>
 
             <div className={styles.professionalCard}>
                 <h3>Medical Professionals</h3>

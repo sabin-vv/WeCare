@@ -2,34 +2,42 @@ import { Role, type RoleSelectorProps } from '../types/auth.types'
 
 import styles from './RoleSelector.module.css'
 
+const roles = [
+    { label: 'Doctor', value: Role.DOCTOR },
+    { label: 'Caregiver', value: Role.CAREGIVER },
+    { label: 'Patient', value: Role.PATIENT },
+]
+
 const RoleSelector = ({ role, onChange }: RoleSelectorProps) => {
+    const activeIndex = roles.findIndex((r) => r.value === role)
+
     return (
         <div className={styles.roleSelectorWrapper}>
-            <p>I am signing in as a:</p>
-            <div className={styles.roleSelector}>
-                <button
-                    type="button"
-                    className={role === Role.DOCTOR ? styles.active : ''}
-                    onClick={() => onChange(Role.DOCTOR)}
-                >
-                    Doctor
-                </button>
-                <button
-                    type="button"
-                    className={role === Role.CAREGIVER ? styles.active : ''}
-                    onClick={() => onChange(Role.CAREGIVER)}
-                >
-                    Caregiver
-                </button>
-                <button
-                    type="button"
-                    className={role === Role.PATIENT ? styles.active : ''}
-                    onClick={() => onChange(Role.PATIENT)}
-                >
-                    Patient
-                </button>
+            <p className={styles.title}>I am signing in as a:</p>
+
+            <div className={styles.roleSelector} role="tablist" aria-label="Select Role">
+                <div
+                    className={styles.activeIndicator}
+                    style={{
+                        transform: `translateX(${activeIndex * 100}%)`,
+                    }}
+                />
+
+                {roles.map((item) => (
+                    <button
+                        key={item.value}
+                        type="button"
+                        role="tab"
+                        aria-selected={role === item.value}
+                        className={`${styles.roleButton} ${role === item.value ? styles.active : ''}`}
+                        onClick={() => onChange(item.value)}
+                    >
+                        {item.label}
+                    </button>
+                ))}
             </div>
         </div>
     )
 }
+
 export default RoleSelector
