@@ -26,11 +26,10 @@ export const createDoctorRoutes = () => {
     )
     router.post('/profile', requireAuth, upload.none(), validate(DoctorSchema), doctorController.createProfile)
 
-    router.get('/:doctorId', doctorController.getDoctorById)
-    router.get('/:doctorId/slots', doctorController.getDoctorSlots)
-
     router.put('/patients/:patientId/start-consultation', requireAuth, doctorController.startConsultation)
     router.put('/patients/:patientId/complete-consultation', requireAuth, doctorController.completeConsultation)
 
+    router.get('/:doctorId', doctorController.getDoctorById)
+    router.get('/:doctorId/slots', doctorController.getDoctorSlots)
     return router
 }
