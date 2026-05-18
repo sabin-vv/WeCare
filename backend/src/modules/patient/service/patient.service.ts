@@ -7,7 +7,7 @@ import { AppError } from '../../../core/errors/AppError'
 import { IAppointmentRepository } from '../../appointment/interfaces/appointment.repository.interface'
 import { IUserRepository } from '../../auth/interfaces/user.repository.interface'
 import { toUserEntity } from '../../auth/mapper/auth.mapper'
-import { UserRole } from '../../auth/types/auth.types'
+import { UserDocument, UserRole } from '../../auth/types/auth.types'
 import { ICaregiverRepository } from '../../caregiver/interfaces/caregiver.repository.interface'
 import { IDoctorRepository } from '../../doctor/interfaces/doctor.repository.interface'
 import { IPrescriptionRepository } from '../../prescription/interfaces/prescription.repository.interface'
@@ -203,9 +203,18 @@ export class PatientService implements IPatientService {
         })
 
         const userIds = patients.map((patient) => patient.userId)
+        const caregiverIds = patients.map((p) => p.caregiverId?.toString()).filter((id): id is string => !!id)
+
         const users = await this._userRepo.findAll({
             _id: { $in: userIds },
         })
+
+        let caregivers: UserDocument[] = []
+        if (caregiverIds.length > 0) {
+            caregivers = await this._userRepo.findAll({ _id: { $in: caregiverIds } })
+        }
+
+        const caregiversMap = new Map(caregivers.map((c) => [c._id.toString(), c]))
 
         const appointments = await this._appointmentRepo.findDoctorVisibleAppointmentsByDoctorAndPatientIds(
             doctor._id.toString(),
@@ -227,7 +236,15 @@ export class PatientService implements IPatientService {
                 const user = usersMap.get(patient.userId.toString())
                 if (!user) return null
 
-                return toListPatientsMapper(user, patient, appointmentsMap.get(patient.userId.toString()) ?? null, null)
+                const caregiver = patient.caregiverId
+                    ? (caregiversMap.get(patient.caregiverId.toString()) ?? null)
+                    : null
+                return toListPatientsMapper(
+                    user,
+                    patient,
+                    appointmentsMap.get(patient.userId.toString()) ?? null,
+                    caregiver,
+                )
             })
             .filter((patient): patient is ListPatientMapper => patient !== null)
 
