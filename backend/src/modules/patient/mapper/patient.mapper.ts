@@ -102,7 +102,14 @@ export const toPatientDetailsDTO = (
         systolic: vital.systolic,
         diastolic: vital.diastolic,
         unit: vital.unit,
-        recordedAt: vital.recordedAt.toISOString(),
+        recordedAt: vital.recordedAt.toLocaleString('en-IN', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+        }),
         recordedBy: vital.recordedBy.toString(),
     }))
     const mappedPrescriptions: PatientPrescriptionDTO[] = prescriptions.map((prescription) => ({
