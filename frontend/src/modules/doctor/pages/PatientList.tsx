@@ -149,7 +149,7 @@ const PatientList = () => {
         },
         {
             header: 'Action',
-            key: 'patientId',
+            key: '_id',
             render: (item: Patients) => (
                 <button className={styles.actionBtn} onClick={() => navigate(`/doctor/patients/${item._id}`)}>
                     View
