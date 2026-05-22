@@ -1,4 +1,4 @@
-import type { ChangeEvent } from 'react'
+import type { ChangeEvent, ReactNode } from 'react'
 
 import type { ApiInterface } from '@/modules/auth/api/auth.api.types'
 
@@ -349,4 +349,19 @@ export interface ProfileCardProps {
     onCompleteConsultation?: () => void
     onAddCondition?: () => void
     onAssignCaregiver?: () => void
+}
+
+export interface VitalCardProps {
+    icon: ReactNode
+    vitalName: string
+    value: string
+    unit: string
+    status: string
+}
+export interface CaregiverOption {
+    id: string
+    fullName: string
+    email: string
+    phoneNumber: string
+    profileImage: string
 }
