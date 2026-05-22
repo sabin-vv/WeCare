@@ -40,7 +40,7 @@ export class PatientRepository extends BaseRepository<PatientDocument> implement
     }
 
     async listPatientsByDoctor(params: ListPatientParams): Promise<{ data: PatientDocument[]; total: number }> {
-        const { search, filter, page, limit, userIds, excludeUserIds } = params
+        const { search, filter, page, limit, searchUserIds, userIds, excludeUserIds } = params
         const pageSafe = Math.max(1, page || 1)
         const limitSafe = Math.max(1, limit || 8)
         const query: Record<string, unknown> = {}
@@ -54,7 +54,13 @@ export class PatientRepository extends BaseRepository<PatientDocument> implement
         const skip = (pageSafe - 1) * limitSafe
 
         if (search) {
-            query.$or = [{ patientId: { $regex: search, $options: 'i' } }]
+            const searchConditions: Record<string, unknown>[] = [{ patientId: { $regex: search, $options: 'i' } }]
+
+            if (searchUserIds && searchUserIds.length > 0) {
+                searchConditions.push({ userId: { $in: searchUserIds } })
+            }
+
+            query.$or = searchConditions
         }
 
         if (userIds && userIds.length > 0) {

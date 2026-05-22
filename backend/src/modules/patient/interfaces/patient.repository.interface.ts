@@ -7,6 +7,7 @@ export interface ListPatientParams {
     filter: string
     page: number
     limit: number
+    searchUserIds?: Types.ObjectId[]
     userIds?: Types.ObjectId[]
     excludeUserIds?: Types.ObjectId[]
 }

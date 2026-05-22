@@ -164,6 +164,7 @@ export class PatientService implements IPatientService {
         const page = Math.max(1, params.page || 1)
         const limit = Math.max(1, params.limit || 8)
         const normalizedFilter = params.filter || 'all'
+        const normalizedSearch = params.search.trim()
 
         const appointmentStatuses = ['confirmed', 'in_consultation', 'completed']
         let filteredUserIds: Types.ObjectId[] | undefined
@@ -193,12 +194,22 @@ export class PatientService implements IPatientService {
             }
         }
 
+        let searchUserIds: Types.ObjectId[] | undefined
+        if (normalizedSearch) {
+            const matchedUsers = await this._userRepo.findAll({
+                name: { $regex: normalizedSearch, $options: 'i' },
+            })
+            searchUserIds = matchedUsers.map((user) => new Types.ObjectId(user._id.toString()))
+        }
+
         const { data: patients, total } = await this._patientRepo.listPatientsByDoctor({
             ...params,
+            search: normalizedSearch,
             filter:
                 normalizedFilter === 'all' || appointmentStatuses.includes(normalizedFilter) ? 'all' : normalizedFilter,
             page,
             limit,
+            searchUserIds,
             userIds: filteredUserIds,
         })
 
