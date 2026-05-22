@@ -23,20 +23,20 @@
     height: 46px;
     border-radius: 12px;
     background: #dbeafe;
+    color: #2563eb;
 
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.icon {
-    color: #ef4444;
-}
-
 .status {
-    font-size: 15px;
+    font-size: 12px;
     font-weight: 600;
-    color: #94a3b8;
+    padding: 4px 6px;
+    border-radius: 8px;
+    color: #727d8d;
+    background: #fff3cd;
 }
 
 .content {
@@ -60,7 +60,7 @@
 
 .value {
     margin: 0;
-    font-size: 32px;
+    font-size: 28px;
     font-weight: 700;
     color: #0f172a;
     line-height: 1;
