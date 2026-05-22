@@ -1,14 +1,6 @@
-import type { ReactNode } from 'react'
+import type { VitalCardProps } from '../../types/doctor.types'
 
 import styles from './VitalCard.module.css'
-
-interface VitalCardProps {
-    icon: ReactNode
-    vitalName: string
-    value: string
-    unit: string
-    status: string
-}
 
 const VitalCard = ({ icon, vitalName, value, unit, status }: VitalCardProps) => {
     return (
