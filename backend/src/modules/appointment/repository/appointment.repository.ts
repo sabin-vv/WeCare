@@ -120,7 +120,7 @@ export class AppointmentRepository extends BaseRepository<AppointmentDocument> i
             patientId: { $in: patientIds },
             $or: [
                 {
-                    status: { $in: ['confirmed', 'in_consultation'] },
+                    status: { $in: ['confirmed', 'in_consultation', 'completed'] },
                 },
             ],
         })
