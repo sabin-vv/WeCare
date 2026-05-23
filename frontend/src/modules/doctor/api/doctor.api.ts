@@ -7,6 +7,7 @@ import type {
     DoctorAvailabilityUpdateResult,
     UpdateDoctorProfileData,
     ListPatientsResponse,
+    DoctorAppointment,
     PatientDetails,
     PatientDetailsResponse,
     UpdatePatientConditionPayload,
@@ -17,7 +18,14 @@ import type {
 
 import type { ApiInterface } from '@/modules/auth/api/auth.api.types'
 import { api } from '@/services/api'
-import { DOCTORS_API, PATIENTS_API, PRESCRIPTIONS_API, VITALS_API, CAREGIVERS_API } from '@/shared/constants/api.constants'
+import {
+    APPOINTMENT_API,
+    DOCTORS_API,
+    PATIENTS_API,
+    PRESCRIPTIONS_API,
+    VITALS_API,
+    CAREGIVERS_API,
+} from '@/shared/constants/api.constants'
 
 export const updateProfile = async (data: FormData, hasExistingProfile = false): Promise<ApiInterface> => {
     const res = hasExistingProfile
@@ -55,18 +63,28 @@ export const updateDoctorAvailability = async (data: DoctorAvailability): Promis
 
 export const listPatients = async (
     search: string,
-    filter: string,
+    appointmentStatus: string,
+    accountStatus: string,
+    riskLevel: string,
     page: number,
     limit: number,
 ): Promise<ListPatientsResponse> => {
     const res = await api.get(`${PATIENTS_API}/`, {
         params: {
             search,
-            filter,
+            appointmentStatus,
+            accountStatus,
+            riskLevel,
             page,
             limit,
         },
     })
+
+    return res.data.data
+}
+
+export const getDoctorAppointments = async (): Promise<DoctorAppointment[]> => {
+    const res = await api.get<{ data: DoctorAppointment[] }>(`${APPOINTMENT_API}/doctor`)
 
     return res.data.data
 }
