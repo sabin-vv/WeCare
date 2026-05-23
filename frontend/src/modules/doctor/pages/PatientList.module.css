@@ -11,12 +11,24 @@
     max-width: 300px;
 }
 
+.filtersPanel {
+    display: flex;
+    gap: 12px;
+}
+
+.filterGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 .filterList {
     display: flex;
     gap: 10px;
     list-style: none;
     margin: 0;
     padding: 0;
+    flex-wrap: wrap;
 }
 
 .filterItem {
@@ -46,6 +58,33 @@
     background-color: #1d4ed8;
 }
 
+.filterActions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.resetBtn {
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #334155;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.resetBtn:hover:not(:disabled) {
+    border-color: #94a3b8;
+    background: #f8fafc;
+}
+
+.resetBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 @media (max-width: 768px) {
     .filterSection {
         flex-direction: column;
@@ -58,14 +97,17 @@
         max-width: 100%;
     }
 
-    .filterList {
-        justify-content: flex-start;
-        flex-wrap: wrap;
+    .filtersPanel {
+        width: 100%;
+        align-items: stretch;
     }
 
-    .filterItem {
-        padding: 8px 14px;
-        font-size: 13px;
+    .filterActions {
+        justify-content: stretch;
+    }
+
+    .resetBtn {
+        width: 100%;
     }
 }
 
@@ -73,6 +115,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    min-width: 0;
 }
 
 .profileImage {
@@ -100,18 +143,20 @@
 .patientInfo {
     display: flex;
     flex-direction: column;
+    min-width: 0;
 }
 
 .patientName {
-    display: inline-flex;
-    white-space: nowrap;
+    display: block;
     font-weight: 600;
     color: #333;
+    overflow-wrap: anywhere;
 }
 
 .patientId {
     font-size: 12px;
     color: #666;
+    overflow-wrap: anywhere;
 }
 
 .condition {
@@ -151,7 +196,7 @@
 }
 
 .status {
-    padding: 6px 14px;
+    padding: 6px 10px;
     border-radius: 999px;
     font-size: 12px;
     display: inline-flex;
@@ -160,24 +205,14 @@
     font-weight: 500;
 }
 
-.status.active {
+.status.deceased {
     background-color: #d4edda;
     color: #155724;
 }
 
-.status.confirmed {
+.status.active {
     background-color: #fff3cd;
     color: #856404;
-}
-
-.status.in_consultation {
-    background-color: #cce5ff;
-    color: #004085;
-}
-
-.status.completed {
-    background-color: #e2e3e5;
-    color: #383d41;
 }
 
 .status.hospitalized {
@@ -196,7 +231,7 @@
 }
 
 .actionBtn {
-    padding: 6px 16px;
+    padding: 6px 12px;
     border: none;
     border-radius: 6px;
     background-color: #007bff;

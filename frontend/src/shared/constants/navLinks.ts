@@ -17,5 +17,6 @@ export const caregiverNavLinks: NavLink[] = [
 export const doctorNavLinks: NavLink[] = [
     { label: 'Dashboard', path: '/doctor/dashboard' },
     { label: 'Patient List', path: '/doctor/patients' },
+    { label: 'Appointments', path: '/doctor/appointments' },
     { label: 'Schedule', path: '/doctor/availability' },
 ]

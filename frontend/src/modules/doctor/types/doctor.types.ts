@@ -178,6 +178,22 @@ export interface NotificationFailure {
     reason: string
 }
 
+export interface DoctorAppointment {
+    _id: string
+    patientId: {
+        _id: string
+        name: string
+        email: string
+    }
+    appointmentDate: string
+    slotStart: string
+    slotEnd: string
+    status: 'pending_payment' | 'confirmed' | 'cancelled' | 'in_consultation' | 'completed'
+    paymentStatus: 'pending' | 'paid' | 'failed' | 'refund_pending' | 'refunded'
+    amount: number
+    createdAt: string
+}
+
 export interface DoctorAvailabilityUpdateResult {
     availability: DoctorAvailability
     cancelledCount: number
@@ -197,7 +213,7 @@ export interface Patients {
     conditions: string[]
     riskLevel: string
     caregiver: string
-    status: string
+    clinicalStatus: string
 }
 export interface Pagination {
     page: number

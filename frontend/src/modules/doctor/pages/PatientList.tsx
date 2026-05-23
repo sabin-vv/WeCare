@@ -16,11 +16,11 @@ import type { Column } from '@/shared/components/Table/dataTable.types'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { getFileUrl } from '@/utils/getFileUrl'
 
-const FILTER_OPTIONS = [
-    { label: 'All', value: 'all' },
-    { label: 'Pending Consultation', value: 'confirmed' },
-    { label: 'In Consultation', value: 'in_consultation' },
-    { label: 'Completed', value: 'completed' },
+const CLINICAL_STATUS_OPTIONS = [
+    { label: 'All Accounts', value: 'all' },
+    { label: 'Active', value: 'active' },
+    { label: 'Hospitalized', value: 'hospitalized' },
+    { label: 'Deceased', value: 'deceased' },
 ] as const
 
 const getInitials = (name: string) => {
@@ -46,7 +46,8 @@ const PatientAvatar = ({ name, profileImage }: { name: string; profileImage?: st
 
 const PatientList = () => {
     const [search, setSearch] = useState<string>('')
-    const [filter, setFilter] = useState('all')
+    const [clinicalStatus, setClinicalStatus] = useState('all')
+    const [riskLevel, setRiskLevel] = useState('all')
     const [page, setPage] = useState(1)
     const [patients, setPatients] = useState<Patients[]>([])
     const [pagination, setPagination] = useState<PaginationMeta>({
@@ -64,7 +65,14 @@ const PatientList = () => {
             const fetchPatients = async () => {
                 setIsLoading(true)
                 try {
-                    const response = await listPatients(search, filter, page, pagination.limit)
+                    const response = await listPatients(
+                        search,
+                        'all',
+                        clinicalStatus,
+                        riskLevel,
+                        page,
+                        pagination.limit,
+                    )
                     setPatients(response.patients)
                     setPagination(response.pagination)
                 } catch (error) {
@@ -78,11 +86,11 @@ const PatientList = () => {
         }, 300)
 
         return () => clearTimeout(timer)
-    }, [search, filter, page, pagination.limit])
+    }, [search, clinicalStatus, riskLevel, page, pagination.limit])
 
     useEffect(() => {
         setPage(1)
-    }, [search, filter])
+    }, [search, clinicalStatus, riskLevel])
 
     const getRiskLevelClass = (riskLevel?: string) => {
         return riskLevel ? styles[riskLevel] : ''
@@ -92,11 +100,11 @@ const PatientList = () => {
         return status ? styles[status] : ''
     }
 
-    const formatStatusLabel = (status?: string) => {
+    const formatAccountStatusLabel = (status?: string) => {
         if (!status) return 'N/A'
-        if (status === 'pending_consultation') return 'Pending Consultation'
-        if (status === 'in_consultation') return 'In Consultation'
-        if (status === 'confirmed') return 'Pending Consultation'
+        if (status === 'active') return 'Active'
+        if (status === 'hospitalized') return 'Hospitalized'
+        if (status === 'deceased') return 'Deceased'
         if (status === 'completed') return 'Completed'
 
         return status
@@ -139,11 +147,11 @@ const PatientList = () => {
             render: (item: Patients) => <span className={styles.caregiver}>{item.caregiver || 'Unassigned'}</span>,
         },
         {
-            header: 'Status',
-            key: 'status',
+            header: 'Account Status',
+            key: 'clinicalStatus',
             render: (item: Patients) => (
-                <span className={`${styles.status} ${getStatusClass(item.status)}`}>
-                    {formatStatusLabel(item.status)}
+                <span className={`${styles.status} ${getStatusClass(item.clinicalStatus)}`}>
+                    {formatAccountStatusLabel(item.clinicalStatus)}
                 </span>
             ),
         },
@@ -165,18 +173,35 @@ const PatientList = () => {
                     <div className={styles.searchWrapper}>
                         <SearchField value={search} onSearch={setSearch} placeholder="Search patients..." />
                     </div>
-                    <ul className={styles.filterList}>
-                        {FILTER_OPTIONS.map((option) => (
-                            <li
-                                key={option.value}
-                                className={styles.filterItem}
-                                onClick={() => setFilter(option.value)}
-                                aria-current={filter === option.value}
-                            >
-                                {option.label}
-                            </li>
-                        ))}
-                    </ul>
+                    <div className={styles.filtersPanel}>
+                        <div className={styles.filterGroup}>
+                            <ul className={styles.filterList}>
+                                {CLINICAL_STATUS_OPTIONS.map((option) => (
+                                    <li
+                                        key={option.value}
+                                        className={styles.filterItem}
+                                        onClick={() => setClinicalStatus(option.value)}
+                                        aria-current={clinicalStatus === option.value}
+                                    >
+                                        {option.label}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                        <div className={styles.filterGroup}>
+                            <ul className={styles.filterList}>
+                                <li
+                                    className={styles.filterItem}
+                                    onClick={() =>
+                                        setRiskLevel((current) => (current === 'high_risk' ? 'all' : 'high_risk'))
+                                    }
+                                    aria-current={riskLevel === 'high_risk'}
+                                >
+                                    High Risk
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
                 <DataTable
                     data={patients}
