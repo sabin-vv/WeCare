@@ -1,11 +1,14 @@
 import { Types } from 'mongoose'
 
-import { PatientDocument } from '../types/patient.types'
+import { AccountStatus, PatientDocument, RiskLevel } from '../types/patient.types'
 
 export interface ListPatientParams {
     search: string
     page: number
     limit: number
+    primaryDoctorId: Types.ObjectId
+    accountStatus?: AccountStatus | 'all'
+    riskLevel?: RiskLevel | 'all'
     searchUserIds?: Types.ObjectId[]
     userIds?: Types.ObjectId[]
     excludeUserIds?: Types.ObjectId[]
