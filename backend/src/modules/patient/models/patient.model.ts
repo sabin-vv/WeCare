@@ -32,10 +32,12 @@ const patientSchema = new Schema<PatientDocument>(
         riskLevel: {
             type: String,
             enum: ['mild', 'moderate', 'severe', 'high_risk'],
+            default: 'mild',
         },
         accountStatus: {
             type: String,
             enum: ['suspended', 'active', 'archived'],
+            default: 'active',
         },
         clinicalStatus: {
             type: String,

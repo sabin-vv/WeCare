@@ -78,9 +78,7 @@ export const toListPatientsMapper = (
     appointment: AppointmentDocument | null,
     caregiver: UserDocument | null,
 ): ListPatientMapper => {
-    const accountStatus = patient.accountStatus || 'active'
     const appointmentStatus = mapAppointmentStatus(appointment?.status)
-    const status = appointmentStatus
 
     return {
         _id: patient._id.toString(),
@@ -90,9 +88,8 @@ export const toListPatientsMapper = (
         conditions: patient.conditions || [],
         riskLevel: patient.riskLevel,
         caregiver: caregiver?.name || 'Unassigned',
-        accountStatus,
+        clinicalStatus: patient.clinicalStatus || 'active',
         appointmentStatus,
-        status,
     }
 }
 
