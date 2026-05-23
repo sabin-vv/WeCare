@@ -22,14 +22,20 @@ import {
     toPatientProfileResponseDTO,
     toPatientResponseDTO,
 } from '../mapper/patient.mapper'
-import { AccountStatus, ListPatientMapper, ListPatientsResponse, PatientProfileResponseDTO, RiskLevel } from '../types/patient.types'
+import {
+    ClinicalStatus,
+    ListPatientMapper,
+    ListPatientsResponse,
+    PatientProfileResponseDTO,
+    RiskLevel,
+} from '../types/patient.types'
 import { RegisterPatientDTO } from '../validator/patient.schema'
 import { UpdatePatientConditionDTO } from '../validator/updatePatientCondition.schema'
 import { UpdatePatientSettingsDTO } from '../validator/updatePatientSettings.schema'
 
 const STARTING_ID = 1000
 const DOCTOR_PATIENT_APPOINTMENT_FILTERS = ['confirmed', 'in_consultation', 'completed'] as const
-const DOCTOR_PATIENT_ACCOUNT_FILTERS = ['active', 'archived', 'suspended'] as const
+const DOCTOR_PATIENT_CLINICAL_FILTERS = ['active', 'hospitalized', 'deceased'] as const
 const DOCTOR_PATIENT_RISK_LEVEL_FILTERS = ['mild', 'moderate', 'severe', 'high_risk'] as const
 
 @injectable()
@@ -160,7 +166,7 @@ export class PatientService implements IPatientService {
         params: {
             search: string
             appointmentStatus: string
-            accountStatus: string
+            clinicalStatus: string
             riskLevel: string
             page: number
             limit: number
@@ -174,17 +180,16 @@ export class PatientService implements IPatientService {
         const page = Math.max(1, params.page || 1)
         const limit = Math.max(1, params.limit || 8)
         const normalizedAppointmentStatus = params.appointmentStatus || 'all'
-        const normalizedAccountStatus = params.accountStatus || 'all'
+        const normalizedClinicalStatus = params.clinicalStatus || 'all'
         const normalizedRiskLevel = params.riskLevel || 'all'
         const normalizedSearch = params.search.trim()
 
         let appointmentFilteredUserIds: Types.ObjectId[] | undefined
 
         if (normalizedAppointmentStatus === 'all') {
-            const matchedPatientUserIds = await this._appointmentRepo.findPatientIdsByStatus(
-                doctor._id.toString(),
-                [...DOCTOR_PATIENT_APPOINTMENT_FILTERS],
-            )
+            const matchedPatientUserIds = await this._appointmentRepo.findPatientIdsByStatus(doctor._id.toString(), [
+                ...DOCTOR_PATIENT_APPOINTMENT_FILTERS,
+            ])
             appointmentFilteredUserIds = matchedPatientUserIds.map((id) => new Types.ObjectId(id))
         } else if (
             DOCTOR_PATIENT_APPOINTMENT_FILTERS.includes(
@@ -222,10 +227,10 @@ export class PatientService implements IPatientService {
             page,
             limit,
             primaryDoctorId: doctor._id,
-            accountStatus: DOCTOR_PATIENT_ACCOUNT_FILTERS.includes(
-                normalizedAccountStatus as (typeof DOCTOR_PATIENT_ACCOUNT_FILTERS)[number],
+            clinicalStatus: DOCTOR_PATIENT_CLINICAL_FILTERS.includes(
+                normalizedClinicalStatus as (typeof DOCTOR_PATIENT_CLINICAL_FILTERS)[number],
             )
-                ? (normalizedAccountStatus as AccountStatus)
+                ? (normalizedClinicalStatus as ClinicalStatus)
                 : 'all',
             riskLevel: DOCTOR_PATIENT_RISK_LEVEL_FILTERS.includes(
                 normalizedRiskLevel as (typeof DOCTOR_PATIENT_RISK_LEVEL_FILTERS)[number],

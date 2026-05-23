@@ -4,7 +4,7 @@ export type RiskLevel = 'mild' | 'moderate' | 'severe' | 'high_risk'
 export type AccountStatus = 'suspended' | 'active' | 'archived'
 export type AppointmentStatus = 'confirmed' | 'in_consultation' | 'completed'
 
-type ClinicalStatus = 'active' | 'hospitalized' | 'deceased'
+export type ClinicalStatus = 'active' | 'hospitalized' | 'deceased'
 export interface PatientDocument extends Document {
     userId: Types.ObjectId
     patientId: string
@@ -50,9 +50,8 @@ export interface ListPatientMapper {
     conditions?: string[]
     riskLevel?: string
     caregiver?: string
-    accountStatus: AccountStatus
+    clinicalStatus: ClinicalStatus
     appointmentStatus: AppointmentStatus
-    status?: string
 }
 
 export interface PatientListPagination {
