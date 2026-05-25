@@ -10,6 +10,7 @@ import type {
     DoctorAppointmentsResponse,
     PatientDetails,
     PatientDetailsResponse,
+    PatientVitalPlan,
     UpdatePatientConditionPayload,
     AddPrescriptionPayload,
     AddVitalPlanPayload,
@@ -145,6 +146,18 @@ export const createVitalPlan = async (patientId: string, data: AddVitalPlanPaylo
         ...data,
         patientId,
     })
+}
+
+export const getPatientVitalPlans = async (patientId: string, status = 'active'): Promise<PatientVitalPlan[]> => {
+    const res = await api.get<{ data: PatientVitalPlan[] }>(`${VITALS_API}/plans/patient/${patientId}`, {
+        params: { status },
+    })
+
+    return res.data.data
+}
+
+export const cancelPatientVitalPlan = async (planId: string): Promise<void> => {
+    await api.patch(`${VITALS_API}/plans/${planId}/cancel`)
 }
 
 export const assignCaregiver = async (patientId: string, caregiverId: string): Promise<PatientDetails> => {
