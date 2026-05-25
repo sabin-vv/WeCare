@@ -64,22 +64,12 @@ export const toPatientProfileResponseDTO = (
     }
 }
 
-const mapAppointmentStatus = (status?: string): 'confirmed' | 'in_consultation' | 'completed' => {
-    if (!status) return 'confirmed'
-    if (['confirmed', 'in_consultation', 'completed'].includes(status)) {
-        return status as 'confirmed' | 'in_consultation' | 'completed'
-    }
-    return 'confirmed'
-}
-
 export const toListPatientsMapper = (
     user: UserDocument,
     patient: PatientDocument,
-    appointment: AppointmentDocument | null,
+    _appointment: AppointmentDocument | null,
     caregiver: UserDocument | null,
 ): ListPatientMapper => {
-    const appointmentStatus = mapAppointmentStatus(appointment?.status)
-
     return {
         _id: patient._id.toString(),
         patientId: patient.patientId,
@@ -89,7 +79,6 @@ export const toListPatientsMapper = (
         riskLevel: patient.riskLevel,
         caregiver: caregiver?.name || 'Unassigned',
         clinicalStatus: patient.clinicalStatus || 'active',
-        appointmentStatus,
     }
 }
 
@@ -101,7 +90,10 @@ export const toPatientDetailsDTO = (
     vitals: VitalDocument[],
     prescriptions: PrescriptionDocument[],
 ): PatientDetailsDTO => {
-    const appointmentStatusForDetails = appointment ? mapAppointmentStatus(appointment.status) : 'confirmed'
+    const appointmentStatusForDetails =
+        appointment && ['confirmed', 'in_consultation', 'completed'].includes(appointment.status)
+            ? appointment.status
+            : 'confirmed'
     const status = appointment?.status || patient.clinicalStatus || patient.accountStatus || 'active'
 
     const age = new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()
