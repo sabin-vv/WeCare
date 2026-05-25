@@ -500,6 +500,7 @@ const MedicationTable = ({ patientId, patientName, prescriptions, hasConditions,
                 })),
                 instructions: vitalsInstructions.trim() || undefined,
             })
+            onSuccess()
 
             toast.success('Vitals check request created')
             handleCloseVitalsModal()
@@ -584,10 +585,10 @@ const MedicationTable = ({ patientId, patientName, prescriptions, hasConditions,
                                 placeholder="Start typing medication name (e.g. Amoxicillin)"
                                 value={medicationSearch}
                                 onChange={setMedicationSearch}
-                                onSearch={handleMedicineSearch}
-                                suggestions={medicineSuggestions}
-                                isLoading={isSearchingMedicines}
-                                onSelect={handleMedicineSelect}
+                                onSearch={isEditMode ? undefined : handleMedicineSearch}
+                                suggestions={isEditMode ? [] : medicineSuggestions}
+                                isLoading={isEditMode ? false : isSearchingMedicines}
+                                onSelect={isEditMode ? undefined : handleMedicineSelect}
                                 disabled={isEditMode}
                             />
                         </div>
