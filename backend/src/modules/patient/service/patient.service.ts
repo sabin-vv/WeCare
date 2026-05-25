@@ -34,7 +34,7 @@ import { UpdatePatientConditionDTO } from '../validator/updatePatientCondition.s
 import { UpdatePatientSettingsDTO } from '../validator/updatePatientSettings.schema'
 
 const STARTING_ID = 1000
-const DOCTOR_PATIENT_APPOINTMENT_FILTERS = ['confirmed', 'in_consultation', 'completed'] as const
+const DOCTOR_PATIENT_APPOINTMENT_FILTERS = ['in_consultation', 'completed'] as const
 const DOCTOR_PATIENT_CLINICAL_FILTERS = ['active', 'hospitalized', 'deceased'] as const
 const DOCTOR_PATIENT_RISK_LEVEL_FILTERS = ['mild', 'moderate', 'severe', 'high_risk'] as const
 
@@ -165,7 +165,6 @@ export class PatientService implements IPatientService {
         doctorId: string,
         params: {
             search: string
-            appointmentStatus: string
             clinicalStatus: string
             riskLevel: string
             page: number
@@ -179,28 +178,14 @@ export class PatientService implements IPatientService {
 
         const page = Math.max(1, params.page || 1)
         const limit = Math.max(1, params.limit || 8)
-        const normalizedAppointmentStatus = params.appointmentStatus || 'all'
         const normalizedClinicalStatus = params.clinicalStatus || 'all'
         const normalizedRiskLevel = params.riskLevel || 'all'
         const normalizedSearch = params.search.trim()
 
-        let appointmentFilteredUserIds: Types.ObjectId[] | undefined
-
-        if (normalizedAppointmentStatus === 'all') {
-            const matchedPatientUserIds = await this._appointmentRepo.findPatientIdsByStatus(doctor._id.toString(), [
-                ...DOCTOR_PATIENT_APPOINTMENT_FILTERS,
-            ])
-            appointmentFilteredUserIds = matchedPatientUserIds.map((id) => new Types.ObjectId(id))
-        } else if (
-            DOCTOR_PATIENT_APPOINTMENT_FILTERS.includes(
-                normalizedAppointmentStatus as (typeof DOCTOR_PATIENT_APPOINTMENT_FILTERS)[number],
-            )
-        ) {
-            const matchedPatientUserIds = await this._appointmentRepo.findPatientIdsByStatus(doctor._id.toString(), [
-                normalizedAppointmentStatus,
-            ])
-            appointmentFilteredUserIds = matchedPatientUserIds.map((id) => new Types.ObjectId(id))
-        }
+        const matchedPatientUserIds = await this._appointmentRepo.findPatientIdsByStatus(doctor._id.toString(), [
+            ...DOCTOR_PATIENT_APPOINTMENT_FILTERS,
+        ])
+        const appointmentFilteredUserIds = matchedPatientUserIds.map((id) => new Types.ObjectId(id))
 
         if (appointmentFilteredUserIds && appointmentFilteredUserIds.length === 0) {
             return {
