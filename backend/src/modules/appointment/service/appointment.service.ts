@@ -18,8 +18,8 @@ import {
     RazorpayAppointmentResponse,
     WalletAppointmentResponse,
 } from '../interfaces/appointment.service.interface'
-import { AppointmentResponseDTO, toAppointmentListResponseDTO } from '../mapper/appointment.mapper'
-import { AppointmentDocument } from '../types/appointment.types'
+import { toAppointmentListResponseDTO, toDoctorAppointmentRowDTO } from '../mapper/appointment.mapper'
+import { AppointmentDocument, AppointmentResponseDTO, DoctorAppointmentsResponseDTO } from '../types/appointment.types'
 import { CreateAppointmentDTO, RetryPaymentDTO } from '../validator/appointment.schema'
 
 @injectable()
@@ -262,46 +262,66 @@ export class AppointmentService implements IAppointmentService {
         return toAppointmentListResponseDTO(appointments)
     }
 
-    async getDoctorAppointments(doctorId: string): Promise<AppointmentResponseDTO[]> {
+    async getDoctorAppointments(
+        doctorId: string,
+        params: { search: string; page: number; limit: number },
+    ): Promise<DoctorAppointmentsResponseDTO> {
         const doctor = await this._doctorRepo.findByUserId(new Types.ObjectId(doctorId))
         if (!doctor) {
             throw new AppError(HTTP_STATUS.NOT_FOUND, 'Doctor profile not found')
         }
 
+        const normalizedSearch = params.search.trim().toLowerCase()
+        const page = Math.max(1, params.page || 1)
+        const limit = Math.max(1, params.limit || 8)
         const appointments = await this._appointmentRepo.findByDoctorId(doctor._id.toString())
-        const appointmentResponses = toAppointmentListResponseDTO(appointments)
-        const patientProfileImageEntries = await Promise.all(
-            appointmentResponses.map(async (appointment) => {
-                const patient = appointment.patientId
-                if (typeof patient === 'string' || patient instanceof Types.ObjectId) {
+        const doctorVisibleAppointments = appointments.filter(
+            (appointment) => appointment.status === 'confirmed' || appointment.status === 'completed',
+        )
+
+        const mappedAppointments = await Promise.all(
+            doctorVisibleAppointments.map(async (appointment) => {
+                const patientUser = appointment.patientId
+                if (typeof patientUser === 'string' || patientUser instanceof Types.ObjectId) {
                     return null
                 }
 
-                const patientProfile = await this._patientRepo.findByUserId(new Types.ObjectId(patient._id))
-                return [patient._id.toString(), patientProfile?.profileImage] as const
+                const patientProfile = await this._patientRepo.findByUserId(new Types.ObjectId(patientUser._id))
+                if (!patientProfile) {
+                    return null
+                }
+
+                return toDoctorAppointmentRowDTO(appointment, patientProfile, {
+                    name: patientUser.name,
+                    email: patientUser.email,
+                })
             }),
         )
 
-        const patientProfileImageMap = new Map(
-            patientProfileImageEntries.filter(
-                (entry): entry is readonly [string, string | undefined] => entry !== null,
-            ),
+        const appointmentRows = mappedAppointments.filter(
+            (appointment): appointment is NonNullable<typeof appointment> => !!appointment,
         )
+        const filteredAppointmentRows = normalizedSearch
+            ? appointmentRows.filter(
+                  (appointment) =>
+                      appointment.name.toLowerCase().includes(normalizedSearch) ||
+                      appointment.email.toLowerCase().includes(normalizedSearch),
+              )
+            : appointmentRows
+        const totalCount = filteredAppointmentRows.length
+        const totalPages = Math.max(1, Math.ceil(totalCount / limit))
+        const start = (page - 1) * limit
+        const pagedAppointments = filteredAppointmentRows.slice(start, start + limit)
 
-        return appointmentResponses.map((appointment) => {
-            const patient = appointment.patientId
-            if (typeof patient === 'string' || patient instanceof Types.ObjectId) {
-                return appointment
-            }
-
-            return {
-                ...appointment,
-                patientId: {
-                    ...patient,
-                    profileImage: patientProfileImageMap.get(patient._id.toString()),
-                },
-            }
-        })
+        return {
+            appointments: pagedAppointments,
+            pagination: {
+                page,
+                limit,
+                totalCount,
+                totalPages,
+            },
+        }
     }
     async cancelAppointment(
         id: string,
