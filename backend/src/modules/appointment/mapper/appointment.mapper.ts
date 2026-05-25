@@ -1,36 +1,14 @@
 import { Types } from 'mongoose'
 
-import { AppointmentDocument } from '../types/appointment.types'
-
-export interface PopulatedUser {
-    _id: string | Types.ObjectId
-    name: string
-    email: string
-    profileImage?: string
-}
-
-export interface AppointmentResponseDTO {
-    _id: string
-    doctorId: string | Types.ObjectId | PopulatedUser
-    patientId: string | Types.ObjectId | PopulatedUser
-    appointmentDate: string
-    slotStart: string
-    slotEnd: string
-    status: string
-    paymentStatus: string
-    amount: number
-    createdAt: string
-}
-
-interface PopulatedPayment {
-    status?: 'pending' | 'success' | 'failed' | 'refund_pending' | 'refunded'
-    totalAmount?: number
-}
-
-type MongooseLikeDocument<T> = T & {
-    _doc?: T
-    toObject?: () => T
-}
+import { PatientDocument } from '../../patient/types/patient.types'
+import {
+    AppointmentDocument,
+    AppointmentResponseDTO,
+    DoctorAppointmentRowDTO,
+    MongooseLikeDocument,
+    PopulatedPayment,
+    PopulatedUser,
+} from '../types/appointment.types'
 
 const isPopulatedPayment = (value: unknown): value is PopulatedPayment => {
     return typeof value === 'object' && value !== null
@@ -102,4 +80,25 @@ export const toAppointmentResponseDTO = (appointment: AppointmentDocument): Appo
 
 export const toAppointmentListResponseDTO = (appointments: AppointmentDocument[]): AppointmentResponseDTO[] => {
     return appointments.map(toAppointmentResponseDTO)
+}
+
+export const toDoctorAppointmentRowDTO = (
+    appointment: AppointmentDocument,
+    patient: PatientDocument,
+    patientDisplay: {
+        name: string
+        email: string
+    },
+): DoctorAppointmentRowDTO => {
+    return {
+        appointmentId: appointment._id.toString(),
+        patientId: patient._id.toString(),
+        name: patientDisplay.name,
+        email: patientDisplay.email,
+        profileImage: patient.profileImage,
+        appointmentDate: appointment.appointmentDate.toISOString(),
+        slotStart: appointment.slotStart,
+        slotEnd: appointment.slotEnd,
+        status: appointment.status as 'confirmed' | 'completed',
+    }
 }
