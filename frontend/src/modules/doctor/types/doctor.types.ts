@@ -184,11 +184,12 @@ export interface DoctorAppointment {
         _id: string
         name: string
         email: string
+        profileImage?: string
     }
     appointmentDate: string
     slotStart: string
     slotEnd: string
-    status: 'pending_payment' | 'confirmed' | 'cancelled' | 'in_consultation' | 'completed'
+    status: 'pending_payment' | 'confirmed' | 'cancelled' | 'missed' | 'in_consultation' | 'completed'
     paymentStatus: 'pending' | 'paid' | 'failed' | 'refund_pending' | 'refunded'
     amount: number
     createdAt: string
