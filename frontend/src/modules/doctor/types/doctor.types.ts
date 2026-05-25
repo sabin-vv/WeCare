@@ -325,6 +325,25 @@ export interface AddVitalPlanPayload {
     instructions?: string
 }
 
+export interface PatientVitalPlanItem {
+    type: 'blood_pressure' | 'blood_sugar' | 'heart_rate' | 'temperature' | 'oxygen_saturation'
+    frequencyValue: number
+    frequencyUnit: 'hours' | 'days' | 'weeks'
+    durationValue: number
+    durationUnit: 'hours' | 'days' | 'weeks' | 'months'
+}
+
+export interface PatientVitalPlan {
+    _id: string
+    patientId: string
+    requestedBy: string
+    vitals: PatientVitalPlanItem[]
+    instructions?: string
+    status: 'active' | 'completed' | 'cancelled'
+    createdAt: string
+    updatedAt: string
+}
+
 export interface ScheduleTime {
     id: string
     time: string
