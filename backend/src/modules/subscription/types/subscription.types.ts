@@ -32,3 +32,19 @@ export interface SubscriptionDTO {
         name: string
     } | null
 }
+
+export interface CreateSubscriptionResult {
+    subscriptionId: string
+    paymentId: string
+    orderId: string
+    amount: number
+    currency: string
+    keyId: string
+}
+
+export interface WalletSubscriptionResult {
+    subscriptionId: string
+    paymentId: string
+    walletBalance: number
+    subscriptionConfirmed: true
+}
