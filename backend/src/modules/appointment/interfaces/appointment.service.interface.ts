@@ -1,4 +1,4 @@
-import { AppointmentResponseDTO } from '../mapper/appointment.mapper'
+import { AppointmentResponseDTO, DoctorAppointmentsResponseDTO } from '../mapper/appointment.mapper'
 import { AppointmentDocument } from '../types/appointment.types'
 import { CreateAppointmentDTO, RetryPaymentDTO } from '../validator/appointment.schema'
 
@@ -36,7 +36,10 @@ export interface IAppointmentService {
 
     getPatientAppointments(patientId: string): Promise<AppointmentResponseDTO[]>
 
-    getDoctorAppointments(doctorId: string): Promise<AppointmentResponseDTO[]>
+    getDoctorAppointments(
+        doctorId: string,
+        params: { search: string; page: number; limit: number },
+    ): Promise<DoctorAppointmentsResponseDTO>
 
     cancelAppointment(
         id: string,
