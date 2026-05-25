@@ -7,7 +7,7 @@ import type {
     DoctorAvailabilityUpdateResult,
     UpdateDoctorProfileData,
     ListPatientsResponse,
-    DoctorAppointment,
+    DoctorAppointmentsResponse,
     PatientDetails,
     PatientDetailsResponse,
     UpdatePatientConditionPayload,
@@ -81,8 +81,18 @@ export const listPatients = async (
     return res.data.data
 }
 
-export const getDoctorAppointments = async (): Promise<DoctorAppointment[]> => {
-    const res = await api.get<{ data: DoctorAppointment[] }>(`${APPOINTMENT_API}/doctor`)
+export const getDoctorAppointments = async (
+    search: string,
+    page: number,
+    limit: number,
+): Promise<DoctorAppointmentsResponse> => {
+    const res = await api.get<{ data: DoctorAppointmentsResponse }>(`${APPOINTMENT_API}/doctor`, {
+        params: {
+            search,
+            page,
+            limit,
+        },
+    })
 
     return res.data.data
 }
