@@ -1,10 +1,12 @@
-import { Heart, Activity, Thermometer, Droplets } from 'lucide-react'
+import { Heart, Activity, Thermometer, Droplets, Trash2 } from 'lucide-react'
 import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import toast from 'react-hot-toast'
 import { useParams } from 'react-router-dom'
 
 import {
+    cancelPatientVitalPlan,
     getPatientById,
+    getPatientVitalPlans,
     startConsultation,
     completeConsultation,
     updatePatientCondition,
@@ -14,7 +16,7 @@ import {
 import MedicationTable from '../components/viewPatient/MedicationTable'
 import ProfileCard from '../components/viewPatient/ProfileCard'
 import VitalCard from '../components/viewPatient/VitalCard'
-import type { CaregiverOption, PatientDetails, PatientSeverityLevel } from '../types/doctor.types'
+import type { CaregiverOption, PatientDetails, PatientSeverityLevel, PatientVitalPlan } from '../types/doctor.types'
 
 import styles from './PatientViewPage.module.css'
 
@@ -23,6 +25,7 @@ import { type ConditionResult, searchConditions } from '@/modules/doctor/api/con
 import MainWrapper from '@/shared/components/MainWrapper.tsx/MainWrapper'
 import Modal from '@/shared/components/Modal/Modal'
 import SearchField from '@/shared/components/SearchField/SearchField'
+import { Section } from '@/shared/components/Section/Section'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 
 const SEVERITY_OPTIONS: Array<{ label: string; value: PatientSeverityLevel }> = [
@@ -35,6 +38,8 @@ const SEVERITY_OPTIONS: Array<{ label: string; value: PatientSeverityLevel }> = 
 const PatientViewPage = () => {
     const { patientId } = useParams<{ patientId: string }>()
     const [patient, setPatient] = useState<PatientDetails | null>(null)
+    const [vitalPlans, setVitalPlans] = useState<PatientVitalPlan[]>([])
+    const [cancellingPlanId, setCancellingPlanId] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [showConditionModal, setShowConditionModal] = useState(false)
     const [conditionQuery, setConditionQuery] = useState('')
@@ -54,8 +59,12 @@ const PatientViewPage = () => {
         if (!patientId) return
         setIsLoading(true)
         try {
-            const data = await getPatientById(patientId)
-            setPatient(data)
+            const [patientData, vitalPlansData] = await Promise.all([
+                getPatientById(patientId),
+                getPatientVitalPlans(patientId, 'active'),
+            ])
+            setPatient(patientData)
+            setVitalPlans(vitalPlansData)
         } catch (error) {
             toast.error(getErrorMessage(error))
         } finally {
@@ -251,7 +260,32 @@ const PatientViewPage = () => {
         else if (vital === 'heart_rate') return 'Heart Rate'
         else if (vital === 'spo2') return 'SPO2'
         else if (vital === 'blood_sugar') return 'Bloood Sugar'
+        else if (vital === 'oxygen_saturation') return 'SpO2'
+        else if (vital === 'temperature') return 'Temperature'
         else return vital
+    }
+
+    const formatFrequency = (value: number, unit: 'hours' | 'days' | 'weeks') => {
+        const label = value === 1 ? unit.slice(0, -1) : unit
+        return `Every ${value} ${label}`
+    }
+
+    const formatDuration = (value: number, unit: 'hours' | 'days' | 'weeks' | 'months') => {
+        const label = value === 1 ? unit.slice(0, -1) : unit
+        return `${value} ${label}`
+    }
+
+    const handleCancelVitalPlan = async (planId: string) => {
+        setCancellingPlanId(planId)
+        try {
+            await cancelPatientVitalPlan(planId)
+            toast.success('Vitals check request removed')
+            fetchPatient()
+        } catch (error) {
+            toast.error(getErrorMessage(error))
+        } finally {
+            setCancellingPlanId(null)
+        }
     }
 
     return (
@@ -295,6 +329,67 @@ const PatientViewPage = () => {
                             />
                         ))}
                 </div>
+                <Section title="Vitals Check Requests">
+                    {vitalPlans.length === 0 ? (
+                        <p className={styles.emptyVitalPlans}>No active vitals check requests.</p>
+                    ) : (
+                        <div className={styles.vitalPlansTable}>
+                            <div className={styles.vitalsGrid}>
+                                {vitalPlans.map((plan) => (
+                                    <div key={plan._id} className={styles.vitalCard}>
+                                        {plan.vitals.map((vital) => (
+                                            <>
+                                                <div className={styles.header}>
+                                                    <span className={styles.vitalName}>
+                                                        {vitalNameFormat(vital.type)}
+                                                    </span>
+
+                                                    <button
+                                                        onClick={() => handleCancelVitalPlan(plan._id)}
+                                                        className={styles.deleteButton}
+                                                        disabled={cancellingPlanId === plan._id}
+                                                    >
+                                                        <Trash2 size={18} color="red" />
+                                                    </button>
+                                                </div>
+
+                                                <div className={styles.details}>
+                                                    <div className={styles.detailRow}>
+                                                        <span className={styles.label}>Frequency</span>
+
+                                                        <span className={styles.value}>
+                                                            {formatFrequency(vital.frequencyValue, vital.frequencyUnit)}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className={styles.detailRow}>
+                                                        <span className={styles.label}>Duration</span>
+
+                                                        <span className={styles.value}>
+                                                            {formatDuration(vital.durationValue, vital.durationUnit)}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className={styles.detailRow}>
+                                                        <span className={styles.label}>Requested On</span>
+
+                                                        <span className={styles.value}>
+                                                            {new Date(plan.createdAt).toLocaleDateString('en-IN', {
+                                                                day: '2-digit',
+                                                                month: 'short',
+                                                                year: 'numeric',
+                                                            })}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </>
+                                        ))}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </Section>
                 <MedicationTable
                     patientId={patient._id}
                     patientName={patient.name}

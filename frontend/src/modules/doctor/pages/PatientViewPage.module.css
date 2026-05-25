@@ -157,3 +157,131 @@
     color: #64748b;
     font-weight: 500;
 }
+
+.emptyVitalPlans {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+    text-align: center;
+}
+
+.vitalPlansTable {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.vitalPlansHeader {
+    padding: 0 4px 8px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.vitalPlansHeader span {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748b;
+}
+
+.vitalPlanInstructions {
+    font-size: 14px;
+    color: #334155;
+    line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+    .vitalPlansHeader {
+        display: none;
+    }
+
+    .vitalPlanGridRow {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+}
+
+.vitalsGrid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.vitalCard {
+    width: 250px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+.vitalCard:hover {
+    transform: translateY(-2px);
+
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.vitalName {
+    font-size: 18px;
+    font-weight: 700;
+
+    color: #111827;
+}
+
+.deleteButton {
+    border: none;
+
+    background: #fee2e2;
+
+    width: 36px;
+    height: 36px;
+
+    border-radius: 10px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.deleteButton:hover {
+    transform: scale(1.05);
+}
+
+.details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.detailRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.label {
+    font-size: 14px;
+
+    color: #6b7280;
+}
+
+.value {
+    font-size: 14px;
+    font-weight: 600;
+
+    color: #111827;
+}
