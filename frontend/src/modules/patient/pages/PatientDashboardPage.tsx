@@ -7,6 +7,7 @@ import {
     createSubscription,
     getPatientAppointments,
     getPatientMedications,
+    getPatientProfile,
     getPatientSubscription,
     getPatientVitalSchedules,
     getWallet,
@@ -14,7 +15,13 @@ import {
 } from '../api/patient.api'
 import AppointmentCard from '../component/AppointmentCard'
 import SubscriptionModal from '../component/SubscriptionModal'
-import { type Appointment, type MedicationSchedule, type SubscriptionData, type VitalSchedule } from '../types/patient.types'
+import {
+    type Appointment,
+    type MedicationSchedule,
+    type PatientProfileData,
+    type SubscriptionData,
+    type VitalSchedule,
+} from '../types/patient.types'
 
 import styles from './PatientDashboardPage.module.css'
 
@@ -38,24 +45,28 @@ const PatientDashboardPage = () => {
     const [pendingSubscriptionId, setPendingSubscriptionId] = useState<string | null>(null)
     const [medications, setMedications] = useState<MedicationSchedule[]>([])
     const [vitalSchedules, setVitalSchedules] = useState<VitalSchedule[]>([])
+    const [patient, setPatient] = useState<PatientProfileData | null>(null)
     const { user } = useAuth()
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [appointmentsData, subscriptionData, walletData, settingsData] = await Promise.all([
+                const [appointmentsData, subscriptionData, walletData, settingsData, patientData] = await Promise.all([
                     getPatientAppointments(),
                     getPatientSubscription(),
                     getWallet(),
                     getPlatformSettings(),
+                    getPatientProfile(),
                 ])
+
+                setPatient(patientData)
                 setAppointments(appointmentsData)
                 setSubscription(subscriptionData)
                 setWalletBalance(walletData.data.balance)
                 setSubscriptionAmount(settingsData.subscriptionFee || DEFAULT_SUBSCRIPTION_AMOUNT)
                 setBillingCycle(settingsData.billingCycle || 'monthly')
 
-if (subscriptionData?.status === 'active') {
+                if (subscriptionData?.status === 'active') {
                     const [medicationsData, vitalData] = await Promise.all([
                         getPatientMedications(),
                         getPatientVitalSchedules(),
@@ -208,11 +219,12 @@ if (subscriptionData?.status === 'active') {
 
     const hasActiveSubscription = subscription?.status === 'active'
     const hasScheduleContent = medications.length > 0 || vitalSchedules.length > 0
+    const hasCaregiverId = !!patient?.caregiver
 
     return (
         <PatientLayout>
             <MainWrapper title={`Good ${timePeriod}, ${user?.name} `} subtitle="Here's your status Today.">
-                {subscription && subscription.status !== 'active' && (
+                {hasCaregiverId && subscription && subscription.status !== 'active' && (
                     <div className={styles.subscriptionCard}>
                         <div className={styles.subscriptionHeader}>
                             <span className={styles.subscriptionLabel}>Subscription</span>
@@ -331,7 +343,7 @@ if (subscriptionData?.status === 'active') {
                     </div>
                 )}
 
-                {subscription === null && (
+                {hasCaregiverId && subscription === null && (
                     <>
                         <div className={styles.subscriptionBanner}>
                             <div className={styles.leftSection}>
@@ -392,7 +404,7 @@ if (subscriptionData?.status === 'active') {
                 )}
             </MainWrapper>
         </PatientLayout>
-)
+    )
 }
 
 export default PatientDashboardPage
