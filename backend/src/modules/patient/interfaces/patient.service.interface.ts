@@ -13,7 +13,6 @@ export interface IPatientService {
         doctorId: string,
         params: {
             search: string
-            appointmentStatus: string
             clinicalStatus: string
             riskLevel: string
             page: number
