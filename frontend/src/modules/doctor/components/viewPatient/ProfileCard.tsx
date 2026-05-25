@@ -22,6 +22,11 @@ const ProfileCard = ({
 }: ProfileCardProps) => {
     const baseUrl = env.AWS_BASE_URL
 
+    const formatRiskLevel = (riskLevel: string): string => {
+        if (riskLevel === 'high_risk') return 'High Risk'
+        else return riskLevel
+    }
+
     return (
         <div className={styles.card}>
             <div className={styles.leftSection}>
@@ -37,7 +42,7 @@ const ProfileCard = ({
                     <div className={styles.topRow}>
                         <h2 className={styles.name}>{name}</h2>
 
-                        {riskLevel && <span className={styles.riskBadge}>{riskLevel}</span>}
+                        {riskLevel && <span className={styles.riskBadge}>{formatRiskLevel(riskLevel)}</span>}
                     </div>
 
                     <div className={styles.metaInfo}>
