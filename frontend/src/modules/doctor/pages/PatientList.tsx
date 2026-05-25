@@ -65,14 +65,7 @@ const PatientList = () => {
             const fetchPatients = async () => {
                 setIsLoading(true)
                 try {
-                    const response = await listPatients(
-                        search,
-                        'all',
-                        clinicalStatus,
-                        riskLevel,
-                        page,
-                        pagination.limit,
-                    )
+                    const response = await listPatients(search, clinicalStatus, riskLevel, page, pagination.limit)
                     setPatients(response.patients)
                     setPagination(response.pagination)
                 } catch (error) {
