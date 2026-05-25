@@ -3,12 +3,13 @@ import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 
 import { getDoctorAppointments } from '../api/doctor.api'
-import type { DoctorAppointment } from '../types/doctor.types'
+import type { DoctorAppointment, Pagination as PaginationMeta } from '../types/doctor.types'
 
 import styles from './DoctorAppointmentsPage.module.css'
 
 import DoctorLayout from '@/layout/DoctorLayout'
 import MainWrapper from '@/shared/components/MainWrapper.tsx/MainWrapper'
+import Pagination from '@/shared/components/Pagination/Pagination'
 import SearchField from '@/shared/components/SearchField/SearchField'
 import DataTable from '@/shared/components/Table/DataTable'
 import type { Column } from '@/shared/components/Table/dataTable.types'
@@ -18,7 +19,6 @@ import { getFileUrl } from '@/utils/getFileUrl'
 const CONSULTATION_STATUS_OPTIONS = [
     { label: 'All', value: 'all' },
     { label: 'Pending Consultation', value: 'confirmed' },
-    { label: 'In Consultation', value: 'in_consultation' },
     { label: 'Completed', value: 'completed' },
 ] as const
 
@@ -27,27 +27,42 @@ const DoctorAppointmentsPage = () => {
     const [isLoading, setIsLoading] = useState(true)
     const [search, setSearch] = useState('')
     const [consultationStatus, setConsultationStatus] = useState('all')
+    const [page, setPage] = useState(1)
+    const [pagination, setPagination] = useState<PaginationMeta>({
+        page: 1,
+        limit: 8,
+        totalCount: 0,
+        totalPages: 1,
+    })
     const navigate = useNavigate()
 
     useEffect(() => {
-        const fetchAppointments = async () => {
-            setIsLoading(true)
-            try {
-                const data = await getDoctorAppointments()
-                setAppointments(data)
-            } catch (error) {
-                toast.error(getErrorMessage(error))
-            } finally {
-                setIsLoading(false)
+        const timer = setTimeout(() => {
+            const fetchAppointments = async () => {
+                setIsLoading(true)
+                try {
+                    const data = await getDoctorAppointments(search, page, pagination.limit)
+                    setAppointments(data.appointments)
+                    setPagination(data.pagination)
+                } catch (error) {
+                    toast.error(getErrorMessage(error))
+                } finally {
+                    setIsLoading(false)
+                }
             }
-        }
 
-        fetchAppointments()
-    }, [])
+            fetchAppointments()
+        }, 300)
+
+        return () => clearTimeout(timer)
+    }, [search, page, pagination.limit])
+
+    useEffect(() => {
+        setPage(1)
+    }, [search])
 
     const formatAppointmentStatusLabel = (status: DoctorAppointment['status']) => {
         if (status === 'confirmed') return 'Pending Consultation'
-        if (status === 'in_consultation') return 'In Consultation'
 
         return status
             .split('_')
@@ -63,26 +78,9 @@ const DoctorAppointmentsPage = () => {
         })
     }
 
-    const filteredAppointments = appointments.filter((appointment) => {
-        if (
-            appointment.status === 'cancelled' ||
-            appointment.status === 'pending_payment' ||
-            appointment.status === 'missed'
-        ) {
-            return false
-        }
-
-        const normalizedSearch = search.trim().toLowerCase()
-
-        const matchesSearch =
-            !normalizedSearch ||
-            appointment.patientId.name.toLowerCase().includes(normalizedSearch) ||
-            appointment.patientId.email.toLowerCase().includes(normalizedSearch)
-
-        const matchesConsultationStatus = consultationStatus === 'all' || appointment.status === consultationStatus
-
-        return matchesSearch && matchesConsultationStatus
-    })
+    const filteredAppointments = appointments.filter(
+        (appointment) => consultationStatus === 'all' || appointment.status === consultationStatus,
+    )
 
     const PatientAvatar = ({ name, profileImage }: { name?: string; profileImage?: string }) => {
         const [hasError, setHasError] = useState(false)
@@ -104,13 +102,13 @@ const DoctorAppointmentsPage = () => {
     const columns: Column<DoctorAppointment>[] = [
         {
             header: 'Patient',
-            key: 'patientId',
+            key: 'name',
             render: (item) => (
                 <div className={styles.patientCell}>
-                    <PatientAvatar name={item.patientId?.name} profileImage={item.patientId?.profileImage} />
+                    <PatientAvatar name={item.name} profileImage={item.profileImage} />
                     <div className={styles.patientInfo}>
-                        <span className={styles.patientName}>{item.patientId.name}</span>
-                        <span className={styles.patientEmail}>{item.patientId.email}</span>
+                        <span className={styles.patientName}>{item.name}</span>
+                        <span className={styles.patientEmail}>{item.email}</span>
                     </div>
                 </div>
             ),
@@ -140,9 +138,9 @@ const DoctorAppointmentsPage = () => {
         },
         {
             header: 'Action',
-            key: '_id',
+            key: 'appointmentId',
             render: (item) => (
-                <button className={styles.viewBtn} onClick={() => navigate(`/doctor/appointments/${item._id}`)}>
+                <button className={styles.viewBtn} onClick={() => navigate(`/doctor/patients/${item.patientId}`)}>
                     View
                 </button>
             ),
@@ -180,9 +178,19 @@ const DoctorAppointmentsPage = () => {
                 <DataTable
                     data={filteredAppointments}
                     columns={columns}
-                    keyExtractor={(item) => item._id}
+                    keyExtractor={(item) => item.appointmentId}
                     isLoading={isLoading}
-                />
+                >
+                    {!isLoading && appointments.length > 0 && (
+                        <Pagination
+                            currentPage={pagination.page}
+                            totalPages={pagination.totalPages}
+                            totalCount={pagination.totalCount}
+                            limit={pagination.limit}
+                            onPageChange={setPage}
+                        />
+                    )}
+                </DataTable>
             </MainWrapper>
         </DoctorLayout>
     )
