@@ -48,7 +48,11 @@ export class AppointmentController {
             throw new AppError(HTTP_STATUS.UNAUTHORIZED, 'User not authenticated')
         }
 
-        const appointments = await this._appointmentService.getDoctorAppointments(doctorId)
+        const appointments = await this._appointmentService.getDoctorAppointments(doctorId, {
+            search: (req.query.search as string)?.trim() || '',
+            page: parseInt(req.query.page as string) || 1,
+            limit: parseInt(req.query.limit as string) || 8,
+        })
 
         res.status(HTTP_STATUS.OK).json({
             success: true,
