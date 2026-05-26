@@ -10,6 +10,20 @@
     gap: 28px;
 
     box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    transition:
+        transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+        border-color 0.28s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px) scale(1.01);
+
+    box-shadow:
+        0 10px 24px rgba(15, 23, 42, 0.08),
+        0 4px 8px rgba(15, 23, 42, 0.04);
+
+    border-color: #dbeafe;
 }
 
 .topSection {
@@ -19,24 +33,28 @@
 }
 
 .iconWrapper {
-    width: 46px;
-    height: 46px;
-    border-radius: 12px;
-    background: #dbeafe;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
     color: #2563eb;
-
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.7),
+        0 4px 10px rgba(37, 99, 235, 0.12);
 }
 
 .status {
-    font-size: 12px;
-    font-weight: 600;
-    padding: 4px 6px;
-    border-radius: 8px;
-    color: #727d8d;
-    background: #fff3cd;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    padding: 6px 10px;
+    border-radius: 999px;
+    color: #92400e;
+    background: #fef3c7;
+    text-transform: uppercase;
 }
 
 .content {
@@ -47,8 +65,9 @@
 
 .label {
     margin: 0;
-    font-size: 20px;
-    font-weight: 500;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
     color: #64748b;
 }
 
@@ -60,14 +79,18 @@
 
 .value {
     margin: 0;
-    font-size: 28px;
+
+    font-size: 34px;
     font-weight: 700;
+    letter-spacing: -0.03em;
+
     color: #0f172a;
     line-height: 1;
 }
 
 .unit {
-    font-size: 18px;
-    font-weight: 500;
+    font-size: 15px;
+    font-weight: 600;
+
     color: #94a3b8;
 }
