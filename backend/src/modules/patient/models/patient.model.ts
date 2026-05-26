@@ -41,7 +41,7 @@ const patientSchema = new Schema<PatientDocument>(
         },
         clinicalStatus: {
             type: String,
-            enum: ['active', 'hospitalized', 'deceased'],
+            enum: ['active', 'hospitalized', 'recovered', 'deceased'],
             default: 'active',
         },
         primaryDoctorId: {

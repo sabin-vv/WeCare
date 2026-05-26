@@ -3,7 +3,7 @@ import { Document, Types } from 'mongoose'
 export type RiskLevel = 'mild' | 'moderate' | 'severe' | 'high_risk'
 export type AccountStatus = 'suspended' | 'active' | 'archived'
 
-export type ClinicalStatus = 'active' | 'hospitalized' | 'deceased'
+export type ClinicalStatus = 'active' | 'hospitalized' | 'recovered' | 'deceased'
 export interface PatientDocument extends Document {
     userId: Types.ObjectId
     patientId: string
