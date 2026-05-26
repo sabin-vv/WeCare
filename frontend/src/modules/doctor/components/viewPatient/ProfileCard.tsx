@@ -4,6 +4,8 @@ import styles from './ProfileCard.module.css'
 
 import { env } from '@/config/env'
 import Button from '@/shared/components/Button/Button'
+import SelectField from '@/shared/components/SelectField/SelectField'
+import type { SelectOptions } from '@/shared/types/component.types'
 
 const ProfileCard = ({
     name,
@@ -21,6 +23,13 @@ const ProfileCard = ({
     onAssignCaregiver,
 }: ProfileCardProps) => {
     const baseUrl = env.AWS_BASE_URL
+
+    const clinicalStatusOptions: SelectOptions[] = [
+        { label: 'Active', value: 'active' },
+        { label: 'Recovered', value: 'recovered' },
+        { label: 'Hospitalized', value: 'hospitalized' },
+        { label: 'Deceased', value: 'deceased' },
+    ]
 
     const formatRiskLevel = (riskLevel: string): string => {
         if (riskLevel === 'high_risk') return 'High Risk'
@@ -116,14 +125,8 @@ const ProfileCard = ({
                     )}
 
                     <div className={styles.actions}>
-                        <button className={styles.hospitalBtn}>Admit to Hospital</button>
-
-                        <select className={styles.statusSelect}>
-                            <option>Active</option>
-                            <option>Recovered</option>
-                            <option>Hospitalized</option>
-                            <option>Deceased</option>
-                        </select>
+                        <Button className={styles.hospitalBtn}>Admit to Hospital</Button>
+                        <SelectField className={styles.statusSelect} options={clinicalStatusOptions} />
                     </div>
                 </div>
             )}
