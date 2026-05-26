@@ -10,11 +10,13 @@
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    animation: fadeIn 0.2s ease;
 }
 
 .modal {
     background: #fff;
-    width: auto;
+    width: 95%;
+    min-height: 320px;
     max-height: 90vh;
     border-radius: 16px;
     display: flex;
@@ -22,6 +24,7 @@
     box-shadow:
         0 20px 25px -5px rgba(0, 0, 0, 0.1),
         0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    animation: modalSlide 0.25s ease;
 }
 
 .sm {
@@ -34,6 +37,7 @@
 
 .lg {
     max-width: 800px;
+    min-height: 500px;
 }
 
 .header {
@@ -81,4 +85,34 @@
     gap: 12px;
     border-bottom-left-radius: 16px;
     border-bottom-right-radius: 16px;
+}
+
+@media (max-width: 768px) {
+    .content {
+        padding: 18px;
+    }
+
+    .header,
+    .footer {
+        padding: 16px 18px;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+@keyframes modalSlide {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.98);
+    }
+    ty {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
