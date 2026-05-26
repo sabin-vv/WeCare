@@ -385,6 +385,8 @@ export interface ProfileCardProps {
     onCompleteConsultation?: () => void
     onAddCondition?: () => void
     onAssignCaregiver?: () => void
+    clinicalStatus?: string
+    onClinicalStatusChange?: (arg: string) => void
 }
 
 export interface VitalCardProps {
