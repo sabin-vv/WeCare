@@ -127,4 +127,23 @@ export class PatientController {
             message: 'Caregiver assigned successfully',
         })
     }
+
+    updateClinicalStatus = async (req: Request, res: Response) => {
+        const doctorId = req.user?.userId
+
+        if (!doctorId) {
+            throw new AppError(HTTP_STATUS.UNAUTHORIZED, 'User not authorized')
+        }
+
+        const { patientId } = req.params
+        const { clinicalStatus } = req.body
+
+        const result = await this._patientService.updateClinicalStatus(doctorId, patientId as string, clinicalStatus)
+
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            data: result,
+            message: 'Clinical status updated successfully',
+        })
+    }
 }
