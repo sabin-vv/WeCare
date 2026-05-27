@@ -313,7 +313,7 @@ export interface AddPrescriptionPayload {
 }
 
 export interface VitalPlanItemPayload {
-    type: 'blood_pressure' | 'blood_sugar' | 'heart_rate' | 'temperature' | 'oxygen_saturation'
+    type: 'blood_pressure' | 'blood_sugar' | 'heart_rate' | 'spo2'
     frequencyValue: number
     frequencyUnit: 'hours' | 'days' | 'weeks'
     durationValue: number
@@ -326,7 +326,7 @@ export interface AddVitalPlanPayload {
 }
 
 export interface PatientVitalPlanItem {
-    type: 'blood_pressure' | 'blood_sugar' | 'heart_rate' | 'temperature' | 'oxygen_saturation'
+    type: 'blood_pressure' | 'blood_sugar' | 'heart_rate' | 'spo2'
     frequencyValue: number
     frequencyUnit: 'hours' | 'days' | 'weeks'
     durationValue: number
@@ -367,6 +367,7 @@ export interface MedicationProps {
     patientName: string
     clinicalStatus: string
     prescriptions: PatientPrescription[]
+    vitalPlan?: string[]
     hasConditions: boolean
     onSuccess: () => void
 }

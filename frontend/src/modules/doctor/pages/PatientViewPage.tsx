@@ -261,8 +261,6 @@ const PatientViewPage = () => {
         else if (vital === 'heart_rate') return 'Heart Rate'
         else if (vital === 'spo2') return 'SPO2'
         else if (vital === 'blood_sugar') return 'Bloood Sugar'
-        else if (vital === 'oxygen_saturation') return 'SpO2'
-        else if (vital === 'temperature') return 'Temperature'
         else return vital
     }
 
@@ -299,6 +297,9 @@ const PatientViewPage = () => {
             toast.error(getErrorMessage(error))
         }
     }
+    const flatVital = vitalPlans.flatMap((plan) => plan.vitals)
+
+    const vitals = flatVital.map((vital) => vital.type)
 
     return (
         <DoctorLayout>
@@ -323,14 +324,7 @@ const PatientViewPage = () => {
                     }}
                     onAssignCaregiver={handleCaregiverModalOpen}
                 />
-                <div
-                    style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                        gap: '16px',
-                        marginTop: '20px',
-                    }}
-                >
+                <div className={styles.vitalsLogGrid}>
                     {patient.vitals.length > 0 &&
                         patient.vitals.map((vital) => (
                             <VitalCard
@@ -410,6 +404,7 @@ const PatientViewPage = () => {
                     clinicalStatus={patient.clinicalStatus}
                     prescriptions={patient.prescriptions}
                     hasConditions={(patient.conditions?.length ?? 0) > 0}
+                    vitalPlan={vitals}
                     onSuccess={fetchPatient}
                 />
 
