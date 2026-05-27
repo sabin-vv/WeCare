@@ -125,4 +125,12 @@ export class VitalRepository extends BaseRepository<VitalDocument> implements IV
             .sort({ scheduleTime: 1 })
             .lean() as unknown as VitalScheduleDocument | null
     }
+    async findLatestByPatientId(patientId: string): Promise<VitalDocument[]> {
+        return this.model.aggregate([
+            { $match: { patientId: new Types.ObjectId(patientId) } },
+            { $sort: { recordedAt: -1 } },
+            { $group: { _id: '$type', doc: { $first: '$$ROOT' } } },
+            { $replaceRoot: { newRoot: '$doc' } },
+        ])
+    }
 }
