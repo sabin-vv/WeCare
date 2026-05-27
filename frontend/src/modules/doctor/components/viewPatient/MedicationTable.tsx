@@ -16,9 +16,16 @@ import DataTable from '@/shared/components/Table/DataTable'
 import type { Column } from '@/shared/components/Table/dataTable.types'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 
-type VitalPlanOptionId = 'blood_pressure' | 'heart_rate' | 'oxygen_saturation' | 'blood_sugar'
+type VitalPlanOptionId = 'blood_pressure' | 'heart_rate' | 'spo2' | 'blood_sugar'
 
-const MedicationTable = ({ patientId, patientName, prescriptions, hasConditions, onSuccess }: MedicationProps) => {
+const MedicationTable = ({
+    patientId,
+    patientName,
+    prescriptions,
+    hasConditions,
+    onSuccess,
+    vitalPlan,
+}: MedicationProps) => {
     const [showPrescriptionModal, setShowPrescriptionModal] = useState(false)
     const [showVitalsModal, setShowVitalsModal] = useState(false)
     const [editingPrescription, setEditingPrescription] = useState<PatientPrescription | null>(null)
@@ -135,7 +142,7 @@ const MedicationTable = ({ patientId, patientName, prescriptions, hasConditions,
     >({
         blood_pressure: { frequency: 'Every 2 hours', duration: 'Next 24 hours' },
         heart_rate: { frequency: 'Every 2 hours', duration: 'Next 24 hours' },
-        oxygen_saturation: { frequency: 'Every 2 hours', duration: 'Next 24 hours' },
+        spo2: { frequency: 'Every 2 hours', duration: 'Next 24 hours' },
         blood_sugar: { frequency: 'Every 2 hours', duration: 'Next 24 hours' },
     })
 
@@ -153,7 +160,7 @@ const MedicationTable = ({ patientId, patientName, prescriptions, hasConditions,
             iconClassName: styles.vitalOptionIconRed,
         },
         {
-            id: 'oxygen_saturation',
+            id: 'spo2',
             label: 'SpO2',
             icon: <Activity size={18} />,
             iconClassName: styles.vitalOptionIconGreen,
@@ -416,7 +423,7 @@ const MedicationTable = ({ patientId, patientName, prescriptions, hasConditions,
         setVitalsPreferences({
             blood_pressure: { frequency: 'Every 2 hours', duration: 'Next 24 hours' },
             heart_rate: { frequency: 'Every 2 hours', duration: 'Next 24 hours' },
-            oxygen_saturation: { frequency: 'Every 2 hours', duration: 'Next 24 hours' },
+            spo2: { frequency: 'Every 2 hours', duration: 'Next 24 hours' },
             blood_sugar: { frequency: 'Every 2 hours', duration: 'Next 24 hours' },
         })
     }
@@ -839,16 +846,21 @@ const MedicationTable = ({ patientId, patientName, prescriptions, hasConditions,
                     <div className={styles.vitalsOptionsGrid}>
                         {vitalOptions.map((vital) => {
                             const isSelected = selectedVitals.includes(vital.id)
+                            const isAlreadyActive = vitalPlan?.includes(vital.id)
                             return (
                                 <button
                                     key={vital.id}
                                     type="button"
                                     className={`${styles.vitalOptionCard} ${isSelected ? styles.vitalOptionCardActive : ''}`}
                                     onClick={() => handleToggleVital(vital.id)}
+                                    disabled={isAlreadyActive}
                                 >
-                                    <span className={`${styles.vitalOptionIcon} ${vital.iconClassName}`}>
-                                        {vital.icon}
-                                    </span>
+                                    <div className={styles.vitalOptionTop}>
+                                        <span className={`${styles.vitalOptionIcon} ${vital.iconClassName}`}>
+                                            {vital.icon}
+                                        </span>
+                                        {isAlreadyActive && <span className={styles.activeBadge}>Active</span>}
+                                    </div>
                                     <span className={styles.vitalOptionLabel}>{vital.label}</span>
                                 </button>
                             )

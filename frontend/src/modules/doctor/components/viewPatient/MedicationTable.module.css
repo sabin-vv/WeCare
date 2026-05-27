@@ -635,6 +635,10 @@
     background: #eff6ff;
     box-shadow: 0 0 0 1px #bfdbfe inset;
 }
+.vitalOptionCard:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
 
 .vitalOptionIcon {
     width: 32px;
@@ -643,6 +647,24 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+}
+.vitalOptionTop {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+.activeBadge {
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: #e2e8f0;
+    color: #475569;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
 }
 
 .vitalOptionIconBlue {
