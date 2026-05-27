@@ -17,7 +17,6 @@ import { createSubscriptionRoutes } from './modules/subscription/routes/subscrip
 import { createSymptomLogRoutes } from './modules/symptom/routes/symptomLog.route'
 import { createUploadsRoutes } from './modules/uploads/routes/uploads.route'
 import { createVitalRoutes } from './modules/vital/routes/vital.route'
-import { createVitalLogRoutes } from './modules/vital/routes/vitalLog.route'
 import { createWalletRoutes } from './modules/wallet/routes/wallet.route'
 
 const app = express()
@@ -52,8 +51,6 @@ app.use('/api/medication-logs', createMedicationLogRoutes())
 app.use('/api/subscriptions', createSubscriptionRoutes())
 
 app.use('/api/vitals', createVitalRoutes())
-
-app.use('/api/vital-logs', createVitalLogRoutes())
 
 app.use('/api/symptom-logs', createSymptomLogRoutes())
 

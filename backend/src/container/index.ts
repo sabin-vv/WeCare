@@ -58,12 +58,8 @@ import { SymptomLogRepository } from '../modules/symptom/repository/symptomLog.r
 import { SymptomLogService } from '../modules/symptom/service/symptomLog.service'
 import { IVitalRepository } from '../modules/vital/interfaces/vital.repository.interface'
 import { IVitalService } from '../modules/vital/interfaces/vital.service.interface'
-import { IVitalLogRepository } from '../modules/vital/interfaces/vitalLog.repository.interface'
-import { IVitalLogService } from '../modules/vital/interfaces/vitalLog.service.interface'
 import { VitalRepository } from '../modules/vital/repository/vital.repository'
-import { VitalLogRepository } from '../modules/vital/repository/vitalLog.repository'
 import { VitalService } from '../modules/vital/service/vital.service'
-import { VitalLogService } from '../modules/vital/service/vitalLog.service'
 import { IWalletRepository } from '../modules/wallet/interfaces/wallet.repository.interface'
 import { IWalletService } from '../modules/wallet/interfaces/wallet.service.interface'
 import { WalletRepository } from '../modules/wallet/repository/wallet.repository'
@@ -75,10 +71,10 @@ container.register<IUserRepository>(TOKENS.IUserRepository, { useClass: UserRepo
 container.register<IDoctorRepository>(TOKENS.IDoctorRepository, { useClass: DoctorRepository })
 container.register<IDoctorService>(TOKENS.IDoctorService, { useClass: DoctorService })
 container.register<IDoctorAvailabilityRepository>(TOKENS.IDoctorAvailabilityRepository, {
-  useClass: DoctorAvailabilityRepository,
+    useClass: DoctorAvailabilityRepository,
 })
 container.register<IAvailabilityNotificationService>(TOKENS.IAvailabilityNotificationService, {
-  useClass: AvailabilityNotificationService,
+    useClass: AvailabilityNotificationService,
 })
 container.register<ICaregiverRepository>(TOKENS.ICaregiverRepository, { useClass: CaregiverRepository })
 container.register<ICaregiverService>(TOKENS.ICaregiverService, { useClass: CaregiverService })
@@ -111,15 +107,12 @@ container.register<IMedicationRepository>(TOKENS.IMedicationRepository, { useCla
 container.register<IMedicationService>(TOKENS.IMedicationService, { useClass: MedicationService })
 
 container.register<IMedicationLogRepository>(TOKENS.IMedicationLogRepository, {
-  useClass: MedicationLogRepository,
+    useClass: MedicationLogRepository,
 })
 container.register<IMedicationLogService>(TOKENS.IMedicationLogService, { useClass: MedicationLogService })
 
-container.register<IVitalLogRepository>(TOKENS.IVitalLogRepository, { useClass: VitalLogRepository })
-container.register<IVitalLogService>(TOKENS.IVitalLogService, { useClass: VitalLogService })
-
 container.register<ISymptomLogRepository>(TOKENS.ISymptomLogRepository, {
-  useClass: SymptomLogRepository,
+    useClass: SymptomLogRepository,
 })
 container.register<ISymptomLogService>(TOKENS.ISymptomLogService, { useClass: SymptomLogService })
 
