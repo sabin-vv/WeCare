@@ -92,7 +92,7 @@ export class PatientService implements IPatientService {
         }
 
         const [vitals, prescriptions] = await Promise.all([
-            this._vitalRepo.findByPatientId(patient._id.toString()),
+            this._vitalRepo.findLatestByPatientId(patient._id.toString()),
             this._prescriptionRepo.findByPatientId(patient._id.toString()),
         ])
 
