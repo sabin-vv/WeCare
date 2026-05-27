@@ -13,7 +13,6 @@ import {
     Heart,
     RefreshCw,
     ShieldAlert,
-    Thermometer,
     Wind,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -48,24 +47,21 @@ const iconMap: Record<string, typeof Activity> = {
     blood_pressure: Heart,
     blood_sugar: Droplet,
     heart_rate: Activity,
-    temperature: Thermometer,
-    oxygen_saturation: Wind,
+    spo2: Wind,
 }
 
 const labelMap: Record<string, string> = {
     blood_pressure: 'Blood Pressure',
     blood_sugar: 'Blood Sugar',
     heart_rate: 'Heart Rate',
-    temperature: 'Temperature',
-    oxygen_saturation: 'SpO2',
+    spo2: 'SpO2',
 }
 
 const unitMap: Record<string, string> = {
     blood_pressure: 'mmHg',
     blood_sugar: 'mg/dL',
     heart_rate: 'BPM',
-    temperature: '\u00b0F',
-    oxygen_saturation: '%',
+    spo2: '%',
 }
 
 const toneMeta = {
@@ -368,12 +364,7 @@ const CaregiverMedicationMonitorPage = () => {
             <section className={styles.page}>
                 <div className={styles.pageHeader}>
                     <h2 className={styles.pageTitle}>Patient Medication Monitor</h2>
-                    <button
-                        type="button"
-                        className={styles.refreshBtn}
-                        onClick={handleRefresh}
-                        disabled={isRefreshing}
-                    >
+                    <button type="button" className={styles.refreshBtn} onClick={handleRefresh} disabled={isRefreshing}>
                         <RefreshCw size={16} className={isRefreshing ? styles.spinningIcon : ''} />
                         {isRefreshing ? 'Refreshing...' : 'Refresh'}
                     </button>
