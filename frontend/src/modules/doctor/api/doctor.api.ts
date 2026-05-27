@@ -187,5 +187,5 @@ export const updateClinicalStatus = async (
     const res = await api.patch(`${PATIENTS_API}/${patientId}/clinical-status`, {
         clinicalStatus,
     })
-    return res.data.data
+    return res.data
 }
