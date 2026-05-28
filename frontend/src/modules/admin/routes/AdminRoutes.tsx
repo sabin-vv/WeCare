@@ -8,6 +8,9 @@ import CaregiverVerificationPage from '../pages/CaregiverVerificationPage'
 import DoctorVerificationPage from '../pages/DoctorVerificationPage'
 import UserManagementPage from '../pages/UserManagementPage'
 
+import { Role } from '@/modules/auth/types/auth.types'
+import ProtectedRoute from '@/shared/components/ProtectedRoute/ProtectedRoute'
+
 export const AdminRoutes: RouteObject[] = [
     {
         path: '/auth/admin/login',
@@ -15,7 +18,11 @@ export const AdminRoutes: RouteObject[] = [
     },
     {
         path: '/admin',
-        element: <AdminLayout />,
+        element: (
+            <ProtectedRoute allowedRoles={[Role.ADMIN]} loginPath="/auth/admin/login">
+                <AdminLayout />
+            </ProtectedRoute>
+        ),
         children: [
             {
                 path: 'dashboard',

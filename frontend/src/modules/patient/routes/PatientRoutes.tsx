@@ -7,29 +7,56 @@ import PatientDashboardPage from '../pages/PatientDashboardPage'
 import PatientSettings from '../pages/PatientSettings'
 import WalletPage from '../pages/WalletPage'
 
+import { Role } from '@/modules/auth/types/auth.types'
+import ProtectedRoute from '@/shared/components/ProtectedRoute/ProtectedRoute'
+
 export const PatientRoutes: RouteObject[] = [
     {
         path: '/dashboard',
-        element: <PatientDashboardPage />,
+        element: (
+            <ProtectedRoute allowedRoles={[Role.PATIENT]}>
+                <PatientDashboardPage />
+            </ProtectedRoute>
+        ),
     },
     {
         path: '/doctors',
-        element: <DoctorBookingPage />,
+        element: (
+            <ProtectedRoute allowedRoles={[Role.PATIENT]}>
+                <DoctorBookingPage />
+            </ProtectedRoute>
+        ),
     },
     {
         path: '/doctors/:doctorId',
-        element: <DoctorAvailabilityPage />,
+        element: (
+            <ProtectedRoute allowedRoles={[Role.PATIENT]}>
+                <DoctorAvailabilityPage />
+            </ProtectedRoute>
+        ),
     },
     {
         path: '/appointments',
-        element: <PatientAppointmentsPage />,
+        element: (
+            <ProtectedRoute allowedRoles={[Role.PATIENT]}>
+                <PatientAppointmentsPage />
+            </ProtectedRoute>
+        ),
     },
     {
         path: '/settings',
-        element: <PatientSettings />,
+        element: (
+            <ProtectedRoute allowedRoles={[Role.PATIENT]}>
+                <PatientSettings />
+            </ProtectedRoute>
+        ),
     },
     {
         path: '/wallet',
-        element: <WalletPage />,
+        element: (
+            <ProtectedRoute allowedRoles={[Role.PATIENT]}>
+                <WalletPage />
+            </ProtectedRoute>
+        ),
     },
 ]

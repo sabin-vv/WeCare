@@ -51,6 +51,7 @@ export interface AuthContextType {
     setAuth: (user: User) => void
     clearAuth: () => void
     isAuthenticated: boolean
+    isAuthLoading: boolean
 }
 
 export interface OtpVerificationProps {

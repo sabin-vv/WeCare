@@ -8,11 +8,17 @@ import CaregiverReminders from '../pages/CaregiverReminders'
 import CaregiverSettings from '../pages/CaregiverSettings'
 
 import CaregiverLayout from '@/layout/CaregiverLayout'
+import { Role } from '@/modules/auth/types/auth.types'
+import ProtectedRoute from '@/shared/components/ProtectedRoute/ProtectedRoute'
 
 export const CaregiverRoutes: RouteObject[] = [
     {
         path: '/caregiver',
-        element: <CaregiverLayout />,
+        element: (
+            <ProtectedRoute allowedRoles={[Role.CAREGIVER]}>
+                <CaregiverLayout />
+            </ProtectedRoute>
+        ),
         children: [
             {
                 path: 'dashboard',
