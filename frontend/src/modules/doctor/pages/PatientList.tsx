@@ -3,7 +3,7 @@ import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 
 import { listPatients } from '../api/doctor.api'
-import type { Pagination as PaginationMeta, Patients } from '../types/doctor.types'
+import type { Pagination as PaginationMeta, Patients, RiskLevel } from '../types/doctor.types'
 
 import styles from './PatientList.module.css'
 
@@ -105,6 +105,13 @@ const PatientList = () => {
             .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
             .join(' ')
     }
+    const formatRiskLevel = (riskLevel: RiskLevel): string => {
+        if (riskLevel === 'mild') return 'Mild'
+        if (riskLevel === 'moderate') return 'Moderate'
+        if (riskLevel === 'severe') return 'Severe'
+        if (riskLevel === 'high_risk') return 'High Risk'
+        else return riskLevel
+    }
 
     const columns: Column<Patients>[] = [
         {
@@ -130,7 +137,7 @@ const PatientList = () => {
             key: 'riskLevel',
             render: (item: Patients) => (
                 <span className={`${styles.riskLevel} ${getRiskLevelClass(item.riskLevel)}`}>
-                    {item.riskLevel || 'N/A'}
+                    {formatRiskLevel(item.riskLevel) || 'N/A'}
                 </span>
             ),
         },

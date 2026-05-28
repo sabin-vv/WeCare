@@ -206,7 +206,11 @@ export interface DoctorAvailabilityUpdateResponse extends ApiInterface {
     data: DoctorAvailabilityUpdateResult
 }
 
+export type RiskLevel = 'mild' | 'moderate' | 'severe' | 'high_risk'
+
 export type ClinicalStatus = 'active' | 'hospitalized' | 'recovered' | 'deceased'
+
+export type VitalType = 'blood_sugar' | 'blood_pressure' | 'spo2' | 'heart_rate'
 
 export interface Patients {
     _id: string
@@ -214,7 +218,7 @@ export interface Patients {
     name: string
     profileImage?: string
     conditions: string[]
-    riskLevel: string
+    riskLevel: RiskLevel
     caregiver: string
     clinicalStatus: ClinicalStatus
 }
@@ -254,7 +258,7 @@ export interface PatientDetailsResponse {
 
 export interface PatientVital {
     _id: string
-    type: 'blood_sugar' | 'blood_pressure' | 'spo2' | 'heart_rate'
+    type: VitalType
     value?: number
     systolic?: number
     diastolic?: number
@@ -290,11 +294,9 @@ export interface PatientPrescription {
     updatedAt: string
 }
 
-export type PatientSeverityLevel = 'mild' | 'moderate' | 'severe' | 'high_risk'
-
 export interface UpdatePatientConditionPayload {
     conditions: string[]
-    riskLevel: PatientSeverityLevel
+    riskLevel: RiskLevel
 }
 
 export interface AddPrescriptionMedication {
@@ -315,7 +317,7 @@ export interface AddPrescriptionPayload {
 }
 
 export interface VitalPlanItemPayload {
-    type: 'blood_pressure' | 'blood_sugar' | 'heart_rate' | 'spo2'
+    type: VitalType
     frequencyValue: number
     frequencyUnit: 'hours' | 'days' | 'weeks'
     durationValue: number
@@ -328,7 +330,7 @@ export interface AddVitalPlanPayload {
 }
 
 export interface PatientVitalPlanItem {
-    type: 'blood_pressure' | 'blood_sugar' | 'heart_rate' | 'spo2'
+    type: VitalType
     frequencyValue: number
     frequencyUnit: 'hours' | 'days' | 'weeks'
     durationValue: number
