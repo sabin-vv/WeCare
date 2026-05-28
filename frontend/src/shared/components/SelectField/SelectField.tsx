@@ -77,6 +77,8 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
             const nextOption = options.find((option) => option.value === nextValue)
             const selectElement = selectRef.current
 
+            if (nextOption?.disabled) return
+
             if (!isControlled) {
                 setInternalValue(nextValue)
             }
@@ -217,7 +219,7 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                         className={styles.nativeSelect}
                     >
                         {options.map((option) => (
-                            <option key={option.value} value={option.value}>
+                            <option key={option.value} value={option.value} disabled={option.disabled}>
                                 {option.label}
                             </option>
                         ))}
@@ -256,6 +258,7 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                                 const isSelected = option.value === selectedValue
                                 const optionIndex = options.findIndex((item) => item.value === option.value)
                                 const isHighlighted = optionIndex === highlightedIndex
+                                const isDisabled = option.disabled
 
                                 return (
                                     <button
@@ -263,14 +266,21 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                                         id={`${selectId}-option-${optionIndex}`}
                                         type="button"
                                         role="option"
+                                        disabled={isDisabled}
                                         aria-selected={isSelected}
                                         ref={(node) => {
                                             optionRefs.current[optionIndex] = node
                                         }}
-                                        className={`${styles.option} ${isHighlighted ? styles.optionHighlighted : ''} ${isSelected ? styles.optionSelected : ''}`}
+                                        className={`${styles.option} ${isHighlighted ? styles.optionHighlighted : ''} ${isSelected ? styles.optionSelected : ''} ${isDisabled ? styles.optionDisabled : ''}`}
                                         tabIndex={isHighlighted ? 0 : -1}
-                                        onMouseEnter={() => setHighlightedIndex(optionIndex)}
-                                        onClick={() => emitChange(option.value)}
+                                        onMouseEnter={() => {
+                                            if (isDisabled) return
+                                            setHighlightedIndex(optionIndex)
+                                        }}
+                                        onClick={() => {
+                                            if (isDisabled) return
+                                            emitChange(option.value)
+                                        }}
                                         onKeyDown={(event) => handleOptionKeyDown(event, optionIndex)}
                                     >
                                         <span>{option.label}</span>

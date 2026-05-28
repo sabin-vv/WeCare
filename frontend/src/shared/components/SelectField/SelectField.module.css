@@ -167,6 +167,11 @@
     color: #0f5db7;
 }
 
+.optionDisabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .optionIndicator {
     width: 20px;
     height: 20px;

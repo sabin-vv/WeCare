@@ -3,6 +3,7 @@ import type { SelectHTMLAttributes } from 'react'
 export interface Options {
     label: string
     value: string
+    disabled?: boolean
 }
 
 export interface SelectFieldProps extends SelectHTMLAttributes<HTMLSelectElement> {

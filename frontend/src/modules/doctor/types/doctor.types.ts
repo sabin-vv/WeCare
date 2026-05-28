@@ -206,6 +206,8 @@ export interface DoctorAvailabilityUpdateResponse extends ApiInterface {
     data: DoctorAvailabilityUpdateResult
 }
 
+export type ClinicalStatus = 'active' | 'hospitalized' | 'recovered' | 'deceased'
+
 export interface Patients {
     _id: string
     patientId: string
@@ -214,7 +216,7 @@ export interface Patients {
     conditions: string[]
     riskLevel: string
     caregiver: string
-    clinicalStatus: string
+    clinicalStatus: ClinicalStatus
 }
 export interface Pagination {
     page: number
@@ -238,7 +240,7 @@ export interface PatientDetails {
     riskLevel: string
     caregiver: string
     status: string
-    clinicalStatus: string
+    clinicalStatus: ClinicalStatus
     appointmentStatus: string
     vitals: PatientVital[]
     prescriptions: PatientPrescription[]
@@ -386,7 +388,7 @@ export interface ProfileCardProps {
     onCompleteConsultation?: () => void
     onAddCondition?: () => void
     onAssignCaregiver?: () => void
-    clinicalStatus?: string
+    clinicalStatus: ClinicalStatus
     onClinicalStatusChange?: (arg: string) => void
 }
 

@@ -7,7 +7,8 @@ import styles from './ProfileCard.module.css'
 import { env } from '@/config/env'
 import Button from '@/shared/components/Button/Button'
 import SelectField from '@/shared/components/SelectField/SelectField'
-import type { SelectOptions } from '@/shared/types/component.types'
+import { CLINICAL_STATUS_TRANSITION } from '@/shared/constants/clinicalStatus'
+import type { ClinicalStatusOption } from '@/shared/types/component.types'
 
 const ProfileCard = ({
     name,
@@ -29,12 +30,19 @@ const ProfileCard = ({
     const [pendingStatus, setPendingStatus] = useState<string | null>(null)
     const baseUrl = env.AWS_BASE_URL
 
-    const clinicalStatusOptions: SelectOptions[] = [
-        { label: 'Active', value: 'active' },
-        { label: 'Recovered', value: 'recovered' },
-        { label: 'Hospitalized', value: 'hospitalized' },
-        { label: 'Deceased', value: 'deceased' },
-    ]
+    const allowedTransitions = CLINICAL_STATUS_TRANSITION[clinicalStatus]
+
+    const clinicalStatusOptions: ClinicalStatusOption[] = (
+        [
+            { label: 'Active', value: 'active' },
+            { label: 'Recovered', value: 'recovered' },
+            { label: 'Hospitalized', value: 'hospitalized' },
+            { label: 'Deceased', value: 'deceased' },
+        ] satisfies ClinicalStatusOption[]
+    ).map((option) => ({
+        ...option,
+        disabled: option.value !== clinicalStatus && !allowedTransitions.includes(option.value),
+    }))
 
     const formatRiskLevel = (riskLevel: string): string => {
         if (riskLevel === 'high_risk') return 'High Risk'
@@ -132,7 +140,7 @@ const ProfileCard = ({
                             </div>
                         ) : (
                             <SelectField
-                                className={styles.statusSelect}
+                                className={`${styles.statusSelect} ${styles[clinicalStatus || '']}`}
                                 options={clinicalStatusOptions}
                                 value={clinicalStatus}
                                 onChange={(e) => setPendingStatus(e.target.value)}

@@ -307,7 +307,7 @@
 .statusSelect {
     min-width: 160px;
     width: 100%;
-    background: #3b82f6;
+    background: #059669;
     color: white;
     border: none;
     outline: none;
@@ -317,7 +317,19 @@
     font-weight: 500;
     cursor: pointer;
 }
+.active {
+    background: #059669;
+}
+.recovered {
+    background: #2563eb;
+}
+.hospitalized {
+    background: #ea580c;
+}
 
+.deceased {
+    background: #dc2626;
+}
 .startBtn {
     background: #10b981;
     color: white;
