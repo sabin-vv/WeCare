@@ -1,7 +1,12 @@
 import { Types } from 'mongoose'
 
 import { MulterFiles, UserDocument } from '../../auth/types/auth.types'
-import { CaregiverDocument, CaregiverEntity, CaregiverProfileResponse, CaregiverWithUser } from '../types/caregiver.types'
+import {
+    CaregiverDocument,
+    CaregiverEntity,
+    CaregiverProfileResponse,
+    CaregiverWithUser,
+} from '../types/caregiver.types'
 import { CreateCaregiverProfileDTO } from '../validator/caregiver.schema'
 
 export const toCaregiverEntity = (
@@ -58,8 +63,8 @@ export const toCaregiverProfileEntity = (profile: Partial<CaregiverDocument>) =>
 
 export const toCaregiverProfileResponseFromAggregation = (caregiver: CaregiverWithUser): CaregiverProfileResponse => {
     return {
-        id: caregiver._id.toString(),
-        fullName: caregiver.user?.name || 'Unnamed Caregiver',
+        id: caregiver.user._id.toString(),
+        fullName: caregiver.user?.name || '',
         email: caregiver.user?.email || '',
         phoneNumber: caregiver.user?.mobile || '',
         profileImage: caregiver.profileImage,

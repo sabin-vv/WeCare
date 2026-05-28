@@ -113,7 +113,7 @@ export const toPatientDetailsDTO = (
             minute: '2-digit',
             hour12: true,
         }),
-        recordedBy: vital.recordedBy.toString(),
+        recordedBy: vital.recordedBy?.toString(),
     }))
     const mappedPrescriptions: PatientPrescriptionDTO[] = prescriptions.map((prescription) => ({
         _id: prescription._id.toString(),
@@ -149,7 +149,7 @@ export const toPatientDetailsDTO = (
         profileImage: patient.profileImage,
         conditions: patient.conditions || [],
         riskLevel: patient.riskLevel,
-        caregiver: caregiver?.name || 'Unassigned',
+        caregiver: caregiver?.name,
         status,
         clinicalStatus: patient.clinicalStatus || 'active',
         appointmentStatus: appointmentStatusForDetails,

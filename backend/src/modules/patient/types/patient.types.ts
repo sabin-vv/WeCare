@@ -74,7 +74,7 @@ export interface PatientDetailsDTO {
     profileImage?: string
     conditions: string[]
     riskLevel?: string
-    caregiver: string
+    caregiver?: string
     status: string
     clinicalStatus: string
     appointmentStatus: string
@@ -90,7 +90,7 @@ export interface PatientVitalDTO {
     diastolic?: number
     unit: string
     recordedAt: string
-    recordedBy: string
+    recordedBy?: string
 }
 
 export interface PatientPrescriptionMedicationDTO {
