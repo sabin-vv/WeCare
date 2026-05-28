@@ -39,6 +39,12 @@ const STARTING_ID = 1000
 const DOCTOR_PATIENT_APPOINTMENT_FILTERS = ['in_consultation', 'completed'] as const
 const DOCTOR_PATIENT_CLINICAL_FILTERS = ['active', 'hospitalized', 'deceased'] as const
 const DOCTOR_PATIENT_RISK_LEVEL_FILTERS = ['mild', 'moderate', 'severe', 'high_risk'] as const
+const CLINICAL_STATUS_TRANSITION: Record<ClinicalStatus, ClinicalStatus[]> = {
+    active: ['hospitalized', 'recovered', 'deceased'],
+    hospitalized: ['active', 'recovered'],
+    recovered: ['active', 'hospitalized'],
+    deceased: [],
+} as const
 
 @injectable()
 export class PatientService implements IPatientService {
@@ -51,6 +57,10 @@ export class PatientService implements IPatientService {
         @inject(TOKENS.IVitalRepository) private _vitalRepo: IVitalRepository,
         @inject(TOKENS.IPrescriptionRepository) private _prescriptionRepo: IPrescriptionRepository,
     ) {}
+
+    private transitionClinicalStatus = (currentStatus: ClinicalStatus, nextStatus: ClinicalStatus): boolean => {
+        return CLINICAL_STATUS_TRANSITION[currentStatus].includes(nextStatus)
+    }
 
     private async generateNextPatientId(): Promise<string> {
         const lastId = await this._patientRepo.getLastPatientId()
@@ -340,11 +350,24 @@ export class PatientService implements IPatientService {
     ): Promise<PatientDetailsDTO> {
         const { doctor } = await this.resolveDoctorPatientContext(doctorId, patientId)
 
-        const patient = await this._patientRepo.updateById(patientId, { clinicalStatus })
+        const patient = await this._patientRepo.findById(patientId)
         if (!patient) {
             throw new AppError(HTTP_STATUS.NOT_FOUND, 'Patient not found')
         }
 
-        return await this.buildPatientDetails(doctor._id.toString(), patient)
+        if (patient.clinicalStatus === clinicalStatus) {
+            throw new AppError(HTTP_STATUS.BAD_REQUEST, 'Patient is in this clinical status')
+        }
+
+        const isAllowed = this.transitionClinicalStatus(patient.clinicalStatus!, clinicalStatus)
+
+        if (!isAllowed) {
+            throw new AppError(HTTP_STATUS.BAD_REQUEST, `cannot change ${patient.clinicalStatus} to ${clinicalStatus}`)
+        }
+
+        const updatedPatient = await this._patientRepo.updateById(patientId, { clinicalStatus })
+        if (!updatedPatient) throw new AppError(HTTP_STATUS.NOT_FOUND, 'Patient not found')
+
+        return await this.buildPatientDetails(doctor._id.toString(), updatedPatient)
     }
 }
