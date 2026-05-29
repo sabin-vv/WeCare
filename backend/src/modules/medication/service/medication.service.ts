@@ -4,9 +4,9 @@ import { inject, injectable } from 'tsyringe'
 import { TOKENS } from '../../../container/tokens'
 import { IPatientRepository } from '../../patient/interfaces/patient.repository.interface'
 import { PrescriptionModel } from '../../prescription/models/prescription.model'
-import { SystemGeneratedScheduleModel } from '../model/medicationSchedule.model'
 import { IMedicationRepository } from '../interfaces/medication.repository.interface'
 import { IMedicationService } from '../interfaces/medication.service.interface'
+import { SystemGeneratedScheduleModel } from '../models/medicationSchedule.model'
 import { MedicationScheduleDTO, MedicationScheduleInput } from '../types/medication.type'
 
 @injectable()
@@ -112,9 +112,6 @@ export class MedicationService implements IMedicationService {
 
         const threshold = new Date(now.getTime() - graceMinutes * 60 * 1000)
 
-        console.log(`[MedicationMissedCron] Running at ${now.toISOString()}`)
-        console.log(`[MedicationMissedCron] Threshold: ${threshold.toISOString()}`)
-
         const updateResult = await SystemGeneratedScheduleModel.updateMany(
             {
                 status: 'pending',
@@ -131,8 +128,6 @@ export class MedicationService implements IMedicationService {
             },
         )
 
-        console.log(`[MedicationMissedCron] Updated ${updateResult.modifiedCount} schedules as missed`)
-
         if (updateResult.modifiedCount === 0) {
             return { updatedCount: 0, criticalAlerts: 0 }
         }
@@ -146,15 +141,6 @@ export class MedicationService implements IMedicationService {
         }).lean()
 
         const criticalAlerts = missedSchedules.length
-
-        if (criticalAlerts > 0) {
-            console.log(`[MedicationMissedCron] Found ${criticalAlerts} critical missed medications`)
-            for (const schedule of missedSchedules) {
-                console.log(
-                    `[MedicationMissedCron] ALERT: Critical medication missed - Patient: ${schedule.patientId}, Medicine: ${schedule.medicineName}, Schedule: ${schedule.scheduleTime}`,
-                )
-            }
-        }
 
         return { updatedCount: updateResult.modifiedCount, criticalAlerts }
     }
