@@ -4,17 +4,40 @@ import { MedicationLogDocument } from '../types/medicationLog.types'
 
 const medicationLogSchema = new Schema<MedicationLogDocument>(
     {
-        patientId: { type: Types.ObjectId, ref: 'Patient', required: true },
-        caregiverId: { type: Types.ObjectId, ref: 'User', required: true },
-        medicationId: { type: Types.ObjectId, ref: 'Medication', required: true },
+        patientId: {
+            type: Types.ObjectId,
+            ref: 'Patient',
+            required: true,
+        },
+        caregiverId: {
+            type: Types.ObjectId,
+            ref: 'User',
+            required: true,
+        },
+        scheduleId: {
+            type: Types.ObjectId,
+            ref: 'SystemGeneratedSchedule',
+            required: true,
+        },
         status: {
             type: String,
             enum: ['on_time', 'taken_late', 'skipped'],
             required: true,
         },
-        takenTime: { type: Date, required: true },
-        route: { type: String, required: true },
-        observations: { type: String, default: '' },
+        takenTime: {
+            type: Date,
+            required: true,
+        },
+        route: {
+            type: String,
+            enum: ['oral', 'injection', 'IV', 'inhalation'],
+            required: true,
+        },
+        observations: {
+            type: String,
+            trim: true,
+            default: '',
+        },
     },
     { timestamps: true },
 )

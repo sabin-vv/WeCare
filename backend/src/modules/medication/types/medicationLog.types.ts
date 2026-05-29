@@ -1,10 +1,10 @@
-import { Document,Types } from 'mongoose'
+import { Document, Types } from 'mongoose'
 
 export interface MedicationLogDocument extends Document {
     _id: Types.ObjectId
     patientId: Types.ObjectId
     caregiverId: Types.ObjectId
-    medicationId: Types.ObjectId
+    scheduleId: Types.ObjectId
     status: 'on_time' | 'taken_late' | 'skipped'
     takenTime: Date
     route: string
