@@ -1,3 +1,4 @@
+import { Types } from 'mongoose'
 import { injectable } from 'tsyringe'
 
 import { BaseRepository } from '../../../core/base/base.repository'
@@ -6,10 +7,7 @@ import { PrescriptionModel } from '../models/prescription.model'
 import { PrescriptionDocument, PrescriptionStatus } from '../types/prescription.types'
 
 @injectable()
-export class PrescriptionRepository
-    extends BaseRepository<PrescriptionDocument>
-    implements IPrescriptionRepository
-{
+export class PrescriptionRepository extends BaseRepository<PrescriptionDocument> implements IPrescriptionRepository {
     constructor() {
         super(PrescriptionModel)
     }
@@ -27,5 +25,13 @@ export class PrescriptionRepository
 
     async findByPatientIdAndStatus(patientId: string, status: PrescriptionStatus): Promise<PrescriptionDocument[]> {
         return await this.model.find({ patientId, status }).sort({ prescribedAt: -1, createdAt: -1 })
+    }
+    async pausePrescription(patientId: string) {
+        return await this.model.updateMany(
+            { patientId: new Types.ObjectId(patientId), status: 'active' },
+            {
+                $set: { status: 'on_hold' },
+            },
+        )
     }
 }

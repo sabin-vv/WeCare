@@ -1,3 +1,5 @@
+import { UpdateWriteOpResult } from 'mongoose'
+
 import { PrescriptionDocument, PrescriptionStatus } from '../types/prescription.types'
 
 export interface IPrescriptionRepository {
@@ -9,4 +11,6 @@ export interface IPrescriptionRepository {
         data: Partial<Pick<PrescriptionDocument, 'status' | 'discontinuedAt' | 'discontinuedBy' | 'endDate'>>,
     ): Promise<PrescriptionDocument | null>
     findByPatientIdAndStatus(patientId: string, status: PrescriptionStatus): Promise<PrescriptionDocument[]>
+
+    pausePrescription(patientId: string): Promise<UpdateWriteOpResult>
 }
