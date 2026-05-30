@@ -1,4 +1,4 @@
-import { Types } from 'mongoose'
+import { Types, UpdateWriteOpResult } from 'mongoose'
 import { injectable } from 'tsyringe'
 
 import { BaseRepository } from '../../../core/base/base.repository'
@@ -31,6 +31,19 @@ export class PrescriptionRepository extends BaseRepository<PrescriptionDocument>
             { patientId: new Types.ObjectId(patientId), status: 'active' },
             {
                 $set: { status: 'on_hold' },
+            },
+        )
+    }
+    async completePrescription(patientId: string): Promise<UpdateWriteOpResult> {
+        return await this.model.updateMany(
+            {
+                patientId: new Types.ObjectId(patientId),
+                status: { $in: ['active', 'on_hold'] },
+            },
+            {
+                $set: {
+                    status: 'completed',
+                },
             },
         )
     }

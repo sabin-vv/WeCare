@@ -13,4 +13,6 @@ export interface IPrescriptionRepository {
     findByPatientIdAndStatus(patientId: string, status: PrescriptionStatus): Promise<PrescriptionDocument[]>
 
     pausePrescription(patientId: string): Promise<UpdateWriteOpResult>
+
+    completePrescription(patientId: string): Promise<UpdateWriteOpResult>
 }
