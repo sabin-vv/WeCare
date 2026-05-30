@@ -10,6 +10,7 @@ import { toUserEntity } from '../../auth/mapper/auth.mapper'
 import { UserDocument, UserRole } from '../../auth/types/auth.types'
 import { ICaregiverRepository } from '../../caregiver/interfaces/caregiver.repository.interface'
 import { IDoctorRepository } from '../../doctor/interfaces/doctor.repository.interface'
+import { IMedicationRepository } from '../../medication/interfaces/medication.repository.interface'
 import { IPrescriptionRepository } from '../../prescription/interfaces/prescription.repository.interface'
 import { IVitalRepository } from '../../vital/interfaces/vital.repository.interface'
 import { IPatientRepository } from '../interfaces/patient.repository.interface'
@@ -41,7 +42,7 @@ const DOCTOR_PATIENT_CLINICAL_FILTERS = ['active', 'hospitalized', 'deceased'] a
 const DOCTOR_PATIENT_RISK_LEVEL_FILTERS = ['mild', 'moderate', 'severe', 'high_risk'] as const
 const CLINICAL_STATUS_TRANSITION: Record<ClinicalStatus, ClinicalStatus[]> = {
     active: ['hospitalized', 'recovered', 'deceased'],
-    hospitalized: ['active', 'recovered'],
+    hospitalized: ['active', 'recovered', 'deceased'],
     recovered: ['active', 'hospitalized'],
     deceased: [],
 } as const
@@ -56,9 +57,10 @@ export class PatientService implements IPatientService {
         @inject(TOKENS.IPatientRepository) private _patientRepo: IPatientRepository,
         @inject(TOKENS.IVitalRepository) private _vitalRepo: IVitalRepository,
         @inject(TOKENS.IPrescriptionRepository) private _prescriptionRepo: IPrescriptionRepository,
+        @inject(TOKENS.IMedicationRepository) private _medicationRepo: IMedicationRepository,
     ) {}
 
-    private transitionClinicalStatus = (currentStatus: ClinicalStatus, nextStatus: ClinicalStatus): boolean => {
+    private transitionClinicalStatus(currentStatus: ClinicalStatus, nextStatus: ClinicalStatus): boolean {
         return CLINICAL_STATUS_TRANSITION[currentStatus].includes(nextStatus)
     }
 
@@ -107,6 +109,11 @@ export class PatientService implements IPatientService {
         ])
 
         return toPatientDetailsDTO(user, patient, appointment, caregiver, vitals, prescriptions)
+    }
+    private async pausePatientMonitoring(patientId: string, reason: string) {
+        this._vitalRepo.pauseVitalPlanByPatientId(patientId, reason)
+        this._vitalRepo.cancelPendingSchedulesByPatient(patientId, reason)
+        this._medicationRepo.cancelMedicationSchedulesByPatient(patientId, reason)
     }
 
     async registerPatient(dto: RegisterPatientDTO): Promise<PatientResponseDTO> {
@@ -348,25 +355,45 @@ export class PatientService implements IPatientService {
         patientId: string,
         clinicalStatus: ClinicalStatus,
     ): Promise<PatientDetailsDTO> {
-        const { doctor } = await this.resolveDoctorPatientContext(doctorId, patientId)
+        const { doctor, patient } = await this.resolveDoctorPatientContext(doctorId, patientId)
 
-        const patient = await this._patientRepo.findById(patientId)
-        if (!patient) {
-            throw new AppError(HTTP_STATUS.NOT_FOUND, 'Patient not found')
+        if (!patient.clinicalStatus) {
+            throw new AppError(HTTP_STATUS.BAD_REQUEST, 'Patient has no current clinical status')
         }
 
         if (patient.clinicalStatus === clinicalStatus) {
-            throw new AppError(HTTP_STATUS.BAD_REQUEST, 'Patient is in this clinical status')
+            throw new AppError(HTTP_STATUS.BAD_REQUEST, 'Patient is already in this clinical status')
         }
 
-        const isAllowed = this.transitionClinicalStatus(patient.clinicalStatus!, clinicalStatus)
+        const isAllowed = this.transitionClinicalStatus(patient.clinicalStatus, clinicalStatus)
 
         if (!isAllowed) {
-            throw new AppError(HTTP_STATUS.BAD_REQUEST, `cannot change ${patient.clinicalStatus} to ${clinicalStatus}`)
+            throw new AppError(HTTP_STATUS.BAD_REQUEST, `Cannot change ${patient.clinicalStatus} to ${clinicalStatus}`)
+        }
+
+        switch (`${patient.clinicalStatus}>${clinicalStatus}`) {
+            case 'active>hospitalized':
+                break
+            case 'active>recovered':
+                break
+            case 'active>deceased':
+                break
+            case 'hospitalized>active':
+                break
+            case 'hospitalized>recovered':
+                break
+            case 'hospitalized>deceased':
+                break
+            case 'recovered>active':
+                break
+            case 'recovered>hospitalized':
+                break
         }
 
         const updatedPatient = await this._patientRepo.updateById(patientId, { clinicalStatus })
-        if (!updatedPatient) throw new AppError(HTTP_STATUS.NOT_FOUND, 'Patient not found')
+        if (!updatedPatient) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'Patient not found')
+        }
 
         return await this.buildPatientDetails(doctor._id.toString(), updatedPatient)
     }
