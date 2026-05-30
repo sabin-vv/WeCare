@@ -15,8 +15,7 @@ export interface IMedicationRepository {
 
     findByPatientAndCaregiver(patientId: Types.ObjectId): Promise<MedicationScheduleModel[]>
     findScheduleById(scheduleId: string): Promise<MedicationScheduleModel | null>
-    updateSchedule(
-        scheduleId: string,
-        data: Partial<MedicationScheduleModel>,
-    ): Promise<MedicationScheduleModel | null>
+    updateSchedule(scheduleId: string, data: Partial<MedicationScheduleModel>): Promise<MedicationScheduleModel | null>
+
+    cancelMedicationSchedulesByPatient(patinetId: string, reason: string): Promise<void>
 }

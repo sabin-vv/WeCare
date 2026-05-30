@@ -75,4 +75,12 @@ export class MedicationRepository implements IMedicationRepository {
             new: true,
         }).lean() as unknown as MedicationScheduleModel | null
     }
+    async cancelMedicationSchedulesByPatient(patientId: string, reason: string): Promise<void> {
+        await SystemGeneratedScheduleModel.updateMany(
+            { patientId: new Types.ObjectId(patientId), status: 'pending' },
+            {
+                $set: { status: 'cancelled', cancelledReason: reason },
+            },
+        )
+    }
 }
