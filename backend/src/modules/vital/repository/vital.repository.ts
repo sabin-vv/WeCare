@@ -10,7 +10,6 @@ import {
     VitalDocument,
     VitalPlanDocument,
     VitalPlanStatus,
-    VitalPlanType,
     VitalScheduleDocument,
     VitalType,
 } from '../types/vital.types'
@@ -108,7 +107,7 @@ export class VitalRepository extends BaseRepository<VitalDocument> implements IV
 
     async findLoggableVitalScheduleByPatientAndType(
         patientId: Types.ObjectId,
-        vitalType: VitalPlanType,
+        vitalType: VitalType,
     ): Promise<VitalScheduleDocument | null> {
         const startOfDay = new Date()
         startOfDay.setHours(0, 0, 0, 0)
@@ -132,5 +131,35 @@ export class VitalRepository extends BaseRepository<VitalDocument> implements IV
             { $group: { _id: '$type', doc: { $first: '$$ROOT' } } },
             { $replaceRoot: { newRoot: '$doc' } },
         ])
+    }
+
+    async pauseVitalPlanByPatientId(patientId: string, reason: string): Promise<void> {
+        await vitalPlanModel.updateMany(
+            {
+                patientId: new Types.ObjectId(patientId),
+                status: 'active',
+            },
+            {
+                $set: {
+                    status: 'paused',
+                    statusReason: reason,
+                },
+            },
+        )
+    }
+
+    async cancelPendingSchedulesByPatient(patientId: string, reason: string): Promise<void> {
+        await vitalScheduleModel.updateMany(
+            {
+                patientId: new Types.ObjectId(patientId),
+                status: 'pending',
+            },
+            {
+                $set: {
+                    status: 'cancelled',
+                    statusReason: reason,
+                },
+            },
+        )
     }
 }

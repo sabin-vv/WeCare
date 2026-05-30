@@ -4,7 +4,6 @@ import {
     VitalDocument,
     VitalPlanDocument,
     VitalPlanStatus,
-    VitalPlanType,
     VitalScheduleDocument,
     VitalType,
 } from '../types/vital.types'
@@ -32,7 +31,11 @@ export interface IVitalRepository {
     updateVitalSchedule(scheduleId: string, data: Partial<VitalScheduleDocument>): Promise<VitalScheduleDocument | null>
     findLoggableVitalScheduleByPatientAndType(
         patientId: Types.ObjectId,
-        vitalType: VitalPlanType,
+        vitalType: VitalType,
     ): Promise<VitalScheduleDocument | null>
     findLatestByPatientId(patientId: string): Promise<VitalDocument[]>
+
+    pauseVitalPlanByPatientId(patientId: string, reason: string): Promise<void>
+
+    cancelPendingSchedulesByPatient(patientId: string, reason: string): Promise<void>
 }
