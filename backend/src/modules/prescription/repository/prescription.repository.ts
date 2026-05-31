@@ -47,4 +47,18 @@ export class PrescriptionRepository extends BaseRepository<PrescriptionDocument>
             },
         )
     }
+    async discontinuePrescriptionByPatientId(patientId: string, discontinuedBy: string): Promise<number> {
+        const now = new Date()
+        const result = await this.model.updateMany(
+            { patientId: new Types.ObjectId(patientId), status: 'active' },
+            {
+                $set: {
+                    status: 'discontinued',
+                    discontinuedAt: now,
+                    discontinuedBy: new Types.ObjectId(discontinuedBy),
+                },
+            },
+        )
+        return result.modifiedCount
+    }
 }

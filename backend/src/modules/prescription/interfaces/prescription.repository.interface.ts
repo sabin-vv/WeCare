@@ -15,4 +15,6 @@ export interface IPrescriptionRepository {
     pausePrescription(patientId: string): Promise<UpdateWriteOpResult>
 
     completePrescription(patientId: string): Promise<UpdateWriteOpResult>
+
+    discontinuePrescriptionByPatientId(patientId: string, discontinuedBy: string): Promise<number>
 }
