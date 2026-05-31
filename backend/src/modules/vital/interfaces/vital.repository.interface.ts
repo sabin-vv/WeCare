@@ -40,4 +40,6 @@ export interface IVitalRepository {
     cancelPendingSchedulesByPatient(patientId: string, reason: string): Promise<void>
 
     completeVitalPlanByPatientId(patientId: string): Promise<void>
+
+    resumeVitalPlanByPatientId(patientId: string): Promise<void>
 }
