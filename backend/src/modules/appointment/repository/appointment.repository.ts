@@ -8,24 +8,24 @@ import { AppointmentDocument } from '../types/appointment.types'
 
 @singleton()
 export class AppointmentRepository extends BaseRepository<AppointmentDocument> implements IAppointmentRepository {
+    constructor() {
+        super(AppointmentModel)
+    }
     async create(data: Partial<AppointmentDocument>): Promise<AppointmentDocument> {
-        return await AppointmentModel.create(data)
+        return await this.model.create(data)
     }
 
     async findById(id: string): Promise<AppointmentDocument | null> {
-        return await AppointmentModel.findById(id)
-    }
-
-    async findByOrderId(orderId: string): Promise<AppointmentDocument | null> {
-        return await AppointmentModel.findOne({ razorpayOrderId: orderId })
+        return await this.model.findById(id)
     }
 
     async update(id: string, data: Partial<AppointmentDocument>): Promise<AppointmentDocument | null> {
-        return await AppointmentModel.findByIdAndUpdate(id, data, { returnDocument: 'after' })
+        return await this.model.findByIdAndUpdate(id, data, { returnDocument: 'after' })
     }
 
     async findByPatientId(patientId: string): Promise<AppointmentDocument[]> {
-        return await AppointmentModel.find({ patientId })
+        return await this.model
+            .find({ patientId })
             .populate({
                 path: 'doctorId',
                 populate: {
@@ -38,7 +38,8 @@ export class AppointmentRepository extends BaseRepository<AppointmentDocument> i
     }
 
     async findByDoctorId(doctorId: string): Promise<AppointmentDocument[]> {
-        return await AppointmentModel.find({ doctorId })
+        return await this.model
+            .find({ doctorId })
             .populate('patientId', 'name email')
             .populate('paymentId', 'status totalAmount')
             .sort({ appointmentDate: -1, slotStart: -1 })
@@ -50,7 +51,7 @@ export class AppointmentRepository extends BaseRepository<AppointmentDocument> i
         const endOfDay = new Date(date)
         endOfDay.setHours(23, 59, 59, 999)
 
-        return await AppointmentModel.find({
+        return await this.model.find({
             doctorId,
             appointmentDate: { $gte: startOfDay, $lte: endOfDay },
             $or: [
@@ -64,46 +65,50 @@ export class AppointmentRepository extends BaseRepository<AppointmentDocument> i
     }
 
     async findActiveByPatientAndDoctor(patientId: string, doctorId: string): Promise<AppointmentDocument | null> {
-        return await AppointmentModel.findOne({
-            patientId,
-            doctorId,
-            $or: [
-                {
-                    status: { $in: ['confirmed', 'in_consultation'] },
-                },
-                {
-                    status: 'pending_payment',
-                    expiredAt: { $gt: new Date() },
-                },
-            ],
-        }).lean()
+        return await this.model
+            .findOne({
+                patientId,
+                doctorId,
+                $or: [
+                    {
+                        status: { $in: ['confirmed', 'in_consultation'] },
+                    },
+                    {
+                        status: 'pending_payment',
+                        expiredAt: { $gt: new Date() },
+                    },
+                ],
+            })
+            .lean()
     }
 
     async findFutureCancellableAppointments(doctorId: string, fromDate: Date): Promise<AppointmentDocument[]> {
         const startOfDay = new Date(fromDate)
         startOfDay.setHours(0, 0, 0, 0)
 
-        return await AppointmentModel.find({
-            doctorId,
-            appointmentDate: { $gte: startOfDay },
-            $or: [
-                { status: 'confirmed' },
-                {
-                    status: 'pending_payment',
-                    expiredAt: { $gt: new Date() },
-                },
-            ],
-        })
+        return await this.model
+            .find({
+                doctorId,
+                appointmentDate: { $gte: startOfDay },
+                $or: [
+                    { status: 'confirmed' },
+                    {
+                        status: 'pending_payment',
+                        expiredAt: { $gt: new Date() },
+                    },
+                ],
+            })
             .populate('patientId', 'name email mobile')
             .populate('paymentId', 'status totalAmount')
             .sort({ appointmentDate: 1, slotStart: 1 })
     }
 
     async findPatientIdsByStatus(doctorId: string, statuses: string[]): Promise<string[]> {
-        const appointments = await AppointmentModel.find({
-            doctorId,
-            status: { $in: statuses },
-        })
+        const appointments = await this.model
+            .find({
+                doctorId,
+                status: { $in: statuses },
+            })
             .select('patientId')
             .lean()
 
@@ -114,15 +119,16 @@ export class AppointmentRepository extends BaseRepository<AppointmentDocument> i
         doctorId: string,
         patientIds: string[],
     ): Promise<AppointmentDocument[]> {
-        return await AppointmentModel.find({
-            doctorId,
-            patientId: { $in: patientIds },
-            $or: [
-                {
-                    status: { $in: ['confirmed', 'in_consultation', 'completed'] },
-                },
-            ],
-        })
+        return await this.model
+            .find({
+                doctorId,
+                patientId: { $in: patientIds },
+                $or: [
+                    {
+                        status: { $in: ['confirmed', 'in_consultation', 'completed'] },
+                    },
+                ],
+            })
             .sort({ updatedAt: -1, appointmentDate: -1, slotStart: -1 })
             .lean()
     }
@@ -131,21 +137,22 @@ export class AppointmentRepository extends BaseRepository<AppointmentDocument> i
         doctorId: string,
         patientUserId: string,
     ): Promise<AppointmentDocument | null> {
-        return await AppointmentModel.findOne({
-            doctorId,
-            patientId: patientUserId,
-            $or: [
-                {
-                    status: { $in: ['confirmed', 'in_consultation'] },
-                },
-            ],
-        })
+        return await this.model
+            .findOne({
+                doctorId,
+                patientId: patientUserId,
+                $or: [
+                    {
+                        status: { $in: ['confirmed', 'in_consultation'] },
+                    },
+                ],
+            })
             .sort({ appointmentDate: -1, slotStart: -1 })
             .lean()
     }
 
     async cancelAppointment(id: string, reason: string, cancelledBy: string): Promise<AppointmentDocument | null> {
-        return await AppointmentModel.findByIdAndUpdate(
+        return await this.model.findByIdAndUpdate(
             id,
             {
                 status: 'cancelled',
@@ -153,15 +160,15 @@ export class AppointmentRepository extends BaseRepository<AppointmentDocument> i
                 cancelledBy: new Types.ObjectId(cancelledBy),
                 cancellationReason: reason,
             },
-            { new: true },
+            { returnDocument: 'after' },
         )
     }
 
-    async cancelFutureAppointmentsByPatient(patientId: string, reason: string, cancelledBY: string): Promise<number> {
+    async cancelFutureAppointmentsByPatientId(patientId: string, reason: string, cancelledBY: string): Promise<number> {
         const now = new Date()
         const result = await this.model.updateMany(
             {
-                payientId: new Types.ObjectId(patientId),
+                patientId: new Types.ObjectId(patientId),
                 appointmentDate: { $gte: now },
                 status: { $in: ['confirmed', 'pending_payment'] },
             },

@@ -30,5 +30,5 @@ export interface IAppointmentRepository {
 
     cancelAppointment(id: string, reason: string, cancelledBy: string): Promise<AppointmentDocument | null>
 
-    cancelFutureAppointmentsByPatient(patientId: string, reason: string, cancelledBY: string): Promise<number>
+    cancelFutureAppointmentsByPatientId(patientId: string, reason: string, cancelledBY: string): Promise<number>
 }
