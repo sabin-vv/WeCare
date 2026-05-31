@@ -125,6 +125,17 @@ export class PatientService implements IPatientService {
         await this._medicationRepo.cancelMedicationSchedulesByPatient(patientId, reason)
         await this._patientRepo.removeCaregiver(patientId)
     }
+    private async cancelPatientWorkFlow(patientId: string, discontinuedBy: string, reason: string) {
+        const result = await this._patientRepo.updateById(patientId, { accountStatus: 'archived' })
+        if (!result) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'Update account status failed')
+        }
+        await this._prescriptionRepo.discontinuePrescriptionByPatientId(patientId, discontinuedBy)
+        await this._medicationRepo.cancelMedicationSchedulesByPatient(patientId, reason)
+        await this._vitalRepo.completeVitalPlanByPatientId(patientId)
+        await this._vitalRepo.cancelPendingSchedulesByPatient(patientId, reason)
+        await this._patientRepo.removeCaregiver(patientId)
+    }
 
     async registerPatient(dto: RegisterPatientDTO): Promise<PatientResponseDTO> {
         const existing = await this._userRepo.findByEmail(dto.email)
