@@ -61,4 +61,17 @@ export class PrescriptionRepository extends BaseRepository<PrescriptionDocument>
         )
         return result.modifiedCount
     }
+    async resumePrescription(patientId: string): Promise<UpdateWriteOpResult> {
+        return await this.model.updateMany(
+            {
+                patientId: new Types.ObjectId(patientId),
+                status: 'on_hold',
+            },
+            {
+                $set: {
+                    status: 'active',
+                },
+            },
+        )
+    }
 }
