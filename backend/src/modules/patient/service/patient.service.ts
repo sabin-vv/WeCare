@@ -43,9 +43,15 @@ const DOCTOR_PATIENT_RISK_LEVEL_FILTERS = ['mild', 'moderate', 'severe', 'high_r
 const CLINICAL_STATUS_TRANSITION: Record<ClinicalStatus, ClinicalStatus[]> = {
     active: ['hospitalized', 'recovered', 'deceased'],
     hospitalized: ['active', 'recovered', 'deceased'],
-    recovered: ['active', 'hospitalized'],
+    recovered: ['active'],
     deceased: [],
 } as const
+
+const CLINICAL_STATUS_UPDATE: Omit<Record<ClinicalStatus, string>, 'active'> = {
+    hospitalized: 'Patient Hospitalized',
+    recovered: 'Patient Recovered',
+    deceased: 'Patient Deceased',
+}
 
 @injectable()
 export class PatientService implements IPatientService {
@@ -125,6 +131,7 @@ export class PatientService implements IPatientService {
         await this._medicationRepo.cancelMedicationSchedulesByPatient(patientId, reason)
         await this._patientRepo.removeCaregiver(patientId)
     }
+
     private async cancelPatientWorkFlow(patientId: string, discontinuedBy: string, reason: string) {
         const result = await this._patientRepo.updateById(patientId, { accountStatus: 'archived' })
         if (!result) {
@@ -135,6 +142,11 @@ export class PatientService implements IPatientService {
         await this._vitalRepo.completeVitalPlanByPatientId(patientId)
         await this._vitalRepo.cancelPendingSchedulesByPatient(patientId, reason)
         await this._patientRepo.removeCaregiver(patientId)
+    }
+
+    private async resumePatientMonitoring(patientId: string) {
+        await this._vitalRepo.resumeVitalPlanByPatientId(patientId)
+        await this._prescriptionRepo.resumePrescription(patientId)
     }
 
     async registerPatient(dto: RegisterPatientDTO): Promise<PatientResponseDTO> {
@@ -394,20 +406,24 @@ export class PatientService implements IPatientService {
 
         switch (`${patient.clinicalStatus}>${clinicalStatus}`) {
             case 'active>hospitalized':
+                this.pausePatientMonitoring(patientId, CLINICAL_STATUS_UPDATE.hospitalized)
                 break
             case 'active>recovered':
+                this.completePatientMonitoring(patientId, CLINICAL_STATUS_UPDATE.recovered)
                 break
             case 'active>deceased':
+                this.cancelPatientWorkFlow(patientId, doctorId, CLINICAL_STATUS_UPDATE.deceased)
                 break
             case 'hospitalized>active':
+                this.resumePatientMonitoring(patientId)
                 break
             case 'hospitalized>recovered':
+                this.completePatientMonitoring(patientId, CLINICAL_STATUS_UPDATE.recovered)
                 break
             case 'hospitalized>deceased':
+                this.cancelPatientWorkFlow(patientId, doctorId, CLINICAL_STATUS_UPDATE.deceased)
                 break
             case 'recovered>active':
-                break
-            case 'recovered>hospitalized':
                 break
         }
 
