@@ -168,6 +168,7 @@
 }
 
 .caregiverBtn {
+    height: 40px;
     background: #10b981;
     color: white;
     border: none;
