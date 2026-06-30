@@ -5,6 +5,7 @@ import { TOKENS } from '../../../container/tokens'
 import { HTTP_STATUS } from '../../../core/constants/httpStatus'
 import { AppError } from '../../../core/errors/AppError'
 import { IAppointmentRepository } from '../../appointment/interfaces/appointment.repository.interface'
+import { IDoctorRepository } from '../../doctor/interfaces/doctor.repository.interface'
 import { IVideoCallService } from '../interfaces/videoCall.service.interface'
 
 @injectable()
@@ -12,11 +13,12 @@ export class VideoCallController {
     constructor(
         @inject(TOKENS.IVideoCallService) private _videoCallService: IVideoCallService,
         @inject(TOKENS.IAppointmentRepository) private _appointmentRepo: IAppointmentRepository,
+        @inject(TOKENS.IDoctorRepository) private _doctorRepo: IDoctorRepository,
     ) {}
 
     createRoom = async (req: Request, res: Response) => {
-        const doctorId = req.user?.userId
-        if (!doctorId) {
+        const userId = req.user?.userId
+        if (!userId) {
             throw new AppError(HTTP_STATUS.UNAUTHORIZED, 'Not authenticated')
         }
 
@@ -30,14 +32,28 @@ export class VideoCallController {
             throw new AppError(HTTP_STATUS.NOT_FOUND, 'Appointment not found')
         }
 
-        const patientId = appointment.patientId.toString()
+        const doctor = await this._doctorRepo.findById(appointment.doctorId.toString())
+        if (!doctor) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'Doctor not found')
+        }
 
-        const { roomName } = await this._videoCallService.createRoom(appointmentId, doctorId, patientId)
-        const token = await this._videoCallService.getToken(roomName, doctorId)
+        const doctorUserId = doctor.userId.toString()
+        const patientUserId = appointment.patientId.toString()
+
+        if (userId !== doctorUserId && userId !== patientUserId) {
+            throw new AppError(HTTP_STATUS.FORBIDDEN, 'Not authorized for this appointment')
+        }
+
+        const { roomName, appointmentID } = await this._videoCallService.createRoom(
+            appointmentId,
+            doctorUserId,
+            patientUserId,
+        )
+        const token = await this._videoCallService.getToken(roomName, userId)
 
         res.status(HTTP_STATUS.OK).json({
             success: true,
-            data: { roomName, token },
+            data: { roomName, appointmentID, token },
         })
     }
 
@@ -47,13 +63,9 @@ export class VideoCallController {
             throw new AppError(HTTP_STATUS.UNAUTHORIZED, 'Not authenticated')
         }
 
-        const { roomName } = req.params
+        const roomName = req.params.roomName as string
         if (!roomName) {
             throw new AppError(HTTP_STATUS.BAD_REQUEST, 'roomName is required')
-        }
-
-        if (typeof roomName !== 'string') {
-            throw new AppError(HTTP_STATUS.BAD_REQUEST, 'Invalid room name')
         }
 
         const token = await this._videoCallService.getToken(roomName, userId)
@@ -64,15 +76,63 @@ export class VideoCallController {
         })
     }
 
-    endRoom = async (req: Request, res: Response) => {
-        const { roomName } = req.params
+    getRoomByAppointment = async (req: Request, res: Response) => {
+        const userId = req.user?.userId
+        if (!userId) {
+            throw new AppError(HTTP_STATUS.UNAUTHORIZED, 'Not authenticated')
+        }
+
+        const appointmentId = req.params.appointmentId as string
+        if (!appointmentId) {
+            throw new AppError(HTTP_STATUS.BAD_REQUEST, 'appointmentId is required')
+        }
+
+        const appointment = await this._appointmentRepo.findById(appointmentId)
+        if (!appointment) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'Appointment not found')
+        }
+
+        const doctor = await this._doctorRepo.findById(appointment.doctorId.toString())
+        if (!doctor) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'Doctor not found')
+        }
+
+        const doctorUserId = doctor.userId.toString()
+        const patientUserId = appointment.patientId.toString()
+
+        if (userId !== doctorUserId && userId !== patientUserId) {
+            throw new AppError(HTTP_STATUS.FORBIDDEN, 'Not authorized for this appointment')
+        }
+
+        const { roomName } = await this._videoCallService.getRoomByAppointment(appointmentId)
+        const token = await this._videoCallService.getToken(roomName, userId)
+
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            data: { roomName, token },
+        })
+    }
+
+    completeRoom = async (req: Request, res: Response) => {
+        const roomName = req.params.roomName as string
 
         if (!roomName) {
             throw new AppError(HTTP_STATUS.BAD_REQUEST, 'roomName is required')
         }
 
-        if (typeof roomName !== 'string') {
-            throw new AppError(HTTP_STATUS.BAD_REQUEST, 'Invalid room name')
+        await this._videoCallService.completeRoom(roomName)
+
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            message: 'Consultation completed successfully',
+        })
+    }
+
+    endRoom = async (req: Request, res: Response) => {
+        const roomName = req.params.roomName as string
+
+        if (!roomName) {
+            throw new AppError(HTTP_STATUS.BAD_REQUEST, 'roomName is required')
         }
 
         await this._videoCallService.endRoom(roomName)
