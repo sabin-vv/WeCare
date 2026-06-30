@@ -20,4 +20,8 @@ export const env = {
     RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET || 'YourSecretHere',
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
     GEMINI_MODEL: process.env.GEMINI_MODEL,
+    LIVEKIT_API_KEY: process.env.LIVEKIT_API_KEY || '',
+    LIVEKIT_API_SECRET: process.env.LIVEKIT_API_SECRET || '',
+    LIVEKIT_HOST: process.env.LIVEKIT_HOST || '',
+    LIVEKIT_URL: process.env.LIVEKIT_URL || '',
 }
