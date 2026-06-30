@@ -173,16 +173,17 @@ export class DoctorController {
             throw new AppError(HTTP_STATUS.UNAUTHORIZED, MSG.USER_NOT_AUTHENTICATED)
         }
 
-        const { patientId } = req.params
+        const patientId = req.params.patientId as string
         if (!patientId) {
             throw new AppError(HTTP_STATUS.BAD_REQUEST, MSG.PATIENT_ID_REQUIRED)
         }
 
-        await this._appointmentService.startConsultation(doctorId, patientId as string)
+        const appointmentId = await this._appointmentService.startConsultation(doctorId, patientId)
 
         res.status(HTTP_STATUS.OK).json({
             success: true,
             message: MSG.CONSULTATION_STARTED,
+            data: { appointmentId },
         })
     }
 
