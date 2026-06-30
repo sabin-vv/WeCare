@@ -4,4 +4,5 @@ export const env = {
     RAZORPAY_KEY_ID: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_YourKeyHere',
     CONDITIONS_API_URL: import.meta.env.VITE_CONDITIONS_API_URL,
     MEDICINE_API_URL: import.meta.env.VITE_MEDICINE_API_URL,
+    LIVEKIT_URL: import.meta.env.VITE_LIVEKIT_URL,
 }
