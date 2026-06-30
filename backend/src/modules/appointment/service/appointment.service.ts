@@ -603,7 +603,7 @@ export class AppointmentService implements IAppointmentService {
         return { appointment: cancelled, refundAmount }
     }
 
-    async startConsultation(doctorId: string, patientId: string): Promise<void> {
+    async startConsultation(doctorId: string, patientId: string): Promise<string> {
         const doctor = await this._doctorRepo.findByUserId(new Types.ObjectId(doctorId))
         if (!doctor) {
             throw new AppError(HTTP_STATUS.NOT_FOUND, MSG.DOCTOR_PROFILE_NOT_FOUND)
@@ -627,7 +627,10 @@ export class AppointmentService implements IAppointmentService {
             throw new AppError(HTTP_STATUS.BAD_REQUEST, MSG.NOT_CONFIRMED)
         }
 
-        await this._appointmentRepo.update(appointment._id.toString(), { status: 'in_consultation' })
+        const appointmentId = appointment._id.toString()
+        await this._appointmentRepo.update(appointmentId, { status: 'in_consultation' })
+
+        return appointmentId
     }
 
     async completeConsultation(doctorId: string, patientId: string): Promise<void> {

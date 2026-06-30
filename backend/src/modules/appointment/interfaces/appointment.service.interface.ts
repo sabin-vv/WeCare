@@ -46,7 +46,7 @@ export interface IAppointmentService {
         reason: string,
     ): Promise<{ appointment: AppointmentDocument | null; refundAmount: number }>
 
-    startConsultation(doctorId: string, patientId: string): Promise<void>
+    startConsultation(doctorId: string, patientId: string): Promise<string>
 
     completeConsultation(doctorId: string, patientId: string): Promise<void>
 
