@@ -1,7 +1,7 @@
 import { Heart, Activity, Thermometer, Droplets, Trash2 } from 'lucide-react'
 import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import toast from 'react-hot-toast'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import {
     cancelPatientVitalPlan,
@@ -38,6 +38,7 @@ const SEVERITY_OPTIONS: Array<{ label: string; value: RiskLevel }> = [
 const PatientViewPage = () => {
     const { patientId } = useParams<{ patientId: string }>()
     const navigate = useNavigate()
+    const location = useLocation()
     const [patient, setPatient] = useState<PatientDetails | null>(null)
     const [vitalPlans, setVitalPlans] = useState<PatientVitalPlan[]>([])
     const [cancellingPlanId, setCancellingPlanId] = useState<string | null>(null)
@@ -77,12 +78,18 @@ const PatientViewPage = () => {
         fetchPatient()
     }, [fetchPatient])
 
+    useEffect(() => {
+        if (location.state?.refresh) {
+            fetchPatient()
+        }
+    }, [location.state?.refresh, fetchPatient])
+
     const handleStartConsultation = async () => {
         if (!patientId) return
         try {
-            await startConsultation(patientId)
+            const { appointmentId } = await startConsultation(patientId)
             toast.success('Consultation started')
-            fetchPatient()
+            navigate(`/video-call/${appointmentId}`, { state: { returnPath: `/doctor/patients/${patientId}` } })
         } catch (error) {
             toast.error(getErrorMessage(error))
         }

@@ -124,10 +124,10 @@ export const getAppointmentStats = async (startDate: string, endDate: string): P
     return res.data.data
 }
 
-export const startConsultation = async (patientId: string): Promise<ApiInterface> => {
+export const startConsultation = async (patientId: string): Promise<{ appointmentId: string }> => {
     const res = await api.put(`${DOCTORS_API}${PATIENTS_API}/${patientId}/start-consultation`)
 
-    return res.data
+    return res.data.data
 }
 
 export const completeConsultation = async (patientId: string): Promise<ApiInterface> => {
