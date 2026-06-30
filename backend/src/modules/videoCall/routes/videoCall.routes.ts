@@ -10,7 +10,9 @@ export const createVideoCallRoutes = () => {
 
     router.post('/room', requireAuth, controller.createRoom)
     router.get('/token/:roomName', requireAuth, controller.getToken)
+    router.get('/room/appointment/:appointmentId', requireAuth, controller.getRoomByAppointment)
     router.post('/room/:roomName/end', requireAuth, controller.endRoom)
+    router.post('/room/:roomName/complete', requireAuth, controller.completeRoom)
 
     return router
 }
