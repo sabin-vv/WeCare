@@ -34,20 +34,27 @@ export class VideoCallService implements IVideoCallService {
         return url.replace('wss://', 'https://').replace('ws://', 'http://')
     }
 
-    async createRoom(appointmentId: string, doctorId: string, patientId: string): Promise<{ roomName: string }> {
-        const existigRoom = await this._videoCallRepo.findByAppointmentId(appointmentId)
-
-        if (existigRoom) {
-            return { roomName: existigRoom.roomName }
-        }
-
+    async createRoom(
+        appointmentId: string,
+        doctorId: string,
+        patientId: string,
+    ): Promise<{ roomName: string; appointmentID: string }> {
         const appointment = await this._appointmentRepo.findById(appointmentId)
 
         if (!appointment) {
             throw new AppError(HTTP_STATUS.NOT_FOUND, MSG.NOT_FOUND)
         }
-        if (appointment.status !== 'confirmed') {
-            throw new AppError(HTTP_STATUS.BAD_REQUEST, 'Vdeo room can be created for confirmed appointments')
+        const existigRoom = await this._videoCallRepo.findByAppointmentId(appointmentId)
+
+        if (existigRoom) {
+            return { roomName: existigRoom.roomName, appointmentID: appointment.appointmentId }
+        }
+
+        if (appointment.status !== 'confirmed' && appointment.status !== 'in_consultation') {
+            throw new AppError(
+                HTTP_STATUS.BAD_REQUEST,
+                'Video room can only be created for confirmed or active appointments',
+            )
         }
 
         const roomName = `consultation-${appointmentId}`
@@ -62,7 +69,7 @@ export class VideoCallService implements IVideoCallService {
             status: 'waiting',
         })
 
-        return { roomName: doc.roomName }
+        return { roomName: doc.roomName, appointmentID: appointment.appointmentId }
     }
 
     async getToken(roomName: string, identity: string): Promise<string> {
@@ -106,6 +113,41 @@ export class VideoCallService implements IVideoCallService {
         const duration = room.startedAt ? Math.floor((now.getTime() - room.startedAt.getTime()) / 1000) : undefined
 
         await this._videoCallRepo.updateByRoomName(roomName, { status: 'ended', endedAt: now, duration })
+    }
+
+    async completeRoom(roomName: string): Promise<void> {
+        const room = await this._videoCallRepo.findByRoomName(roomName)
+
+        if (!room) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'Video room not found')
+        }
+
+        await this._roomClient.deleteRoom(roomName)
+
+        const now = new Date()
+        const duration = room.startedAt
+            ? Math.floor((now.getTime() - room.startedAt.getTime()) / 1000)
+            : undefined
+
+        await this._videoCallRepo.updateByRoomName(roomName, { status: 'ended', endedAt: now, duration })
+
+        const appointment = await this._appointmentRepo.findById(room.appointmentId.toString())
+        if (appointment && appointment.status === 'in_consultation') {
+            await this._appointmentRepo.update(room.appointmentId.toString(), {
+                status: 'completed',
+                completedAt: new Date(),
+            })
+        }
+    }
+
+    async getRoomByAppointment(appointmentId: string): Promise<{ roomName: string }> {
+        const room = await this._videoCallRepo.findByAppointmentId(appointmentId)
+
+        if (!room) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'Video room not found for this appointment')
+        }
+
+        return { roomName: room.roomName }
     }
 
     private async _generateToken(roomName: string, identity: string): Promise<string> {
