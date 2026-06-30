@@ -45,4 +45,6 @@ export const TOKENS = {
     IActivityLogService: Symbol('IActivityLogService'),
     IMedicalRecordRepository: Symbol('IMedicalRecordRepository'),
     IMedicalRecordService: Symbol('IMedicalRecordService'),
+    IVideoCallRepository: Symbol('IVideoCallRepository'),
+    IVideoCallService: Symbol('IVideoCallService'),
 }

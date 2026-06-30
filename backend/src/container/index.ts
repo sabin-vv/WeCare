@@ -86,6 +86,10 @@ import { ISymptomLogRepository } from '../modules/symptom/interfaces/symptomLog.
 import { ISymptomLogService } from '../modules/symptom/interfaces/symptomLog.service.interface'
 import { SymptomLogRepository } from '../modules/symptom/repository/symptomLog.repository'
 import { SymptomLogService } from '../modules/symptom/service/symptomLog.service'
+import { IVideoCallRepository } from '../modules/videoCall/interfaces/videoCall.repository.interface'
+import { IVideoCallService } from '../modules/videoCall/interfaces/videoCall.service.interface'
+import { VideoCallRepository } from '../modules/videoCall/repository/videoCall.repository'
+import { VideoCallService } from '../modules/videoCall/service/videoCall.service'
 import { IVitalRepository } from '../modules/vital/interfaces/vital.repository.interface'
 import { IVitalService } from '../modules/vital/interfaces/vital.service.interface'
 import { VitalRepository } from '../modules/vital/repository/vital.repository'
@@ -189,4 +193,11 @@ container.register<IMedicalRecordRepository>(TOKENS.IMedicalRecordRepository, {
 })
 container.register<IMedicalRecordService>(TOKENS.IMedicalRecordService, {
     useClass: MedicalRecordService,
+})
+
+container.register<IVideoCallRepository>(TOKENS.IVideoCallRepository, {
+    useClass: VideoCallRepository,
+})
+container.register<IVideoCallService>(TOKENS.IVideoCallService, {
+    useClass: VideoCallService,
 })
