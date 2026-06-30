@@ -24,6 +24,7 @@ import { createReminderRoutes } from './modules/reminder/routes/reminder.route'
 import { createSubscriptionRoutes } from './modules/subscription/routes/subscription.route'
 import { createSymptomLogRoutes } from './modules/symptom/routes/symptomLog.route'
 import { createUploadsRoutes } from './modules/uploads/routes/uploads.route'
+import { createVideoCallRoutes } from './modules/videoCall/routes/videoCall.routes'
 import { createVitalRoutes } from './modules/vital/routes/vital.route'
 import { createWalletRoutes } from './modules/wallet/routes/wallet.route'
 
@@ -84,6 +85,8 @@ app.use('/api/medical-records', createMedicalRecordRoutes())
 app.use('/api/activity-logs', createActivityLogRoutes())
 
 app.use('/api/admin', createAdminRoutes())
+
+app.use('/api/video-call', createVideoCallRoutes())
 
 app.use(errorMiddleware)
 
