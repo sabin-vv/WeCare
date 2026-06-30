@@ -11,10 +11,13 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@livekit/components-react": "^2.9.21",
+    "@livekit/components-styles": "^1.2.0",
     "axios": "^1.16.0",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-react": "^7.37.5",
     "libphonenumber-js": "^1.12.41",
+    "livekit-client": "^2.20.0",
     "lucide-react": "^1.7.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
