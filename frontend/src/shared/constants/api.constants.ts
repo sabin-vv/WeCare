@@ -37,3 +37,5 @@ export const FEEDBACK_API = '/feedback'
 export const NOTIFICATIONS_API = '/notifications'
 
 export const MEDICAL_RECORDS_API = '/medical-records'
+
+export const VIDEO_CALL_API = '/video-call'
