@@ -15,9 +15,9 @@ import {
     Pill,
     BadgeCheck,
 } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useCallback, useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import {
     cancelAppointment,
@@ -97,6 +97,7 @@ const formatDate = (iso: string) =>
 const PatientAppointmentDetailPage = () => {
     const { appointmentId } = useParams<{ appointmentId: string }>()
     const navigate = useNavigate()
+    const location = useLocation()
 
     const [appointment, setAppointment] = useState<Appointment | null>(null)
     const [patient, setPatient] = useState<PatientProfileData | null>(null)
@@ -112,21 +113,28 @@ const PatientAppointmentDetailPage = () => {
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false)
     const [walletBalance, setWalletBalance] = useState(0)
 
-    useEffect(() => {
+    const fetchAppointment = useCallback(async () => {
         if (!appointmentId) return
-        const fetchData = async () => {
-            try {
-                const [appt, profile] = await Promise.all([getAppointmentById(appointmentId), getPatientProfile()])
-                setAppointment(appt)
-                setPatient(profile)
-            } catch (err) {
-                toast.error(getErrorMessage(err))
-            } finally {
-                setIsLoading(false)
-            }
+        try {
+            const [appt, profile] = await Promise.all([getAppointmentById(appointmentId), getPatientProfile()])
+            setAppointment(appt)
+            setPatient(profile)
+        } catch (err) {
+            toast.error(getErrorMessage(err))
+        } finally {
+            setIsLoading(false)
         }
-        fetchData()
     }, [appointmentId])
+
+    useEffect(() => {
+        fetchAppointment()
+    }, [fetchAppointment])
+
+    useEffect(() => {
+        if (location.state?.refresh) {
+            fetchAppointment()
+        }
+    }, [location.state?.refresh, fetchAppointment])
 
     useEffect(() => {
         if (!patient?.patientMongoId) return
@@ -619,6 +627,14 @@ const PatientAppointmentDetailPage = () => {
                             </button>
                         ) : (
                             <>
+                                {appointment.status === 'in_consultation' && (
+                                    <button
+                                        className={styles.joinCallBtn}
+                                        onClick={() => navigate(`/video-call/${appointment._id}`, { state: { returnPath: `/appointments/${appointment._id}` } })}
+                                    >
+                                        Join Video Call
+                                    </button>
+                                )}
                                 {appointment.status === 'confirmed' && (
                                     <button
                                         className={styles.rescheduleBtn}
