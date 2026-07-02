@@ -6,6 +6,7 @@ import { upload } from '../../../core/middleware/upload'
 import { validate } from '../../../core/middleware/validateMiddleware'
 import { DoctorController } from '../controller/doctor.controller'
 import { DoctorSchema } from '../validator/registerDoctor.schema'
+import { UpdateDoctorActiveStatusSchema } from '../validator/updateDoctorActiveStatus.schema'
 import { UpdateDoctorAvailabilitySchema } from '../validator/updateDoctorAvailability.schema'
 import { UpdateDoctorSettingsSchema } from '../validator/updateDoctorSettings.schema'
 
@@ -17,6 +18,7 @@ export const createDoctorRoutes = () => {
 
     router.get('/me', requireAuth, doctorController.getProfile)
     router.put('/me', requireAuth, upload.none(), validate(UpdateDoctorSettingsSchema), doctorController.updateProfile)
+    router.patch('/active-status', requireAuth, validate(UpdateDoctorActiveStatusSchema), doctorController.updateActiveStatus)
     router.get('/availability', requireAuth, doctorController.getAvailability)
     router.put(
         '/availability',

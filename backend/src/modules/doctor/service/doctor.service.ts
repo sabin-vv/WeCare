@@ -44,6 +44,7 @@ import {
     WeekDay,
 } from '../types/doctor.types'
 import { DoctorDTO } from '../validator/registerDoctor.schema'
+import { UpdateDoctorActiveStatusDTO } from '../validator/updateDoctorActiveStatus.schema'
 import { UpdateDoctorAvailabilityDTO } from '../validator/updateDoctorAvailability.schema'
 import { UpdateDoctorSettingsDTO } from '../validator/updateDoctorSettings.schema'
 
@@ -238,6 +239,23 @@ export class DoctorService implements IDoctorService {
         }
 
         const doctor = await this._doctorRepo.updateByUserId(new Types.ObjectId(userId), doctorUpdates)
+
+        const updatedUser = await this._userRepo.findById(userId)
+        if (!updatedUser) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, MSG.USER_NOT_FOUND)
+        }
+
+        return toDoctorProfileResponse(updatedUser, doctor)
+    }
+
+    async updateActiveStatus(userId: string, dto: UpdateDoctorActiveStatusDTO): Promise<DoctorProfileResponse> {
+        const existingDoctor = await this._doctorRepo.findByUserId(new Types.ObjectId(userId))
+        if (!existingDoctor) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, MSG.PROFILE_NOT_FOUND)
+        }
+
+        await this._userRepo.update(userId, { isActive: dto.isActive })
+        const doctor = await this._doctorRepo.updateByUserId(new Types.ObjectId(userId), { isActive: dto.isActive })
 
         const updatedUser = await this._userRepo.findById(userId)
         if (!updatedUser) {
