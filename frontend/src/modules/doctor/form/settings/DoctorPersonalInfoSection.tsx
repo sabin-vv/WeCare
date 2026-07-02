@@ -1,16 +1,24 @@
 import { IndianRupee, Pencil } from 'lucide-react'
+import { Controller } from 'react-hook-form'
 
 import type { DoctorPersonalInfoSectionProps } from '../../types/doctor.types'
 import styles from '../DoctorSettingsForm.module.css'
 
 import InputField from '@/shared/components/InputField/InputField'
+import PhoneInput from '@/shared/components/PhoneInput/PhoneInput'
 import { Section } from '@/shared/components/Section/Section'
 
 const DoctorPersonalInfoSection = ({
-    formState,
+    register,
+    control,
+    errors,
     isEditing,
+    isDirty,
+    isSaving,
+    isLoadingProfile,
     onToggleEditing,
-    onFieldChange,
+    onDiscard,
+    onSave,
 }: DoctorPersonalInfoSectionProps) => {
     return (
         <Section
@@ -31,9 +39,9 @@ const DoctorPersonalInfoSection = ({
                     <InputField
                         id="doctor-full-name"
                         label="Full Name"
-                        value={formState.name}
-                        onChange={onFieldChange('name')}
+                        {...register('name')}
                         disabled={!isEditing}
+                        errors={errors.name?.message}
                     />
                 </div>
 
@@ -41,34 +49,61 @@ const DoctorPersonalInfoSection = ({
                     <InputField
                         id="doctor-fee"
                         label="Fee"
-                        value={formState.consultationFee}
-                        onChange={onFieldChange('consultationFee')}
+                        {...register('consultationFee', { valueAsNumber: true })}
                         icon={<IndianRupee size={16} />}
                         disabled={!isEditing}
+                        errors={errors.consultationFee?.message}
                     />
                 </div>
 
                 <div className={`${styles.fieldShell} ${styles.fullRow}`}>
                     <div className={styles.formGrid}>
                         <div className={styles.fieldShell}>
-                            <InputField
-                                id="doctor-phone"
-                                label="Phone Number"
-                                value={formState.mobile}
-                                onChange={onFieldChange('mobile')}
-                                disabled={!isEditing}
+                            <Controller
+                                name="phoneNumber"
+                                control={control}
+                                render={({ field }) => (
+                                    <PhoneInput
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        label="Phone Number"
+                                        error={errors.phoneNumber?.message}
+                                        disabled={!isEditing}
+                                    />
+                                )}
                             />
                         </div>
                         <InputField
                             id="doctor-email"
                             label="Email Address"
-                            value={formState.email}
-                            onChange={onFieldChange('email')}
+                            {...register('email')}
                             disabled={!isEditing}
+                            errors={errors.email?.message}
                         />
                     </div>
                 </div>
             </div>
+
+            {isEditing && (
+                <div className={`${styles.actions} ${styles.actionsInline}`}>
+                    <button
+                        type="button"
+                        className={styles.ghostButton}
+                        onClick={onDiscard}
+                        disabled={!isDirty || isSaving || isLoadingProfile}
+                    >
+                        Discard
+                    </button>
+                    <button
+                        type="button"
+                        className={styles.saveButton}
+                        onClick={onSave}
+                        disabled={!isDirty || isSaving || isLoadingProfile}
+                    >
+                        {isSaving ? 'Saving Changes...' : 'Save All Changes'}
+                    </button>
+                </div>
+            )}
         </Section>
     )
 }
