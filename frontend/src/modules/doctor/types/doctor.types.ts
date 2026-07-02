@@ -394,7 +394,7 @@ export interface ProfileCardProps {
     name: string
     age: number
     gender: string
-    patinetId: string
+    patientId: string
     riskLevel?: string
     conditions?: string[]
     caregiver?: string

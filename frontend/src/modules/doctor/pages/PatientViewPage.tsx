@@ -325,7 +325,7 @@ const PatientViewPage = () => {
                 name={patient.name}
                 age={patient.age}
                 gender={patient.gender}
-                patinetId={patient.patientId}
+                patientId={patient.patientId}
                 riskLevel={patient.riskLevel}
                 conditions={patient.conditions}
                 profileImage={patient.profileImage}

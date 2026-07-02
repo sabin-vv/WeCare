@@ -16,7 +16,7 @@ const ProfileCard = ({
     riskLevel,
     age,
     gender,
-    patinetId,
+    patientId,
     conditions,
     profileImage,
     caregiver,
@@ -89,7 +89,7 @@ const ProfileCard = ({
                         <span>•</span>
                         <span>{gender.charAt(0).toUpperCase() + gender.slice(1)} </span>
                         <span>•</span>
-                        <span>ID: #{patinetId} </span>
+                        <span>ID: #{patientId} </span>
                     </div>
 
                     <div className={styles.conditionRow}>
@@ -121,17 +121,14 @@ const ProfileCard = ({
                     </div>
                 </div>
             </div>
-            {appointmentStatus === 'confirmed' && isWithinJoinWindow ? (
+            {appointmentStatus === 'confirmed' ? (
                 <button
                     className={`${styles.startBtn} ${hasPatientJoined ? styles.hasJoined : ''}`}
                     onClick={onStartConsultation}
+                    disabled={!isWithinJoinWindow}
                 >
                     Join Video Call
                     {hasPatientJoined && <span className={styles.joinBadge}>!</span>}
-                </button>
-            ) : appointmentStatus === 'confirmed' ? (
-                <button className={styles.startBtn} onClick={onStartConsultation}>
-                    Start Consultation
                 </button>
             ) : appointmentStatus === 'in_consultation' ? (
                 <div className={styles.consulatationStatus}>
