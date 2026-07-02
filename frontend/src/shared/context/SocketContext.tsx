@@ -21,6 +21,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     const { user, isAuthenticated } = useAuth()
     const socketRef = useRef<Socket | null>(null)
     const [socket, setSocket] = useState<Socket | null>(null)
+    const [joinedPatients, setJoinedPatients] = useState<Set<string>>(new Set())
 
     useEffect(() => {
         if (!isAuthenticated || !user) {
@@ -42,17 +43,33 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
             console.error('Socket connection failed', error)
         })
 
+        newSocket.on('patient_joined_call', (data: { patientMongoId?: string }) => {
+            if (data.patientMongoId) {
+                setJoinedPatients((prev) => new Set(prev).add(data.patientMongoId!))
+            }
+        })
+
+        newSocket.on('consultation_completed', (data: { patientMongoId: string }) => {
+            setJoinedPatients((prev) => {
+                const next = new Set(prev)
+                next.delete(data.patientMongoId)
+                return next
+            })
+        })
+
         socketRef.current = newSocket
         setSocket(newSocket)
 
         return () => {
+            newSocket.off('patient_joined_call')
+            newSocket.off('consultation_completed')
             newSocket.disconnect()
             socketRef.current = null
             setSocket(null)
         }
     }, [isAuthenticated, user])
 
-    const value = useMemo(() => ({ socket }), [socket])
+    const value = useMemo(() => ({ socket, joinedPatients }), [socket, joinedPatients])
 
     return <SocketContext.Provider value={value}>{children}</SocketContext.Provider>
 }
