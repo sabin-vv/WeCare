@@ -2,7 +2,7 @@ import type { DoctorSettingsActionsProps } from '../../types/doctor.types'
 import styles from '../DoctorSettingsForm.module.css'
 
 const DoctorSettingsActions = ({
-    hasChanges,
+    isDirty,
     isSaving,
     isLoadingProfile,
     onDiscard,
@@ -14,7 +14,7 @@ const DoctorSettingsActions = ({
                 type="button"
                 className={styles.ghostButton}
                 onClick={onDiscard}
-                disabled={!hasChanges || isSaving || isLoadingProfile}
+                disabled={!isDirty || isSaving || isLoadingProfile}
             >
                 Discard
             </button>
@@ -22,7 +22,7 @@ const DoctorSettingsActions = ({
                 type="button"
                 className={styles.saveButton}
                 onClick={onSave}
-                disabled={!hasChanges || isSaving || isLoadingProfile}
+                disabled={!isDirty || isSaving || isLoadingProfile}
             >
                 {isSaving ? 'Saving Changes...' : 'Save All Changes'}
             </button>

@@ -8,7 +8,7 @@ import { env } from '@/config/env'
 import Modal from '@/shared/components/Modal/Modal'
 import { Section } from '@/shared/components/Section/Section'
 
-const DoctorRegistrationSection = ({ formState }: DoctorRegistrationSectionProps) => {
+const DoctorRegistrationSection = ({ profile }: DoctorRegistrationSectionProps) => {
     const [previewModal, setPreviewModal] = useState<{ isOpen: boolean; title: string; documentUrl: string }>({
         isOpen: false,
         title: '',
@@ -37,10 +37,10 @@ const DoctorRegistrationSection = ({ formState }: DoctorRegistrationSectionProps
             <div className={styles.registrationGrid}>
                 <div className={styles.registrationItem}>
                     <h3>Medical License</h3>
-                    <p>{formState.medicalCertificateNumber}</p>
+                    <p>{profile.medicalCertificateNumber}</p>
                     <span
                         className={styles.previewCert}
-                        onClick={() => openPreview('Medical License', formState.medicalCertificateImage || '')}
+                        onClick={() => openPreview('Medical License', profile.medicalCertificateImage || '')}
                     >
                         preview
                     </span>
@@ -48,19 +48,19 @@ const DoctorRegistrationSection = ({ formState }: DoctorRegistrationSectionProps
 
                 <div className={styles.registrationItem}>
                     <h3>Medical Council Registration</h3>
-                    <p>{formState.medicalCouncilRegistrationNumber}</p>
+                    <p>{profile.medicalCouncilRegistrationNumber}</p>
                     <span
                         className={styles.previewCert}
-                        onClick={() => openPreview('Medical Council Registration', formState.medicalCouncilImage || '')}
+                        onClick={() => openPreview('Medical Council Registration', profile.medicalCouncilImage || '')}
                     >
                         preview
                     </span>
                 </div>
 
                 <div className={styles.registrationItem}>
-                    <h3>Experience Certificates : {formState.specialization?.length || 0}</h3>
+                    <h3>Experience Certificates : {profile.specialization?.length || 0}</h3>
                     <p className={styles.highlightValue}> Uploaded</p>
-                    {formState.specialization?.map((spec, index) => (
+                    {profile.specialization?.map((spec, index) => (
                         <span
                             key={index}
                             className={styles.previewCert}
