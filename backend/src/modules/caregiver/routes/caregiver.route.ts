@@ -7,6 +7,7 @@ import { validate } from '../../../core/middleware/validateMiddleware'
 import { CaregiverController } from '../controller/caregiver.controller'
 import { createCaregiverProfileSchema } from '../validator/caregiver.schema'
 import { logMedicationSchema, logSymptomSchema, logVitalReadingSchema } from '../validator/caregiverLogging.schema'
+import { UpdateCaregiverActiveStatusSchema } from '../validator/updateCaregiverActiveStatus.schema'
 import { UpdateCaregiverSettingsSchema } from '../validator/updateCaregiverSettings.schema'
 
 export const createCaregiverRoutes = () => {
@@ -21,6 +22,13 @@ export const createCaregiverRoutes = () => {
         caregiverController.createProfile,
     )
     router.get('/me', requireAuth, caregiverController.getProfile)
+    router.patch(
+        '/active-status',
+        requireAuth,
+        upload.none(),
+        validate(UpdateCaregiverActiveStatusSchema),
+        caregiverController.updateActiveStatus,
+    )
     router.put(
         '/me',
         requireAuth,

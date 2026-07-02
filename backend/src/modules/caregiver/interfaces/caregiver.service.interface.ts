@@ -8,12 +8,14 @@ import { CaregiverProfileResponse } from '../types/caregiver.types'
 import { CaregiverVitalLogResponse, SymptomLogDTO } from '../types/caregiver.types'
 import { CreateCaregiverProfileDTO } from '../validator/caregiver.schema'
 import { LogMedicationDTO, LogSymptomDTO, LogVitalReadingDTO } from '../validator/caregiverLogging.schema'
+import { UpdateCaregiverActiveStatusDTO } from '../validator/updateCaregiverActiveStatus.schema'
 import { UpdateCaregiverSettingsDTO } from '../validator/updateCaregiverSettings.schema'
 
 export interface ICaregiverService {
     createProfile(userId: string, dto: CreateCaregiverProfileDTO): Promise<Partial<CaregiverProfileResponse>>
     getProfile(userId: string): Promise<CaregiverProfileResponse>
     updateProfile(userId: string, dto: UpdateCaregiverSettingsDTO): Promise<CaregiverProfileResponse>
+    updateActiveStatus(userId: string, dto: UpdateCaregiverActiveStatusDTO): Promise<CaregiverProfileResponse>
     listCaregivers(search?: string): Promise<CaregiverProfileResponse[]>
     getPatientMedications(caregiverId: Types.ObjectId, patientId: string): Promise<MedicationScheduleDTO[]>
     getPatientVitalPlans(caregiverId: Types.ObjectId, patientId: string): Promise<VitalPlanItem[]>

@@ -29,6 +29,7 @@ import {
 import { CaregiverProfileResponse, CaregiverVitalLogResponse, SymptomLogDTO } from '../types/caregiver.types'
 import { CreateCaregiverProfileDTO } from '../validator/caregiver.schema'
 import { LogMedicationDTO, LogSymptomDTO, LogVitalReadingDTO } from '../validator/caregiverLogging.schema'
+import { UpdateCaregiverActiveStatusDTO } from '../validator/updateCaregiverActiveStatus.schema'
 import { UpdateCaregiverSettingsDTO } from '../validator/updateCaregiverSettings.schema'
 
 @injectable()
@@ -114,6 +115,26 @@ export class CaregiverService implements ICaregiverService {
             isActive: dto.isActive !== undefined ? dto.isActive : existingCaregiver.isActive,
             profileImage: dto.profileImage || existingCaregiver.profileImage,
         })
+        if (!caregiver) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, MSG.PROFILE_NOT_FOUND)
+        }
+
+        const updatedUser = await this._userRepo.findById(userId)
+        if (!updatedUser) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, MSG.USER_NOT_FOUND)
+        }
+
+        return toCaregiverProfileResponse(updatedUser, caregiver)
+    }
+
+    async updateActiveStatus(userId: string, dto: UpdateCaregiverActiveStatusDTO): Promise<CaregiverProfileResponse> {
+        const existingCaregiver = await this._caregiverRepo.findByUserId(new Types.ObjectId(userId))
+        if (!existingCaregiver) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, MSG.PROFILE_NOT_FOUND)
+        }
+
+        await this._userRepo.update(userId, { isActive: dto.isActive })
+        const caregiver = await this._caregiverRepo.updateByUserId(new Types.ObjectId(userId), { isActive: dto.isActive })
         if (!caregiver) {
             throw new AppError(HTTP_STATUS.NOT_FOUND, MSG.PROFILE_NOT_FOUND)
         }
