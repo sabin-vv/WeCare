@@ -14,6 +14,7 @@ import {
     Star,
     Pill,
     BadgeCheck,
+    Video,
 } from 'lucide-react'
 import { useCallback, useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
@@ -179,6 +180,7 @@ const PatientAppointmentDetailPage = () => {
     const diffInHours = (appointmentDateTime.getTime() - Date.now()) / (1000 * 60 * 60)
 
     const canCancel = diffInHours > 2 && appointment.status === 'confirmed'
+    const isWithinJoinWindow = diffInHours * 60 <= 2
     const canRetryPayment = appointment.status === 'pending_payment' && appointment.paymentStatus === 'pending'
     const isTerminal = appointment.status === 'cancelled' || appointment.status === 'completed'
     const doctorName = appointment.doctorId.userId.name
@@ -374,7 +376,7 @@ const PatientAppointmentDetailPage = () => {
                     <Section title="Appointment Information">
                         <div className={styles.infoList}>
                             <div className={styles.infoRow}>
-                                <span className={styles.idIcon}>#</span>
+                                <span className={styles.infoIcon}>#</span>
                                 <div className={styles.infoContent}>
                                     <span className={styles.infoLabel}>Appointment ID</span>
                                     <span className={styles.appointmentIdText}>{appointment.appointmentId}</span>
@@ -428,6 +430,43 @@ const PatientAppointmentDetailPage = () => {
                                     </span>
                                 </div>
                             </div>
+                        </div>
+                        <div className={styles.joinCallContainer}>
+                            {appointment.status === 'in_consultation' && (
+                                <button
+                                    className={styles.joinCallBtn}
+                                    onClick={() =>
+                                        navigate(`/video-call/${appointment._id}`, {
+                                            state: { returnPath: `/appointments/${appointment._id}` },
+                                        })
+                                    }
+                                >
+                                    <Video /> Join Video Call
+                                </button>
+                            )}
+                            {appointment.status === 'confirmed' && (
+                                <>
+                                    <button
+                                        className={isWithinJoinWindow ? styles.joinCallBtn : styles.joinCallBtnDisabled}
+                                        disabled={!isWithinJoinWindow}
+                                        onClick={
+                                            isWithinJoinWindow
+                                                ? () =>
+                                                      navigate(`/video-call/${appointment._id}`, {
+                                                          state: { returnPath: `/appointments/${appointment._id}` },
+                                                      })
+                                                : undefined
+                                        }
+                                    >
+                                        <Video /> Join Video Call
+                                    </button>
+                                    <span className={styles.joinWindowInfo}>
+                                        {isWithinJoinWindow
+                                            ? 'You can join 2 minutes before the appointment'
+                                            : `You can join at ${appointment.slotStart}`}
+                                    </span>
+                                </>
+                            )}
                         </div>
                     </Section>
 
@@ -627,15 +666,7 @@ const PatientAppointmentDetailPage = () => {
                             </button>
                         ) : (
                             <>
-                                {appointment.status === 'in_consultation' && (
-                                    <button
-                                        className={styles.joinCallBtn}
-                                        onClick={() => navigate(`/video-call/${appointment._id}`, { state: { returnPath: `/appointments/${appointment._id}` } })}
-                                    >
-                                        Join Video Call
-                                    </button>
-                                )}
-                                {appointment.status === 'confirmed' && (
+                                {appointment.status === 'confirmed' && !isWithinJoinWindow && (
                                     <button
                                         className={styles.rescheduleBtn}
                                         onClick={() =>
