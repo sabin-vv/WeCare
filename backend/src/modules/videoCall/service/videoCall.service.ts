@@ -6,8 +6,11 @@ import { TOKENS } from '../../../container/tokens'
 import { env } from '../../../core/config/env'
 import { HTTP_STATUS } from '../../../core/constants/httpStatus'
 import { AppError } from '../../../core/errors/AppError'
+import { getIO } from '../../../core/socket'
 import { MSG } from '../../appointment/constants/messages'
 import { IAppointmentRepository } from '../../appointment/interfaces/appointment.repository.interface'
+import { IUserRepository } from '../../auth/interfaces/user.repository.interface'
+import { IPatientRepository } from '../../patient/interfaces/patient.repository.interface'
 import { IVideoCallRepository } from '../interfaces/videoCall.repository.interface'
 import { IVideoCallService } from '../interfaces/videoCall.service.interface'
 
@@ -18,6 +21,8 @@ export class VideoCallService implements IVideoCallService {
     constructor(
         @inject(TOKENS.IVideoCallRepository) private _videoCallRepo: IVideoCallRepository,
         @inject(TOKENS.IAppointmentRepository) private _appointmentRepo: IAppointmentRepository,
+        @inject(TOKENS.IUserRepository) private _userRepo: IUserRepository,
+        @inject(TOKENS.IPatientRepository) private _patientRepo: IPatientRepository,
     ) {
         const host = this._getLiveKitHost()
 
@@ -95,9 +100,32 @@ export class VideoCallService implements IVideoCallService {
                 status: 'active',
                 startedAt: new Date(),
             })
+
+            const appointment = await this._appointmentRepo.findById(room.appointmentId.toString())
+            if (appointment && appointment.status === 'confirmed') {
+                await this._appointmentRepo.update(room.appointmentId.toString(), {
+                    status: 'in_consultation',
+                })
+            }
         }
 
-        return this._generateToken(roomName, identity)
+        const token = await this._generateToken(roomName, identity)
+
+        if (isPatient) {
+            const user = await this._userRepo.findById(identity)
+            const patientName = user?.name || 'Patient'
+            const patient = await this._patientRepo.findByUserId(new Types.ObjectId(identity))
+            const patientMongoId = patient?._id.toString()
+
+            getIO().to(`user:${room.doctorId.toString()}`).emit('patient_joined_call', {
+                appointmentId: room.appointmentId.toString(),
+                patientName,
+                patientMongoId,
+                roomName,
+            })
+        }
+
+        return token
     }
 
     async endRoom(roomName: string): Promise<void> {
@@ -138,6 +166,10 @@ export class VideoCallService implements IVideoCallService {
                 completedAt: new Date(),
             })
         }
+
+        getIO().to(`user:${room.doctorId.toString()}`).emit('consultation_completed', {
+            patientMongoId: room.patientId.toString(),
+        })
     }
 
     async getRoomByAppointment(appointmentId: string): Promise<{ roomName: string }> {
