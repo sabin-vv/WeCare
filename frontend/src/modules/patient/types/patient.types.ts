@@ -1,5 +1,13 @@
 import type { ApiInterface } from '@/modules/auth/api/auth.api.types'
 
+export type PatientSettingsFormValues = {
+    name: string
+    email: string
+    mobile: string
+    dateOfBirth: string
+    gender: string
+}
+
 export interface Specialist {
     id: string
     name: string
