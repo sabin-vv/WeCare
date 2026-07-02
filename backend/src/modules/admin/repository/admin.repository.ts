@@ -390,12 +390,12 @@ export class AdminRepository implements IAdminRepository {
                             },
                         },
                         {
-                            $lookup: {
-                                from: PatientModel.collection.name,
-                                localField: '_id',
-                                foreignField: 'userId',
-                                as: 'patientProfile',
-                            },
+                $lookup: {
+                    from: PatientModel.collection.name,
+                    localField: 'patientId',
+                    foreignField: '_id',
+                    as: 'patientProfile',
+                },
                         },
                         {
                             $addFields: {
@@ -903,7 +903,7 @@ export class AdminRepository implements IAdminRepository {
                 $lookup: {
                     from: PatientModel.collection.name,
                     localField: 'patientId',
-                    foreignField: '_id',
+                    foreignField: 'userId',
                     as: 'patientProfile',
                 },
             },

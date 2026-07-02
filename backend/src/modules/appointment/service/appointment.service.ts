@@ -132,8 +132,12 @@ export class AppointmentService implements IAppointmentService {
         totalAmount: number,
         status: 'pending' | 'success',
     ) {
+        const patient = await this._patientRepo.findByUserId(new Types.ObjectId(dto.patientId))
+        if (!patient) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, MSG.PATIENT_NOT_FOUND)
+        }
         return await this._paymentRepo.create({
-            patientId: new Types.ObjectId(dto.patientId),
+            patientId: patient._id,
             appointmentId,
             paymentType: 'consultation',
             paymentMethod: dto.paymentMethod,
