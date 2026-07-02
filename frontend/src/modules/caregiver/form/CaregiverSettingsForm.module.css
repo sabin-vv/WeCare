@@ -33,11 +33,6 @@
     align-items: center;
     justify-content: space-between;
     gap: 20px;
-    background: #ffffff;
-    border: 1px solid #dbe7de;
-    border-radius: 18px;
-    padding: 16px 18px;
-    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
 }
 
 .profileMeta {
@@ -191,21 +186,24 @@
 }
 
 .editButton {
-    padding: 8px 16px;
+    width: 38px;
+    height: 38px;
     border: 1px solid #d1d5db;
-    border-radius: 8px;
+    border-radius: 12px;
     background: transparent;
     color: #6b7280;
-    font-size: 14px;
-    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
-.editButton:hover {
+.editButtonActive {
     background: linear-gradient(135deg, #1ce06f, #12c85d);
-    border-color: #1ce06f;
+    border: none;
     color: #ffffff;
+    box-shadow: 0 10px 18px rgba(34, 197, 94, 0.28);
 }
 
 .formGrid {
@@ -340,45 +338,43 @@
     cursor: pointer;
 }
 
-.actions {
+.actionsInline {
     display: flex;
     justify-content: flex-end;
     gap: 12px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e7efe9;
 }
 
-.discardButton {
-    min-width: 140px;
-    height: 48px;
-    padding: 0 24px;
-    border: none;
+.ghostButton {
+    min-width: 120px;
+    height: 40px;
+    border: 1px solid #dce7df;
+    padding: 0 20px;
+    border-radius: 10px;
     background: transparent;
     color: #5e7f6e;
-    font-size: 14px;
     font-weight: 700;
     cursor: pointer;
 }
 
-.discardButton:hover {
-    color: #1f2937;
-}
-
 .saveButton {
     min-width: 190px;
-    height: 48px;
-    padding: 0 24px;
+    height: 40px;
+    padding: 0 20px;
     border: none;
     border-radius: 10px;
     background: linear-gradient(135deg, #1ce06f, #12c85d);
     color: #073b22;
     font-size: 14px;
-    font-weight: 800;
+    font-weight: 600;
     cursor: pointer;
     box-shadow: 0 14px 24px rgba(34, 197, 94, 0.22);
 }
 
 .saveButton:disabled,
-.discardButton:disabled,
-.securityButton:disabled,
+.ghostButton:disabled,
 .editButton:disabled,
 .switch:disabled {
     cursor: not-allowed;

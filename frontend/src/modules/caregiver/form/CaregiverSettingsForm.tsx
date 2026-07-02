@@ -1,57 +1,76 @@
-import { AlertCircle, BadgeCheck, Camera, XCircle } from 'lucide-react'
-import { useEffect, useMemo, useState, type ChangeEvent } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { AlertCircle, BadgeCheck, Camera, Pencil, XCircle } from 'lucide-react'
+import { useEffect, useState, type ChangeEvent } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 
-import { getCaregiverProfile, updateCaregiverProfile } from '../api/caregiver.api'
+import { getCaregiverProfile, updateCaregiverActiveStatus, updateCaregiverProfile } from '../api/caregiver.api'
+import type { CaregiverProfileData, CaregiverSettingsFormValues } from '../types/caregiver.types'
+import { caregiverSettingsFormSchema } from '../validator/caregiverSettingsForm.validator'
 
 import styles from './CaregiverSettingsForm.module.css'
 
-import { changePassword, getCurrentUser, presignUpload, sendOtp, uploadToS3, verifyOtp } from '@/modules/auth/api/auth.api'
+import {
+    changePassword,
+    getCurrentUser,
+    presignUpload,
+    sendOtp,
+    uploadToS3,
+    verifyOtp,
+} from '@/modules/auth/api/auth.api'
 import OtpVerification from '@/modules/auth/components/OtpVerification'
 import { OtpPurpose } from '@/modules/auth/types/auth.types'
+import DoctorSecuritySection from '@/modules/doctor/form/settings/DoctorSecuritySection'
 import ChangePasswordForm from '@/shared/components/ChangePasswordForm'
 import ImageCropper from '@/shared/components/ImageCropper/ImageCropper'
+import InputField from '@/shared/components/InputField/InputField'
 import Modal from '@/shared/components/Modal/Modal'
+import PhoneInput from '@/shared/components/PhoneInput/PhoneInput'
+import { Section } from '@/shared/components/Section/Section'
 import { useAuth } from '@/shared/context/AuthContext'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 
-interface CaregiverSettingsFormState {
-    fullName: string
-    email: string
-    phoneNumber: string
-    certificateNumber: string
-    licenseNumber: string
-    isActive: boolean
-    verificationStatus: 'pending' | 'verified' | 'rejected'
-}
-
-const createFormState = (user?: { name?: string; email?: string } | null): CaregiverSettingsFormState => ({
-    fullName: user?.name || '',
-    email: user?.email || '',
+const defaultFormValues: CaregiverSettingsFormValues = {
+    fullName: '',
+    email: '',
     phoneNumber: '',
-    certificateNumber: '',
-    licenseNumber: '',
-    isActive: true,
-    verificationStatus: 'pending',
-})
+}
 
 const CaregiverSettingsForm = () => {
     const { user, setAuth } = useAuth()
-    const initialState = useMemo(() => createFormState(user), [user])
-    const [formState, setFormState] = useState<CaregiverSettingsFormState>(initialState)
-    const [savedState, setSavedState] = useState<CaregiverSettingsFormState>(initialState)
+
+    const {
+        register,
+        control,
+        handleSubmit,
+        formState: { errors, isDirty },
+        reset,
+        getValues,
+    } = useForm<CaregiverSettingsFormValues>({
+        resolver: zodResolver(caregiverSettingsFormSchema),
+        defaultValues: defaultFormValues,
+        mode: 'onChange',
+    })
+
+    const [savedProfile, setSavedProfile] = useState<CaregiverProfileData | null>(null)
+    const [isActive, setIsActive] = useState(true)
+    const [verificationStatus, setVerificationStatus] = useState<'pending' | 'verified' | 'rejected'>('pending')
+    const [certificateNumber, setCertificateNumber] = useState('')
+    const [licenseNumber, setLicenseNumber] = useState('')
     const [isEditingPersonalInfo, setIsEditingPersonalInfo] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
     const [isLoadingProfile, setIsLoadingProfile] = useState(true)
 
     const [showEmailOtpModal, setShowEmailOtpModal] = useState(false)
     const [pendingEmail, setPendingEmail] = useState('')
+    const [pendingFormValues, setPendingFormValues] = useState<CaregiverSettingsFormValues | null>(null)
     const [isVerifyingEmail, setIsVerifyingEmail] = useState(false)
     const [otpSent, setOtpSent] = useState(false)
 
     const [showPasswordModal, setShowPasswordModal] = useState(false)
     const [isChangingPassword, setIsChangingPassword] = useState(false)
 
+    const [confirmToggle, setConfirmToggle] = useState<{ isActive: boolean } | null>(null)
     const [imageCrop, setImageCrop] = useState<string | null>(null)
     const [isUploadingImage, setIsUploadingImage] = useState(false)
 
@@ -75,28 +94,19 @@ const CaregiverSettingsForm = () => {
             try {
                 const profile = await getCaregiverProfile()
                 const data = profile.data || profile
-                const formStateData: CaregiverSettingsFormState = {
+
+                reset({
                     fullName: data?.fullName || user?.name || '',
                     email: data?.email || user?.email || '',
                     phoneNumber: data?.phoneNumber || '',
-                    certificateNumber: data?.certificateNumber || '',
-                    licenseNumber: data?.licenseNumber || '',
-                    isActive: data?.isActive ?? true,
-                    verificationStatus: data?.verificationStatus || 'pending',
-                }
-                setFormState(formStateData)
-                setSavedState(formStateData)
+                })
+                setSavedProfile(data)
+                setIsActive(data?.isActive ?? true)
+                setVerificationStatus(data?.verificationStatus || 'pending')
+                setCertificateNumber(data?.certificateNumber || '')
+                setLicenseNumber(data?.licenseNumber || '')
             } catch (error) {
                 console.error('Failed to load caregiver settings:', error)
-                setFormState({
-                    fullName: user?.name || '',
-                    email: user?.email || '',
-                    phoneNumber: '',
-                    certificateNumber: '',
-                    licenseNumber: '',
-                    isActive: true,
-                    verificationStatus: 'pending',
-                })
             } finally {
                 setIsLoadingProfile(false)
             }
@@ -105,73 +115,77 @@ const CaregiverSettingsForm = () => {
         loadCaregiverProfile()
     }, [])
 
-    const hasChanges = JSON.stringify(formState) !== JSON.stringify(savedState)
     const profileImageUrl = user?.profileImage ? `${import.meta.env.VITE_S3_BASE_URL}${user.profileImage}` : ''
 
-    const handleFieldChange = (field: keyof CaregiverSettingsFormState) => (event: ChangeEvent<HTMLInputElement>) => {
-        setFormState((current) => ({
-            ...current,
-            [field]: event.target.value,
-        }))
+    const handleToggleEditing = () => {
+        if (isEditingPersonalInfo) {
+            if (isDirty) {
+                handleDiscard()
+            } else {
+                setIsEditingPersonalInfo(false)
+            }
+        } else {
+            setIsEditingPersonalInfo(true)
+        }
     }
 
     const handleToggleStatus = () => {
-        setFormState((current) => ({
-            ...current,
-            isActive: !current.isActive,
-        }))
+        setConfirmToggle({ isActive: !isActive })
     }
 
+    const handleConfirmToggle = async () => {
+        if (!confirmToggle) return
+        const newStatus = confirmToggle.isActive
+        setConfirmToggle(null)
+        try {
+            const updatedProfile = await updateCaregiverActiveStatus(newStatus)
+            setIsActive(updatedProfile.isActive)
+            setSavedProfile(updatedProfile)
+            toast.success(`Account ${newStatus ? 'activated' : 'deactivated'} successfully`)
+        } catch (error) {
+            toast.error(getErrorMessage(error))
+        }
+    }
+
+    const handleCancelToggle = () => setConfirmToggle(null)
+
     const handleDiscard = () => {
-        setFormState(savedState)
+        if (savedProfile) {
+            reset({
+                fullName: savedProfile.fullName,
+                email: savedProfile.email,
+                phoneNumber: savedProfile.phoneNumber,
+            })
+        }
         setIsEditingPersonalInfo(false)
         toast.success('Changes discarded')
     }
 
-    const handleSave = async () => {
-        const emailChanged = formState.email !== savedState.email
-
-        if (emailChanged) {
-            toast('Please verify your new email')
-            setPendingEmail(formState.email)
-            setShowEmailOtpModal(true)
-            return
-        }
-
-        await saveProfile()
-    }
-
-    const saveProfile = async () => {
+    const saveProfile = async (formValues: CaregiverSettingsFormValues) => {
         setIsSaving(true)
 
         try {
             const updatedProfile = await updateCaregiverProfile({
-                fullName: formState.fullName,
-                phoneNumber: formState.phoneNumber,
-                email: formState.email,
-                isActive: formState.isActive,
+                fullName: formValues.fullName,
+                phoneNumber: formValues.phoneNumber,
+                email: formValues.email,
             })
 
             if (user) {
                 setAuth({
                     ...user,
-                    name: formState.fullName,
-                    email: formState.email,
+                    name: formValues.fullName,
+                    email: formValues.email,
                 })
             }
 
             const responseData = updatedProfile.data || updatedProfile
-            const formStateData: CaregiverSettingsFormState = {
-                fullName: responseData?.fullName || formState.fullName,
-                email: responseData?.email || formState.email,
-                phoneNumber: responseData?.phoneNumber || formState.phoneNumber,
-                certificateNumber: responseData?.certificateNumber || formState.certificateNumber,
-                licenseNumber: responseData?.licenseNumber || formState.licenseNumber,
-                isActive: responseData?.isActive ?? formState.isActive,
-                verificationStatus: responseData?.verificationStatus || formState.verificationStatus,
-            }
-            setSavedState(formStateData)
-            setFormState(formStateData)
+            reset({
+                fullName: responseData?.fullName || formValues.fullName,
+                email: responseData?.email || formValues.email,
+                phoneNumber: responseData?.phoneNumber || formValues.phoneNumber,
+            })
+            setSavedProfile(responseData)
             setIsEditingPersonalInfo(false)
             toast.success('Caregiver settings updated successfully')
         } catch {
@@ -181,12 +195,28 @@ const CaregiverSettingsForm = () => {
         }
     }
 
+    const onSubmit = async (formValues: CaregiverSettingsFormValues) => {
+        const emailChanged = formValues.email !== savedProfile?.email
+
+        if (emailChanged) {
+            toast('Please verify your new email')
+            setPendingFormValues(formValues)
+            setPendingEmail(formValues.email)
+            setShowEmailOtpModal(true)
+            return
+        }
+
+        await saveProfile(formValues)
+    }
+
     const handleVerifyEmailOtp = async (otp: string) => {
         setIsVerifyingEmail(true)
         try {
             await verifyOtp(pendingEmail, otp)
             setShowEmailOtpModal(false)
-            await saveProfile()
+            if (pendingFormValues) {
+                await saveProfile(pendingFormValues)
+            }
         } catch (error) {
             toast.error(getErrorMessage(error))
         } finally {
@@ -237,7 +267,6 @@ const CaregiverSettingsForm = () => {
         const toastId = toast.loading('Uploading profile image...')
 
         try {
-            // 1. Presign upload
             const presignRes = await presignUpload({
                 fileName: croppedFile.name,
                 contentType: croppedFile.type as 'image/png' | 'image/jpeg',
@@ -245,16 +274,16 @@ const CaregiverSettingsForm = () => {
                 size: croppedFile.size,
             })
 
-            // 2. Upload to S3
             await uploadToS3(presignRes.uploadUrl, croppedFile)
 
-            // 3. Update profile
+            const values = getValues()
             await updateCaregiverProfile({
-                ...formState,
+                fullName: values.fullName,
+                phoneNumber: values.phoneNumber,
+                email: values.email,
                 profileImage: presignRes.key,
             })
 
-            // 4. Update auth context
             const profile = await getCurrentUser()
             if (user) {
                 setAuth({
@@ -283,173 +312,182 @@ const CaregiverSettingsForm = () => {
 
     return (
         <div className={styles.container}>
-            <div className={styles.stack}>
-                <div className={styles.profileCard}>
-                    <div className={styles.profileMeta}>
-                        <div
-                            className={`${styles.avatarWrap} ${isUploadingImage ? styles.uploading : ''}`}
-                            onClick={() => !isUploadingImage && document.getElementById('profileImageInput')?.click()}
-                        >
-                            <input
-                                type="file"
-                                id="profileImageInput"
-                                accept="image/*"
-                                onChange={handleImageSelect}
-                                style={{ display: 'none' }}
-                            />
-                            {profileImageUrl ? (
-                                <img src={profileImageUrl} alt={formState.fullName} className={styles.avatar} />
-                            ) : (
-                                <div className={styles.avatarFallback}>
-                                    {formState.fullName.charAt(0).toUpperCase()}
+            <form onSubmit={handleSubmit(onSubmit)}>
+                <div className={styles.stack}>
+                    <Section>
+                        <div className={styles.profileCard}>
+                            <div className={styles.profileMeta}>
+                                <div
+                                    className={`${styles.avatarWrap} ${isUploadingImage ? styles.uploading : ''}`}
+                                    onClick={() =>
+                                        !isUploadingImage && document.getElementById('profileImageInput')?.click()
+                                    }
+                                >
+                                    <input
+                                        type="file"
+                                        id="profileImageInput"
+                                        accept="image/*"
+                                        onChange={handleImageSelect}
+                                        style={{ display: 'none' }}
+                                    />
+                                    {profileImageUrl ? (
+                                        <img
+                                            src={profileImageUrl}
+                                            alt={savedProfile?.fullName || 'Caregiver'}
+                                            className={styles.avatar}
+                                        />
+                                    ) : (
+                                        <div className={styles.avatarFallback}>
+                                            {(savedProfile?.fullName || 'C').charAt(0).toUpperCase()}
+                                        </div>
+                                    )}
+                                    <span className={styles.avatarBadge}>
+                                        <Camera size={12} />
+                                    </span>
                                 </div>
-                            )}
-                            <span className={styles.avatarBadge}>
-                                <Camera size={12} />
-                            </span>
+                                <div>
+                                    <h1 className={styles.profileName}>{savedProfile?.fullName || user?.name}</h1>
+                                    <p className={styles.profileEmail}>{savedProfile?.email || user?.email}</p>
+                                    <span
+                                        className={`${styles.statusBadge} ${isActive ? styles.activeBadge : styles.inactiveBadge}`}
+                                    >
+                                        {isActive ? 'Active' : 'Inactive'}
+                                    </span>
+                                </div>
+                            </div>
+                            <div className={styles.statusToggle}>
+                                <button
+                                    type="button"
+                                    className={`${styles.switch} ${isActive ? styles.switchOn : ''}`}
+                                    onClick={handleToggleStatus}
+                                    aria-label="Toggle caregiver account status"
+                                    aria-pressed={isActive}
+                                >
+                                    <span className={styles.switchThumb} />
+                                </button>
+                                <span>{isActive ? 'Active' : 'Inactive'}</span>
+                            </div>
                         </div>
-                        <div>
-                            <h1 className={styles.profileName}>{savedState.fullName}</h1>
-                            <p className={styles.profileEmail}>{savedState.email}</p>
-                            <span
-                                className={`${styles.statusBadge} ${savedState.isActive ? styles.activeBadge : styles.inactiveBadge}`}
+                    </Section>
+
+                    <Section
+                        title="Personal Information"
+                        actions={
+                            <button
+                                type="button"
+                                className={`${styles.editButton} ${isEditingPersonalInfo ? styles.editButtonActive : ''}`}
+                                onClick={handleToggleEditing}
+                                aria-label="Toggle personal information editing"
                             >
-                                {savedState.isActive ? 'Active' : 'Inactive'}
-                            </span>
+                                <Pencil size={16} />
+                            </button>
+                        }
+                    >
+                        <div className={styles.formGrid}>
+                            <InputField
+                                id="caregiver-name"
+                                label="Full Name"
+                                {...register('fullName')}
+                                disabled={!isEditingPersonalInfo}
+                                errors={errors.fullName?.message}
+                            />
+                            <InputField
+                                id="caregiver-email"
+                                label="Email"
+                                {...register('email')}
+                                disabled={!isEditingPersonalInfo}
+                                errors={errors.email?.message}
+                            />
+                            <Controller
+                                name="phoneNumber"
+                                control={control}
+                                render={({ field }) => (
+                                    <PhoneInput
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        label="Phone Number"
+                                        error={errors.phoneNumber?.message}
+                                        disabled={!isEditingPersonalInfo}
+                                    />
+                                )}
+                            />
                         </div>
-                    </div>
-                    <div className={styles.statusToggle}>
-                        <button
-                            type="button"
-                            className={`${styles.switch} ${formState.isActive ? styles.switchOn : ''}`}
-                            onClick={handleToggleStatus}
-                            aria-label="Toggle caregiver account status"
-                            aria-pressed={formState.isActive}
-                        >
-                            <span className={styles.switchThumb} />
-                        </button>
-                        <span>{formState.isActive ? 'Active' : 'Inactive'}</span>
-                    </div>
-                </div>
 
-                <div className={styles.section}>
-                    <div className={styles.sectionHeader}>
-                        <h3 className={styles.sectionTitle}>Personal Information</h3>
-                        <button
-                            className={styles.editButton}
-                            onClick={() => setIsEditingPersonalInfo((current) => !current)}
-                        >
-                            {isEditingPersonalInfo ? 'Cancel' : 'Edit'}
-                        </button>
-                    </div>
-                    <div className={styles.formGrid}>
-                        <div className={styles.formGroup}>
-                            <label className={styles.label}>Full Name</label>
-                            <input
-                                type="text"
-                                value={formState.fullName}
-                                onChange={handleFieldChange('fullName')}
-                                disabled={!isEditingPersonalInfo}
-                                className={styles.input}
-                            />
-                        </div>
-                        <div className={styles.formGroup}>
-                            <label className={styles.label}>Email</label>
-                            <input
-                                type="email"
-                                value={formState.email}
-                                onChange={handleFieldChange('email')}
-                                disabled={!isEditingPersonalInfo}
-                                className={styles.input}
-                            />
-                        </div>
-                        <div className={styles.formGroup}>
-                            <label className={styles.label}>Phone Number</label>
-                            <input
-                                type="tel"
-                                value={formState.phoneNumber}
-                                onChange={handleFieldChange('phoneNumber')}
-                                disabled={!isEditingPersonalInfo}
-                                className={styles.input}
-                            />
-                        </div>
-                    </div>
-                </div>
+                        {isEditingPersonalInfo && (
+                            <div className={styles.actionsInline}>
+                                <button
+                                    type="button"
+                                    className={styles.ghostButton}
+                                    onClick={handleDiscard}
+                                    disabled={!isDirty || isSaving || isLoadingProfile}
+                                >
+                                    Discard
+                                </button>
+                                <button
+                                    type="button"
+                                    className={styles.saveButton}
+                                    onClick={handleSubmit(onSubmit)}
+                                    disabled={!isDirty || isSaving || isLoadingProfile}
+                                >
+                                    {isSaving ? 'Saving Changes...' : 'Save All Changes'}
+                                </button>
+                            </div>
+                        )}
+                    </Section>
 
-                <div className={styles.section}>
-                    <div className={styles.sectionHeader}>
-                        <h3 className={styles.sectionTitle}>Professional Information</h3>
-                    </div>
-                    <div className={styles.formGrid}>
-                        <div className={styles.formGroup}>
-                            <label className={styles.label}>Certificate Number</label>
-                            <input
-                                type="text"
-                                value={formState.certificateNumber}
+                    <Section title="Professional Information">
+                        <div className={styles.formGrid}>
+                            <InputField
+                                id="caregiver-certificate"
+                                label="Certificate Number"
+                                value={certificateNumber}
                                 disabled
-                                className={`${styles.input} ${styles.readOnly}`}
                             />
+                            <InputField id="caregiver-license" label="License Number" value={licenseNumber} disabled />
                         </div>
-                        <div className={styles.formGroup}>
-                            <label className={styles.label}>License Number</label>
-                            <input
-                                type="text"
-                                value={formState.licenseNumber}
-                                disabled
-                                className={`${styles.input} ${styles.readOnly}`}
-                            />
-                        </div>
-                    </div>
 
-                    {formState.verificationStatus === 'verified' && (
-                        <div className={styles.verifiedRow}>
-                            <BadgeCheck size={14} />
-                            <span>Verified</span>
-                        </div>
-                    )}
+                        {verificationStatus === 'verified' && (
+                            <div className={styles.verifiedRow}>
+                                <BadgeCheck size={14} />
+                                <span>Verified</span>
+                            </div>
+                        )}
 
-                    {formState.verificationStatus === 'pending' && (
-                        <div className={styles.pendingRow}>
-                            <AlertCircle size={14} />
-                            <span> Pending</span>
-                        </div>
-                    )}
+                        {verificationStatus === 'pending' && (
+                            <div className={styles.pendingRow}>
+                                <AlertCircle size={14} />
+                                <span> Pending</span>
+                            </div>
+                        )}
 
-                    {formState.verificationStatus === 'rejected' && (
-                        <div className={styles.rejectedRow}>
-                            <XCircle size={14} />
-                            <span> Rejected</span>
-                        </div>
-                    )}
+                        {verificationStatus === 'rejected' && (
+                            <div className={styles.rejectedRow}>
+                                <XCircle size={14} />
+                                <span> Rejected</span>
+                            </div>
+                        )}
+                    </Section>
+
+                    <DoctorSecuritySection onResetPassword={handleResetPassword} />
                 </div>
+            </form>
 
-                <div className={styles.section}>
-                    <div className={styles.sectionHeader}>
-                        <h3 className={styles.sectionTitle}>Account Security</h3>
-                    </div>
-                    <div className={styles.securityRow}>
-                        <div>
-                            <h3 className={styles.securityTitle}>Change Password</h3>
-                            <p className={styles.securitySub}>Update your login credentials regularly</p>
-                        </div>
-
-                        <button type="button" className={styles.secondaryButton} onClick={handleResetPassword}>
-                            update
+            {confirmToggle && (
+                <Modal size="sm" isOpen onClose={handleCancelToggle} title="Confirm">
+                    <p style={{ margin: 0, fontSize: '15px', color: '#374151' }}>
+                        Are you sure you want to <strong>{confirmToggle.isActive ? 'activate' : 'deactivate'}</strong>{' '}
+                        your account?
+                    </p>
+                    <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '20px' }}>
+                        <button type="button" className={styles.ghostButton} onClick={handleCancelToggle}>
+                            No
+                        </button>
+                        <button type="button" className={styles.saveButton} onClick={handleConfirmToggle}>
+                            Yes
                         </button>
                     </div>
-                </div>
-
-                {hasChanges && (
-                    <div className={styles.actions}>
-                        <button className={styles.discardButton} onClick={handleDiscard} disabled={isSaving}>
-                            Discard Changes
-                        </button>
-                        <button className={styles.saveButton} onClick={handleSave} disabled={isSaving}>
-                            {isSaving ? 'Saving...' : 'Save Changes'}
-                        </button>
-                    </div>
-                )}
-            </div>
+                </Modal>
+            )}
 
             {showEmailOtpModal && (
                 <Modal
