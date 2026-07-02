@@ -1,15 +1,17 @@
-import { useEffect, useMemo, useState, type ChangeEvent } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useEffect, useState, type ChangeEvent } from 'react'
+import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 
-import { updateDoctorProfile } from '../api/doctor.api'
-import { getDoctorProfile } from '../api/doctor.api'
-import type { DoctorSettingsFormState } from '../types/doctor.types'
+import { getDoctorProfile, updateDoctorActiveStatus, updateDoctorProfile } from '../api/doctor.api'
+import type { DoctorProfile } from '../types/doctor.types'
+import type { SettingsFormValues } from '../types/doctor.types'
+import { settingsFormSchema } from '../validator/settingsForm.validator'
 
 import styles from './DoctorSettingsForm.module.css'
 import DoctorPersonalInfoSection from './settings/DoctorPersonalInfoSection'
 import DoctorRegistrationSection from './settings/DoctorRegistrationSection'
 import DoctorSecuritySection from './settings/DoctorSecuritySection'
-import DoctorSettingsActions from './settings/DoctorSettingsActions'
 import DoctorSettingsProfileCard from './settings/DoctorSettingsProfileCard'
 
 import {
@@ -29,40 +31,44 @@ import Modal from '@/shared/components/Modal/Modal'
 import { useAuth } from '@/shared/context/AuthContext'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 
-const createFormState = (
-    user?: {
-        name?: string
-        specialization?: string
-        email?: string
-        mobile?: string
-    } | null,
-): DoctorSettingsFormState => ({
-    name: user?.name || '',
-    mobile: user?.mobile || '',
-    consultationFee: '',
-    email: user?.email || '',
-    medicalCertificateNumber: '',
-    medicalCouncilRegistrationNumber: '',
-    isActive: true,
-})
+const defaultFormValues: SettingsFormValues = {
+    name: '',
+    email: '',
+    phoneNumber: '',
+    consultationFee: 0,
+}
 
 const DoctorSettingsForm = () => {
     const { user, setAuth } = useAuth()
-    const initialState = useMemo(() => createFormState(user), [user])
-    const [formState, setFormState] = useState<DoctorSettingsFormState>(initialState)
-    const [savedState, setSavedState] = useState<DoctorSettingsFormState>(initialState)
+    const {
+        register,
+        control,
+        handleSubmit,
+        formState: { errors, isDirty },
+        reset,
+        getValues,
+    } = useForm<SettingsFormValues>({
+        resolver: zodResolver(settingsFormSchema),
+        defaultValues: defaultFormValues,
+        mode: 'onChange',
+    })
+
+    const [savedProfile, setSavedProfile] = useState<DoctorProfile | null>(null)
+    const [isActive, setIsActive] = useState(true)
     const [isEditingPersonalInfo, setIsEditingPersonalInfo] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
     const [isLoadingProfile, setIsLoadingProfile] = useState(true)
 
     const [showEmailOtpModal, setShowEmailOtpModal] = useState(false)
     const [pendingEmail, setPendingEmail] = useState('')
+    const [pendingFormValues, setPendingFormValues] = useState<SettingsFormValues | null>(null)
     const [isVerifyingEmail, setIsVerifyingEmail] = useState(false)
     const [otpSent, setOtpSent] = useState(false)
 
     const [showPasswordModal, setShowPasswordModal] = useState(false)
     const [isChangingPassword, setIsChangingPassword] = useState(false)
 
+    const [confirmToggle, setConfirmToggle] = useState<{ isActive: boolean } | null>(null)
     const [imageCrop, setImageCrop] = useState<string | null>(null)
     const [isUploadingImage, setIsUploadingImage] = useState(false)
 
@@ -86,22 +92,14 @@ const DoctorSettingsForm = () => {
             try {
                 const profile = await getDoctorProfile()
 
-                const formStateData = {
+                reset({
                     name: profile.name,
-                    mobile: profile.mobile,
                     email: profile.email,
-
-                    consultationFee: String(profile.consultationFee || 0),
-                    medicalCertificateNumber: profile.medicalCertificateNumber,
-                    medicalCertificateImage: profile.medicalCertificateImage,
-                    medicalCouncilRegistrationNumber: profile.medicalCouncilRegistrationNumber,
-                    medicalCouncilImage: profile.medicalCouncilImage,
-                    specialization: profile.specialization,
-
-                    isActive: profile.isActive,
-                }
-                setFormState(formStateData)
-                setSavedState(formStateData)
+                    phoneNumber: profile.mobile,
+                    consultationFee: profile.consultationFee || 0,
+                })
+                setSavedProfile(profile)
+                setIsActive(profile.isActive)
             } catch {
                 toast.error('Failed to load doctor settings')
             } finally {
@@ -112,74 +110,78 @@ const DoctorSettingsForm = () => {
         loadDoctorProfile()
     }, [])
 
-    const hasChanges = JSON.stringify(formState) !== JSON.stringify(savedState)
     const profileImageUrl = user?.profileImage ? `${import.meta.env.VITE_S3_BASE_URL}${user.profileImage}` : ''
 
-    const handleFieldChange = (field: keyof DoctorSettingsFormState) => (event: ChangeEvent<HTMLInputElement>) => {
-        setFormState((current) => ({
-            ...current,
-            [field]: event.target.value,
-        }))
+    const handleToggleEditing = () => {
+        if (isEditingPersonalInfo) {
+            if (isDirty) {
+                handleDiscard()
+            } else {
+                setIsEditingPersonalInfo(false)
+            }
+        } else {
+            setIsEditingPersonalInfo(true)
+        }
     }
 
     const handleToggleStatus = () => {
-        setFormState((current) => ({
-            ...current,
-            isActive: !current.isActive,
-        }))
+        setConfirmToggle({ isActive: !isActive })
     }
 
+    const handleConfirmToggle = async () => {
+        if (!confirmToggle) return
+        const newStatus = confirmToggle.isActive
+        setConfirmToggle(null)
+        try {
+            const updatedProfile = await updateDoctorActiveStatus(newStatus)
+            setIsActive(updatedProfile.isActive)
+            setSavedProfile(updatedProfile)
+            toast.success(`Account ${newStatus ? 'activated' : 'deactivated'} successfully`)
+        } catch (error) {
+            toast.error(getErrorMessage(error))
+        }
+    }
+
+    const handleCancelToggle = () => setConfirmToggle(null)
+
     const handleDiscard = () => {
-        setFormState(savedState)
+        if (savedProfile) {
+            reset({
+                name: savedProfile.name,
+                email: savedProfile.email,
+                phoneNumber: savedProfile.mobile,
+                consultationFee: savedProfile.consultationFee || 0,
+            })
+        }
         setIsEditingPersonalInfo(false)
         toast.success('Changes discarded')
     }
 
-    const handleSave = async () => {
-        const emailChanged = formState.email !== savedState.email
-
-        if (emailChanged) {
-            toast('Please verify your new email')
-            setPendingEmail(formState.email)
-            setShowEmailOtpModal(true)
-            return
-        }
-
-        await saveProfile()
-    }
-
-    const saveProfile = async () => {
+    const saveProfile = async (formValues: SettingsFormValues) => {
         setIsSaving(true)
 
         try {
             const updatedProfile = await updateDoctorProfile({
-                name: formState.name,
-                consultationFee: Number(formState.consultationFee),
-
-                email: formState.email,
-                isActive: formState.isActive,
+                name: formValues.name,
+                consultationFee: formValues.consultationFee,
+                email: formValues.email,
             })
 
             if (user) {
                 setAuth({
                     ...user,
-                    name: formState.name,
-                    email: formState.email,
+                    name: formValues.name,
+                    email: formValues.email,
                 })
             }
 
-            const formStateData: DoctorSettingsFormState = {
+            reset({
                 name: updatedProfile.name,
-                mobile: updatedProfile.mobile,
-                consultationFee: String(updatedProfile.consultationFee || 0),
-
                 email: updatedProfile.email,
-                medicalCertificateNumber: updatedProfile.medicalCertificateNumber,
-                medicalCouncilRegistrationNumber: updatedProfile.medicalCouncilRegistrationNumber,
-                isActive: updatedProfile.isActive,
-            }
-            setSavedState(formStateData)
-            setFormState(formStateData)
+                phoneNumber: updatedProfile.mobile,
+                consultationFee: updatedProfile.consultationFee || 0,
+            })
+            setSavedProfile(updatedProfile)
             setIsEditingPersonalInfo(false)
             toast.success('Doctor settings updated successfully')
         } catch {
@@ -189,12 +191,28 @@ const DoctorSettingsForm = () => {
         }
     }
 
+    const onSubmit = async (formValues: SettingsFormValues) => {
+        const emailChanged = formValues.email !== savedProfile?.email
+
+        if (emailChanged) {
+            toast('Please verify your new email')
+            setPendingFormValues(formValues)
+            setPendingEmail(formValues.email)
+            setShowEmailOtpModal(true)
+            return
+        }
+
+        await saveProfile(formValues)
+    }
+
     const handleVerifyEmailOtp = async (otp: string) => {
         setIsVerifyingEmail(true)
         try {
             await verifyOtp(pendingEmail, otp)
             setShowEmailOtpModal(false)
-            await saveProfile()
+            if (pendingFormValues) {
+                await saveProfile(pendingFormValues)
+            }
         } catch (error) {
             toast.error(getErrorMessage(error))
         } finally {
@@ -254,9 +272,11 @@ const DoctorSettingsForm = () => {
 
             await uploadToS3(presignRes.uploadUrl, croppedFile)
 
+            const values = getValues()
             await updateDoctorProfile({
-                ...formState,
-                consultationFee: Number(formState.consultationFee),
+                name: values.name,
+                consultationFee: values.consultationFee,
+                email: values.email,
                 profileImage: presignRes.key,
             })
 
@@ -288,35 +308,35 @@ const DoctorSettingsForm = () => {
 
     return (
         <MainWrapper title="Account Settings" subtitle="Manage your profile and account preferences.">
-            <div className={styles.stack}>
-                <DoctorSettingsProfileCard
-                    savedState={savedState}
-                    profileImageUrl={profileImageUrl}
-                    isActive={formState.isActive}
-                    onToggleStatus={handleToggleStatus}
-                    onImageSelect={handleImageSelect}
-                    isUploadingImage={isUploadingImage}
-                />
+            <form onSubmit={handleSubmit(onSubmit)}>
+                <div className={styles.stack}>
+                    <DoctorSettingsProfileCard
+                        profile={savedProfile!}
+                        profileImageUrl={profileImageUrl}
+                        isActive={isActive}
+                        onToggleStatus={handleToggleStatus}
+                        onImageSelect={handleImageSelect}
+                        isUploadingImage={isUploadingImage}
+                    />
 
-                <DoctorPersonalInfoSection
-                    formState={formState}
-                    isEditing={isEditingPersonalInfo}
-                    onToggleEditing={() => setIsEditingPersonalInfo((current) => !current)}
-                    onFieldChange={handleFieldChange}
-                />
+                    <DoctorPersonalInfoSection
+                        register={register}
+                        control={control}
+                        errors={errors}
+                        isEditing={isEditingPersonalInfo}
+                        isDirty={isDirty}
+                        isSaving={isSaving}
+                        isLoadingProfile={isLoadingProfile}
+                        onToggleEditing={handleToggleEditing}
+                        onDiscard={handleDiscard}
+                        onSave={handleSubmit(onSubmit)}
+                    />
 
-                <DoctorRegistrationSection formState={formState} />
+                    {savedProfile && <DoctorRegistrationSection profile={savedProfile} />}
 
-                <DoctorSecuritySection onResetPassword={handleResetPassword} />
-
-                <DoctorSettingsActions
-                    hasChanges={hasChanges}
-                    isSaving={isSaving}
-                    isLoadingProfile={isLoadingProfile}
-                    onDiscard={handleDiscard}
-                    onSave={handleSave}
-                />
-            </div>
+                    <DoctorSecuritySection onResetPassword={handleResetPassword} />
+                </div>
+            </form>
 
             {showEmailOtpModal && (
                 <Modal
@@ -343,6 +363,23 @@ const DoctorSettingsForm = () => {
                 onSubmit={handleChangePassword}
                 isLoading={isChangingPassword}
             />
+
+            {confirmToggle && (
+                <Modal size="sm" isOpen onClose={handleCancelToggle} title="Confirm">
+                    <p style={{ margin: 0, fontSize: '15px', color: '#374151' }}>
+                        Are you sure you want to <strong>{confirmToggle.isActive ? 'activate' : 'deactivate'}</strong>{' '}
+                        your account?
+                    </p>
+                    <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '20px' }}>
+                        <button type="button" className={styles.ghostButton} onClick={handleCancelToggle}>
+                            No
+                        </button>
+                        <button type="button" className={styles.saveButton} onClick={handleConfirmToggle}>
+                            Yes
+                        </button>
+                    </div>
+                </Modal>
+            )}
 
             {imageCrop && (
                 <ImageCropper
