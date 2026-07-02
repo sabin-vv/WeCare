@@ -151,7 +151,7 @@ const AdminSettings = () => {
     }
 
     return (
-        <div>
+        <>
             <PageHeader title="Admin Settings" subtitle="View and update your application settings" />
             <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
                 <PageCard title="General Settings">
@@ -299,7 +299,7 @@ const AdminSettings = () => {
                     </Button>
                 </div>
             </form>
-        </div>
+        </>
     )
 }
 
