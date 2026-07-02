@@ -8,6 +8,7 @@ import type { AdminPayment } from '../types/admin.types'
 import styles from './AdminPaymentsPage.module.css'
 
 import DateRangePicker from '@/shared/components/DateRangePicker/DateRangePicker'
+import PageHeader from '@/shared/components/PageHeader/PageHeader'
 import Pagination from '@/shared/components/Pagination/Pagination'
 import SearchField from '@/shared/components/SearchField/SearchField'
 import SelectField from '@/shared/components/SelectField/SelectField'
@@ -44,8 +45,7 @@ const formatDate = (iso?: string) => {
     return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
-const formatCurrency = (amount: number) =>
-    `₹${amount.toLocaleString('en-IN')}`
+const formatCurrency = (amount: number) => `₹${amount.toLocaleString('en-IN')}`
 
 const Avatar = ({ name, image }: { name: string; image?: string }) => {
     const [hasError, setHasError] = useState(false)
@@ -92,9 +92,7 @@ const columns: Column<AdminPayment>[] = [
         header: 'Method',
         key: 'paymentMethod',
         render: (item) => (
-            <span className={styles.methodBadge}>
-                {item.paymentMethod === 'razorpay' ? 'Razorpay' : 'Wallet'}
-            </span>
+            <span className={styles.methodBadge}>{item.paymentMethod === 'razorpay' ? 'Razorpay' : 'Wallet'}</span>
         ),
     },
     {
@@ -172,11 +170,8 @@ const AdminPaymentsPage = () => {
     const hasActiveFilters = Object.values(filters).some((v) => v !== '' && v !== 'all')
 
     return (
-        <div className={styles.container}>
-            <div className={styles.header}>
-                <h1 className={styles.pageTitle}>Payments</h1>
-                <p className={styles.subtitle}>View all platform payments and transactions</p>
-            </div>
+        <>
+            <PageHeader title="Payments" subtitle="View all platform payments and transactions" />
 
             <div className={styles.filterSection}>
                 <div className={styles.searchRow}>
@@ -228,7 +223,7 @@ const AdminPaymentsPage = () => {
                     />
                 )}
             </DataTable>
-        </div>
+        </>
     )
 }
 
