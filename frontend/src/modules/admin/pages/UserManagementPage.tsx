@@ -6,6 +6,7 @@ import type { UserProfile } from '../types/admin.types'
 
 import styles from './UserManagementPage.module.css'
 
+import PageHeader from '@/shared/components/PageHeader/PageHeader'
 import Pagination from '@/shared/components/Pagination/Pagination'
 import DataTable from '@/shared/components/Table/DataTable'
 import type { Column } from '@/shared/components/Table/dataTable.types'
@@ -154,8 +155,8 @@ const UserManagementPage = () => {
     ]
 
     return (
-        <div className={styles.container}>
-            <h1 className={styles.title}>User Management</h1>
+        <>
+            <PageHeader title="User Management" subtitle="Manage all registered users across the platform" />
 
             <div className={styles.searchSection}>
                 <input
@@ -191,7 +192,7 @@ const UserManagementPage = () => {
                     />
                 )}
             </DataTable>
-        </div>
+        </>
     )
 }
 

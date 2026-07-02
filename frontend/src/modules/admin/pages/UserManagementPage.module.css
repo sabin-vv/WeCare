@@ -1,28 +1,4 @@
-.container {
-    padding: 24px;
-    animation: fadeIn 0.5s ease;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.title {
-    font-size: 28px;
-    font-weight: 700;
-    color: #1e293b;
-    margin-bottom: 32px;
-}
-
 .searchSection {
-    margin-bottom: 24px;
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
@@ -54,7 +30,6 @@
     background: #f1f5f9;
     padding: 4px;
     border-radius: 12px;
-    margin-bottom: 24px;
 }
 
 .tab {
