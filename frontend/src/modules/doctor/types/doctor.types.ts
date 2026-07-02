@@ -246,6 +246,9 @@ export interface PatientDetails {
     status: string
     clinicalStatus: ClinicalStatus
     appointmentStatus: string
+    appointmentId?: string
+    appointmentDate?: string
+    slotStart?: string
     vitals: PatientVital[]
     prescriptions: PatientPrescription[]
 }
@@ -397,6 +400,10 @@ export interface ProfileCardProps {
     caregiver?: string
     profileImage?: string
     appointmentStatus: string
+    appointmentId?: string
+    appointmentDate?: string
+    slotStart?: string
+    hasPatientJoined?: boolean
     onStartConsultation?: () => void
     onCompleteConsultation?: () => void
     onAddCondition?: () => void
