@@ -11,6 +11,7 @@ import Modal from '@/shared/components/Modal/Modal'
 import PageHeader from '@/shared/components/PageHeader/PageHeader'
 import Pagination from '@/shared/components/Pagination/Pagination'
 import SearchField from '@/shared/components/SearchField/SearchField'
+import { Section } from '@/shared/components/Section/Section'
 import DataTable from '@/shared/components/Table/DataTable'
 import { usePendingCount } from '@/shared/context/PendingCountContext'
 import { getErrorMessage } from '@/utils/getErrorMessage'
@@ -280,10 +281,10 @@ const DoctorVerificationPage = () => {
     ]
 
     return (
-        <div className={styles.container}>
+        <>
             <PageHeader
-                title="Doctor Registrations"
-                subtitle="Review and verify medical credentials or manage existing practitioners."
+                title="Pending Doctor Registrations"
+                subtitle="Review and verify medical credentials for newly registered doctor accounts."
             />
 
             <div className={styles.searchContainer}>
@@ -314,15 +315,14 @@ const DoctorVerificationPage = () => {
                 </DataTable>
             )}
 
-            <div className={styles.recentSection}>
-                <h2 className={styles.recentTitle}>Recent Verifications</h2>
+            <Section title="Five Recent Verifications">
                 <DataTable
                     data={recentDoctors}
                     columns={recentColumns}
                     keyExtractor={(doctor) => doctor._id}
                     isLoading={recentLoading}
                 />
-            </div>
+            </Section>
 
             <Modal
                 isOpen={isModalOpen}
@@ -465,7 +465,7 @@ const DoctorVerificationPage = () => {
                     />
                 </div>
             </Modal>
-        </div>
+        </>
     )
 }
 
