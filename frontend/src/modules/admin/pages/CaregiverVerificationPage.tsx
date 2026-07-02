@@ -11,6 +11,7 @@ import Modal from '@/shared/components/Modal/Modal'
 import PageHeader from '@/shared/components/PageHeader/PageHeader'
 import Pagination from '@/shared/components/Pagination/Pagination'
 import SearchField from '@/shared/components/SearchField/SearchField'
+import { Section } from '@/shared/components/Section/Section'
 import DataTable from '@/shared/components/Table/DataTable'
 import { usePendingCount } from '@/shared/context/PendingCountContext'
 import { getErrorMessage } from '@/utils/getErrorMessage'
@@ -128,22 +129,20 @@ const CaregiverVerificationPage = () => {
     ]
 
     return (
-        <div className={styles.container}>
+        <>
             <PageHeader
                 title="Pending Caregiver Registrations"
                 subtitle="Review and verify professional credentials for newly registered caregiver accounts."
             />
 
-            <div className={styles.searchContainer}>
-                <SearchField
-                    value={search}
-                    placeholder="Search caregiver by name or email ..."
-                    onSearch={(query) => {
-                        setSearch(query)
-                        fetchCaregivers(1, query)
-                    }}
-                />
-            </div>
+            <SearchField
+                value={search}
+                placeholder="Search caregiver by name or email ..."
+                onSearch={(query) => {
+                    setSearch(query)
+                    fetchCaregivers(1, query)
+                }}
+            />
 
             {caregivers.length > 0 && (
                 <DataTable
@@ -162,15 +161,14 @@ const CaregiverVerificationPage = () => {
                 </DataTable>
             )}
 
-            <div className={styles.recentSection}>
-                <h2 className={styles.recentTitle}>Recent Verifications</h2>
+            <Section title="Five Recent Verifications">
                 <DataTable
                     data={recentCaregivers}
                     columns={recentColumnsWithView}
                     keyExtractor={(caregiver) => caregiver._id}
                     isLoading={recentLoading}
                 />
-            </div>
+            </Section>
 
             <Modal
                 isOpen={isModalOpen}
@@ -249,7 +247,7 @@ const CaregiverVerificationPage = () => {
                     </div>
                 )}
             </Modal>
-        </div>
+        </>
     )
 }
 
