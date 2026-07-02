@@ -26,6 +26,7 @@ import MainWrapper from '@/shared/components/MainWrapper/MainWrapper'
 import Modal from '@/shared/components/Modal/Modal'
 import SearchField from '@/shared/components/SearchField/SearchField'
 import { Section } from '@/shared/components/Section/Section'
+import { useSocket } from '@/shared/context/SocketContext'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 
 const SEVERITY_OPTIONS: Array<{ label: string; value: RiskLevel }> = [
@@ -56,7 +57,6 @@ const PatientViewPage = () => {
     const [selectedCaregiver, setSelectedCaregiver] = useState<CaregiverOption | null>(null)
     const [isLoadingCaregivers, setIsLoadingCaregivers] = useState(false)
     const [isAssigningCaregiver, setIsAssigningCaregiver] = useState(false)
-
     const fetchPatient = useCallback(async () => {
         if (!patientId) return
         setIsLoading(true)
@@ -84,8 +84,19 @@ const PatientViewPage = () => {
         }
     }, [location.state?.refresh, fetchPatient])
 
+    const { joinedPatients } = useSocket()
+
     const handleStartConsultation = async () => {
         if (!patientId) return
+
+        if (patient?.appointmentStatus === 'in_consultation') {
+            const id = patient.appointmentId
+            if (id) {
+                navigate(`/video-call/${id}`, { state: { returnPath: `/doctor/patients/${patientId}` } })
+            }
+            return
+        }
+
         try {
             const { appointmentId } = await startConsultation(patientId)
             toast.success('Consultation started')
@@ -319,6 +330,10 @@ const PatientViewPage = () => {
                 conditions={patient.conditions}
                 profileImage={patient.profileImage}
                 appointmentStatus={patient.appointmentStatus}
+                appointmentId={patient.appointmentId}
+                appointmentDate={patient.appointmentDate}
+                slotStart={patient.slotStart}
+                hasPatientJoined={joinedPatients.has(patientId!)}
                 caregiver={patient.caregiver}
                 clinicalStatus={patient.clinicalStatus}
                 onClinicalStatusChange={handleClinicalStatusChange}
@@ -394,7 +409,7 @@ const PatientViewPage = () => {
                                         </div>
                                     </div>
                                 </div>
-                            ))
+                            )),
                         )}
                     </div>
                 )}

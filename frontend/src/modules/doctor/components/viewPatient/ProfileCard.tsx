@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { Video } from 'lucide-react'
+import { useMemo, useState } from 'react'
 
 import type { ProfileCardProps } from '../../types/doctor.types'
 
@@ -20,6 +21,9 @@ const ProfileCard = ({
     profileImage,
     caregiver,
     appointmentStatus,
+    appointmentDate,
+    slotStart,
+    hasPatientJoined,
     onStartConsultation,
     onCompleteConsultation,
     onAddCondition,
@@ -28,6 +32,13 @@ const ProfileCard = ({
     clinicalStatus,
     onClinicalStatusChange,
 }: ProfileCardProps) => {
+    const isWithinJoinWindow = useMemo(() => {
+        if (appointmentStatus !== 'confirmed' || !appointmentDate || !slotStart) return false
+        const [hours, minutes] = slotStart.split(':').map(Number)
+        const appointmentDateTime = new Date(appointmentDate)
+        appointmentDateTime.setHours(hours, minutes, 0, 0)
+        return appointmentDateTime.getTime() - Date.now() <= 2 * 60 * 1000
+    }, [appointmentStatus, appointmentDate, slotStart])
     const [pendingStatus, setPendingStatus] = useState<string | null>(null)
     const baseUrl = env.AWS_BASE_URL
 
@@ -58,6 +69,11 @@ const ProfileCard = ({
                         <img src={`${baseUrl}${profileImage}`} alt="patient" className={styles.image} />
                     ) : (
                         name && name[0]?.toUpperCase()
+                    )}
+                    {hasPatientJoined && (
+                        <span className={styles.videoCallBadge}>
+                            <Video className={styles.videoCallIcon} size={12} />
+                        </span>
                     )}
                 </div>
 
@@ -105,13 +121,27 @@ const ProfileCard = ({
                     </div>
                 </div>
             </div>
-            {appointmentStatus === 'confirmed' ? (
+            {appointmentStatus === 'confirmed' && isWithinJoinWindow ? (
+                <button
+                    className={`${styles.startBtn} ${hasPatientJoined ? styles.hasJoined : ''}`}
+                    onClick={onStartConsultation}
+                >
+                    Join Video Call
+                    {hasPatientJoined && <span className={styles.joinBadge}>!</span>}
+                </button>
+            ) : appointmentStatus === 'confirmed' ? (
                 <button className={styles.startBtn} onClick={onStartConsultation}>
                     Start Consultation
                 </button>
             ) : appointmentStatus === 'in_consultation' ? (
                 <div className={styles.consulatationStatus}>
-                    <span>In Consultation</span>
+                    <button
+                        className={`${styles.startBtn} ${hasPatientJoined ? styles.hasJoined : ''}`}
+                        onClick={onStartConsultation}
+                    >
+                        Join Video Call
+                        {hasPatientJoined && <span className={styles.joinBadge}>!</span>}
+                    </button>
                     <button className={styles.inConsultationBtn} onClick={onCompleteConsultation}>
                         Complete Consultation
                     </button>
