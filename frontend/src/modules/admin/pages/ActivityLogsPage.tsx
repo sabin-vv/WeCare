@@ -8,6 +8,7 @@ import type { ActivityLogEntry } from '../types/admin.types'
 import styles from './ActivityLogsPage.module.css'
 
 import DateRangePicker from '@/shared/components/DateRangePicker/DateRangePicker'
+import PageHeader from '@/shared/components/PageHeader/PageHeader'
 import Pagination from '@/shared/components/Pagination/Pagination'
 import SearchField from '@/shared/components/SearchField/SearchField'
 import SelectField from '@/shared/components/SelectField/SelectField'
@@ -141,11 +142,8 @@ const ActivityLogsPage = () => {
     const hasActiveFilters = Object.values(filters).some((v) => v !== '')
 
     return (
-        <div className={styles.container}>
-            <div className={styles.header}>
-                <h1 className={styles.pageTitle}>Activity Logs</h1>
-                <p className={styles.subtitle}>Track all system-wide actions and changes</p>
-            </div>
+        <>
+            <PageHeader title="Activity Logs" subtitle="Track all system-wide actions and changes" />
 
             <div className={styles.filterSection}>
                 <div className={styles.searchRow}>
@@ -210,7 +208,7 @@ const ActivityLogsPage = () => {
                     />
                 )}
             </DataTable>
-        </div>
+        </>
     )
 }
 
