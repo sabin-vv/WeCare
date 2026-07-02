@@ -54,6 +54,12 @@ export const updateDoctorProfile = async (data: UpdateDoctorProfileData): Promis
     return res.data.data
 }
 
+export const updateDoctorActiveStatus = async (isActive: boolean): Promise<DoctorProfile> => {
+    const res = await api.patch<DoctorProfileResponse>(`${DOCTORS_API}/active-status`, { isActive })
+
+    return res.data.data
+}
+
 const unwrapDoctorAvailability = (payload: DoctorAvailability | DoctorAvailabilityResponse) => {
     return 'data' in payload ? payload.data : payload
 }
