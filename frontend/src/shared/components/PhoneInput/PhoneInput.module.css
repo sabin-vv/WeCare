@@ -104,6 +104,16 @@
     border-top: 4px solid #777 !important;
 }
 
+.phoneInput :global(.react-international-phone-country-selector-button:disabled) {
+    background: #f1f5f9 !important;
+    cursor: not-allowed !important;
+}
+
+.phoneInput :global(.react-international-phone-input:disabled) {
+    background: #f1f5f9 !important;
+    cursor: not-allowed !important;
+}
+
 .phoneInput :global(.react-international-phone-dial-code) {
     font-size: 13px !important;
     font-weight: 600 !important;

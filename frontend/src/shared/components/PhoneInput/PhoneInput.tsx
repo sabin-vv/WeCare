@@ -6,7 +6,7 @@ import ErrorField from '../ErrorField/ErrorField'
 import styles from './PhoneInput.module.css'
 import type { PhoneInputProps } from './PhoneInput.types'
 
-const PhoneInput = ({ value, onChange, label, error }: PhoneInputProps) => {
+const PhoneInput = ({ value, onChange, label, error, disabled }: PhoneInputProps) => {
     return (
         <div className={styles.wrapper}>
             {label && <label className={styles.label}>{label}</label>}
@@ -15,6 +15,7 @@ const PhoneInput = ({ value, onChange, label, error }: PhoneInputProps) => {
                     defaultCountry="in"
                     value={value}
                     onChange={(phone) => onChange(phone)}
+                    disabled={disabled}
                     className={styles.phoneInput}
                 />
             </div>

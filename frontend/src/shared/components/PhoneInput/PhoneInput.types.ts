@@ -3,4 +3,5 @@ export interface PhoneInputProps {
     onChange: (value: string) => void
     label?: string
     error?: string
+    disabled?: boolean
 }
