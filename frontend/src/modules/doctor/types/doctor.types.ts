@@ -1,29 +1,21 @@
 import type { ChangeEvent, ReactNode } from 'react'
+import type { Control, FieldErrors, UseFormRegister } from 'react-hook-form'
 
 import type { ApiInterface } from '@/modules/auth/api/auth.api.types'
 
-export type DoctorSettingsFormState = {
+export type SettingsFormValues = {
     name: string
-    mobile: string
     email: string
-
-    consultationFee: string
-    medicalCertificateNumber: string
-    medicalCertificateImage?: string
-    medicalCouncilRegistrationNumber: string
-    medicalCouncilImage?: string
-
-    specialization?: Specialization[]
-
-    isActive: boolean
+    phoneNumber: string
+    consultationFee: number
 }
 
 export interface DoctorRegistrationSectionProps {
-    formState: DoctorSettingsFormState
+    profile: DoctorProfile
 }
 
 export interface DoctorSettingsProfileCardProps {
-    savedState: DoctorSettingsFormState
+    profile: Pick<DoctorProfile, 'name' | 'email'>
     profileImageUrl: string
     isActive: boolean
     onToggleStatus: () => void
@@ -32,7 +24,7 @@ export interface DoctorSettingsProfileCardProps {
 }
 
 export interface DoctorSettingsActionsProps {
-    hasChanges: boolean
+    isDirty: boolean
     isSaving: boolean
     isLoadingProfile: boolean
     onDiscard: () => void
@@ -44,10 +36,16 @@ export interface DoctorSecuritySectionProps {
 }
 
 export interface DoctorPersonalInfoSectionProps {
-    formState: DoctorSettingsFormState
+    register: UseFormRegister<SettingsFormValues>
+    control: Control<SettingsFormValues>
+    errors: FieldErrors<SettingsFormValues>
     isEditing: boolean
+    isDirty: boolean
+    isSaving: boolean
+    isLoadingProfile: boolean
     onToggleEditing: () => void
-    onFieldChange: (field: keyof DoctorSettingsFormState) => (event: ChangeEvent<HTMLInputElement>) => void
+    onDiscard: () => void
+    onSave: () => void
 }
 
 export interface Certificate {
@@ -93,8 +91,8 @@ export interface DoctorProfileResponse extends ApiInterface {
 
 export type UpdateDoctorProfileData = Pick<
     DoctorProfile,
-    'name' | 'consultationFee' | 'email' | 'isActive' | 'profileImage'
->
+    'name' | 'consultationFee' | 'email' | 'profileImage'
+> & { isActive?: boolean }
 
 export interface TimeRange {
     startTime: string
