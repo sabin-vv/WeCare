@@ -6,6 +6,7 @@ import { TOKENS } from '../../../container/tokens'
 import { env } from '../../../core/config/env'
 import { HTTP_STATUS } from '../../../core/constants/httpStatus'
 import { AppError } from '../../../core/errors/AppError'
+import { getIO } from '../../../core/socket'
 import { IActivityLogService } from '../../activityLog/interfaces/activityLog.service.interface'
 import { IAdminRepository } from '../../admin/interfaces/admin.repository.interface'
 import { IDoctorRepository } from '../../doctor/interfaces/doctor.repository.interface'
@@ -658,6 +659,10 @@ export class AppointmentService implements IAppointmentService {
         }
 
         await this._appointmentRepo.update(appointment._id.toString(), { status: 'completed' })
+
+        getIO().to(`user:${doctorId}`).emit('consultation_completed', {
+            patientMongoId: patientId,
+        })
 
         const patientExists = await this._patientRepo.findUserByUserId(appointment.patientId as Types.ObjectId)
         const patientName = (patientExists?.userId as unknown as { name: string })?.name
