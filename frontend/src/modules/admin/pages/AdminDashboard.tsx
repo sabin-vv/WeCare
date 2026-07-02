@@ -23,6 +23,7 @@ import styles from './AdminDashboard.module.css'
 
 import DateRangePicker from '@/shared/components/DateRangePicker/DateRangePicker'
 import type { DateRange } from '@/shared/components/DateRangePicker/DateRangePicker.types'
+import PageHeader from '@/shared/components/PageHeader/PageHeader'
 import { Section } from '@/shared/components/Section/Section'
 import { useAuth } from '@/shared/context/AuthContext'
 
@@ -109,8 +110,8 @@ const AdminDashboard = () => {
     const totalAppointments = pieStats ? Object.values(pieStats.thisMonth).reduce((a, b) => a + b, 0) : 0
 
     return (
-        <div className={styles.container}>
-            <h1 className={styles.pageTitle}>{`${user?.name}'s Dashboard`}</h1>
+        <>
+            <PageHeader title={`${user?.name}'s Dashboard`} subtitle="Overview of platform activity and key metrics." />
 
             <div className={styles.statsGrid}>
                 <StatCard title="Total Doctors" value={overview?.totalDoctors ?? 0} />
@@ -127,13 +128,13 @@ const AdminDashboard = () => {
                     {pieStats && (
                         <div className={styles.chartWrapper}>
                             <ResponsiveContainer width="100%" height={280}>
-                                <PieChart>
+                                <PieChart margin={{ top: 10, bottom: 10, left: 10, right: 20 }}>
                                     <Pie
                                         data={periodPie}
                                         cx="50%"
                                         cy="50%"
-                                        innerRadius={60}
-                                        outerRadius={100}
+                                        innerRadius={50}
+                                        outerRadius={85}
                                         dataKey="value"
                                         label={({ name, percent }: { name?: string; percent?: number }) =>
                                             `${name ?? ''} ${((percent ?? 0) * 100).toFixed(0)}%`
@@ -176,7 +177,11 @@ const AdminDashboard = () => {
                                     labelFormatter={(val) => {
                                         if (!val || typeof val !== 'string') return ''
                                         const d = new Date(val + 'T00:00:00')
-                                        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                                        return d.toLocaleDateString('en-US', {
+                                            month: 'short',
+                                            day: 'numeric',
+                                            year: 'numeric',
+                                        })
                                     }}
                                 />
                                 <Legend />
@@ -213,7 +218,11 @@ const AdminDashboard = () => {
                                     labelFormatter={(val) => {
                                         if (!val || typeof val !== 'string') return ''
                                         const d = new Date(val + 'T00:00:00')
-                                        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                                        return d.toLocaleDateString('en-US', {
+                                            month: 'short',
+                                            day: 'numeric',
+                                            year: 'numeric',
+                                        })
                                     }}
                                 />
                                 <Legend />
@@ -260,66 +269,74 @@ const AdminDashboard = () => {
             <div className={styles.chartRow}>
                 <Section title="Recent Registrations">
                     {overview && (
-                        <table className={styles.userTable}>
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Role</th>
-                                    <th>Joined</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {overview.recentUsers.map((u) => (
-                                    <tr key={u._id}>
-                                        <td className={styles.userName}>{u.name}</td>
-                                        <td>
-                                            <span className={`${styles.roleBadge} ${styles[u.role]}`}>{u.role}</span>
-                                        </td>
-                                        <td className={styles.dateCell}>
-                                            {new Date(u.createdAt).toLocaleDateString('en-IN', {
-                                                day: '2-digit',
-                                                month: 'short',
-                                            })}
-                                        </td>
+                        <div style={{ overflowX: 'auto' }}>
+                            <table className={styles.userTable}>
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Role</th>
+                                        <th>Joined</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {overview.recentUsers.map((u) => (
+                                        <tr key={u._id}>
+                                            <td className={styles.userName}>{u.name}</td>
+                                            <td>
+                                                <span className={`${styles.roleBadge} ${styles[u.role]}`}>
+                                                    {u.role}
+                                                </span>
+                                            </td>
+                                            <td className={styles.dateCell}>
+                                                {new Date(u.createdAt).toLocaleDateString('en-IN', {
+                                                    day: '2-digit',
+                                                    month: 'short',
+                                                })}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     )}
                 </Section>
                 <Section title="Pending Verification">
                     {overview && overview.pendingVerifications.length > 0 ? (
-                        <table className={styles.userTable}>
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Role</th>
-                                    <th>Requested</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {overview.pendingVerifications.map((u) => (
-                                    <tr key={u._id}>
-                                        <td className={styles.userName}>{u.name}</td>
-                                        <td>
-                                            <span className={`${styles.roleBadge} ${styles[u.role]}`}>{u.role}</span>
-                                        </td>
-                                        <td className={styles.dateCell}>
-                                            {new Date(u.createdAt).toLocaleDateString('en-IN', {
-                                                day: '2-digit',
-                                                month: 'short',
-                                            })}
-                                        </td>
+                        <div style={{ overflowX: 'auto' }}>
+                            <table className={styles.userTable}>
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Role</th>
+                                        <th>Requested</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {overview.pendingVerifications.map((u) => (
+                                        <tr key={u._id}>
+                                            <td className={styles.userName}>{u.name}</td>
+                                            <td>
+                                                <span className={`${styles.roleBadge} ${styles[u.role]}`}>
+                                                    {u.role}
+                                                </span>
+                                            </td>
+                                            <td className={styles.dateCell}>
+                                                {new Date(u.createdAt).toLocaleDateString('en-IN', {
+                                                    day: '2-digit',
+                                                    month: 'short',
+                                                })}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     ) : (
                         <div className={styles.placeholder}>No pending verifications.</div>
                     )}
                 </Section>
             </div>
-        </div>
+        </>
     )
 }
 
