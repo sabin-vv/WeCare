@@ -29,6 +29,7 @@
 
 .sm {
     max-width: 400px;
+    min-height: auto;
 }
 
 .md {
