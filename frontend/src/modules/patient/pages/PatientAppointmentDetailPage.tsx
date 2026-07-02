@@ -181,6 +181,9 @@ const PatientAppointmentDetailPage = () => {
 
     const canCancel = diffInHours > 2 && appointment.status === 'confirmed'
     const isWithinJoinWindow = diffInHours * 60 <= 2
+    const joinDate = new Date(appointment.appointmentDate)
+    joinDate.setHours(hours, minutes - 2, 0, 0)
+    const joinTime = `${String(joinDate.getHours()).padStart(2, '0')}:${String(joinDate.getMinutes()).padStart(2, '0')}`
     const canRetryPayment = appointment.status === 'pending_payment' && appointment.paymentStatus === 'pending'
     const isTerminal = appointment.status === 'cancelled' || appointment.status === 'completed'
     const doctorName = appointment.doctorId.userId.name
@@ -429,44 +432,34 @@ const PatientAppointmentDetailPage = () => {
                                         {appointment.status.replace(/_/g, ' ')}
                                     </span>
                                 </div>
+                                {(appointment.status === 'in_consultation' || appointment.status === 'confirmed') && (
+                                    <div className={styles.infoRowAction}>
+                                        <button
+                                            className={
+                                                appointment.status === 'in_consultation' || isWithinJoinWindow
+                                                    ? styles.joinCallBtn
+                                                    : styles.joinCallBtnDisabled
+                                            }
+                                            disabled={appointment.status !== 'in_consultation' && !isWithinJoinWindow}
+                                            onClick={
+                                                appointment.status === 'in_consultation' || isWithinJoinWindow
+                                                    ? () =>
+                                                          navigate(`/video-call/${appointment._id}`, {
+                                                              state: { returnPath: `/appointments/${appointment._id}` },
+                                                          })
+                                                    : undefined
+                                            }
+                                        >
+                                            <Video /> Join Video Call
+                                        </button>
+                                        {appointment.status === 'confirmed' && (
+                                            <span className={styles.joinWindowInfo}>
+                                                You can join at {joinTime}
+                                            </span>
+                                        )}
+                                    </div>
+                                )}
                             </div>
-                        </div>
-                        <div className={styles.joinCallContainer}>
-                            {appointment.status === 'in_consultation' && (
-                                <button
-                                    className={styles.joinCallBtn}
-                                    onClick={() =>
-                                        navigate(`/video-call/${appointment._id}`, {
-                                            state: { returnPath: `/appointments/${appointment._id}` },
-                                        })
-                                    }
-                                >
-                                    <Video /> Join Video Call
-                                </button>
-                            )}
-                            {appointment.status === 'confirmed' && (
-                                <>
-                                    <button
-                                        className={isWithinJoinWindow ? styles.joinCallBtn : styles.joinCallBtnDisabled}
-                                        disabled={!isWithinJoinWindow}
-                                        onClick={
-                                            isWithinJoinWindow
-                                                ? () =>
-                                                      navigate(`/video-call/${appointment._id}`, {
-                                                          state: { returnPath: `/appointments/${appointment._id}` },
-                                                      })
-                                                : undefined
-                                        }
-                                    >
-                                        <Video /> Join Video Call
-                                    </button>
-                                    <span className={styles.joinWindowInfo}>
-                                        {isWithinJoinWindow
-                                            ? 'You can join 2 minutes before the appointment'
-                                            : `You can join at ${appointment.slotStart}`}
-                                    </span>
-                                </>
-                            )}
                         </div>
                     </Section>
 
