@@ -3,6 +3,12 @@ import type { Dispatch } from 'react'
 import type { ApiInterface } from '@/modules/auth/api/auth.api.types'
 import type { VerificationStatus } from '@/modules/auth/types/auth.types'
 
+export type CaregiverSettingsFormValues = {
+    fullName: string
+    email: string
+    phoneNumber: string
+}
+
 export interface CaregiverDocuments {
     govId: File | null
     profileImage: File | null

@@ -1,5 +1,6 @@
 import type {
     AlertData,
+    CaregiverProfileData,
     CaregiverProfileResponse,
     CreateReminderDTO,
     CaregiverActivityLogResponse,
@@ -31,6 +32,14 @@ export const getCaregiverProfile = async (): Promise<CaregiverProfileResponse> =
 export const updateCaregiverProfile = async (data: Record<string, unknown>): Promise<CaregiverProfileResponse> => {
     const res = await api.put<CaregiverProfileResponse>(`${CAREGIVERS_API}/me`, data)
     return res.data
+}
+
+export const updateCaregiverActiveStatus = async (isActive: boolean): Promise<CaregiverProfileData> => {
+    const res = await api.patch<{ success: boolean; message: string; data: CaregiverProfileData }>(
+        `${CAREGIVERS_API}/active-status`,
+        { isActive },
+    )
+    return res.data.data
 }
 
 export const getPatientMedications = async (patientId: string): Promise<MedicationSchedule[]> => {
