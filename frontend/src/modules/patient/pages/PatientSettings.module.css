@@ -7,6 +7,12 @@
 .title {
     margin-bottom: 20px;
 }
+.profileHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
 
 .profileCard {
     display: flex;
@@ -69,6 +75,9 @@
 
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
+.avatarBadge :hover {
+    cursor: pointer;
+}
 
 .avatarWrap:hover .avatar {
     filter: brightness(0.9);
@@ -118,6 +127,47 @@
     padding: 20px;
     margin-bottom: 20px;
     border: 1px solid #e5e7eb;
+}
+
+.actionsInline {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e7efe9;
+}
+
+.ghostButton {
+    min-width: 120px;
+    height: 40px;
+    border: 1px solid #dce7df;
+    padding: 0 20px;
+    border-radius: 10px;
+    background: transparent;
+    color: #5e7f6e;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.saveButton {
+    min-width: 190px;
+    height: 40px;
+    padding: 0 20px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #1ce06f, #12c85d);
+    color: #073b22;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 14px 24px rgba(34, 197, 94, 0.22);
+}
+
+.saveButton:disabled,
+.ghostButton:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
 }
 
 .editButton {

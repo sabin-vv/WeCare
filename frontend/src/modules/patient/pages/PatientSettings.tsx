@@ -1,5 +1,7 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Camera, Pencil } from 'lucide-react'
 import { useEffect, useState, type ChangeEvent } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 
 import styles from './PatientSettings.module.css'
@@ -15,27 +17,20 @@ import {
 import OtpVerification from '@/modules/auth/components/OtpVerification'
 import { OtpPurpose } from '@/modules/auth/types/auth.types'
 import DoctorSecuritySection from '@/modules/doctor/form/settings/DoctorSecuritySection'
-import DoctorSettingsActions from '@/modules/doctor/form/settings/DoctorSettingsActions'
 import { getPatientProfile, updatePatientProfile } from '@/modules/patient/api/patient.api'
-import type { PatientProfileData } from '@/modules/patient/types/patient.types'
+import type { PatientProfileData, PatientSettingsFormValues } from '@/modules/patient/types/patient.types'
+import { patientSettingsFormSchema } from '@/modules/patient/validator/settingsForm.validator'
 import ChangePasswordForm from '@/shared/components/ChangePasswordForm'
 import ImageCropper from '@/shared/components/ImageCropper/ImageCropper'
 import InputField from '@/shared/components/InputField/InputField'
 import MainWrapper from '@/shared/components/MainWrapper/MainWrapper'
 import Modal from '@/shared/components/Modal/Modal'
+import PhoneInput from '@/shared/components/PhoneInput/PhoneInput'
 import { Section } from '@/shared/components/Section/Section'
 import { useAuth } from '@/shared/context/AuthContext'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 
-type PatientSettingsForm = {
-    name: string
-    email: string
-    mobile: string
-    dateOfBirth: string
-    gender: string
-}
-
-const emptyForm: PatientSettingsForm = {
+const defaultFormValues: PatientSettingsFormValues = {
     name: '',
     email: '',
     mobile: '',
@@ -45,25 +40,33 @@ const emptyForm: PatientSettingsForm = {
 
 const PatientSettings = () => {
     const { user, setAuth } = useAuth()
+
+    const {
+        register,
+        control,
+        handleSubmit,
+        formState: { errors, isDirty },
+        reset,
+        getValues,
+    } = useForm<PatientSettingsFormValues>({
+        resolver: zodResolver(patientSettingsFormSchema),
+        defaultValues: defaultFormValues,
+        mode: 'onChange',
+    })
+
     const [patientProfile, setPatientProfile] = useState<PatientProfileData | null>(null)
-
     const [isEditing, setIsEditing] = useState(false)
-    const [hasChanges, setHasChanges] = useState(false)
     const [showPasswordModal, setShowPasswordModal] = useState(false)
-
     const [isSaving, setIsSaving] = useState(false)
     const [isChangingPassword, setIsChangingPassword] = useState(false)
     const [imageCrop, setImageCrop] = useState<string | null>(null)
     const [isUploadingImage, setIsUploadingImage] = useState(false)
-
     const [showEmailOtpModal, setShowEmailOtpModal] = useState(false)
     const [pendingEmail, setPendingEmail] = useState('')
+    const [pendingFormValues, setPendingFormValues] = useState<PatientSettingsFormValues | null>(null)
     const [isVerifyingEmail, setIsVerifyingEmail] = useState(false)
     const [otpSent, setOtpSent] = useState(false)
-
     const [isLoadingProfile, setIsLoadingProfile] = useState(false)
-    const [savedState, setSavedState] = useState<PatientSettingsForm>(emptyForm)
-    const [form, setForm] = useState<PatientSettingsForm>(emptyForm)
 
     useEffect(() => {
         const loadPatientProfile = async () => {
@@ -72,16 +75,13 @@ const PatientSettings = () => {
                 const profile = await getPatientProfile()
                 setPatientProfile(profile)
 
-                const initialForm: PatientSettingsForm = {
+                reset({
                     name: profile.name,
                     email: profile.email,
                     mobile: profile.mobile,
                     dateOfBirth: profile.dateOfBirth.split('T')[0] || '',
                     gender: profile.gender,
-                }
-
-                setForm(initialForm)
-                setSavedState(initialForm)
+                })
             } catch (error) {
                 toast.error(getErrorMessage(error))
             } finally {
@@ -91,11 +91,6 @@ const PatientSettings = () => {
 
         loadPatientProfile()
     }, [])
-
-    useEffect(() => {
-        const hasChanges = JSON.stringify(form) !== JSON.stringify(savedState)
-        setHasChanges(hasChanges)
-    }, [form, savedState])
 
     useEffect(() => {
         if (!showEmailOtpModal || !pendingEmail || otpSent) return
@@ -112,47 +107,35 @@ const PatientSettings = () => {
         send()
     }, [showEmailOtpModal, pendingEmail, otpSent])
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        setForm({ ...form, [e.target.name]: e.target.value })
-    }
-
     const handleToggleEditing = () => {
-        setIsEditing(!isEditing)
-    }
-
-    const handleSave = () => {
-        const emailChanged = form.email !== savedState.email
-
-        if (emailChanged) {
-            toast('Please verify your new email')
-            setPendingEmail(form.email)
-            setShowEmailOtpModal(true)
-            return
+        if (isEditing) {
+            if (isDirty) {
+                handleDiscard()
+            } else {
+                setIsEditing(false)
+            }
+        } else {
+            setIsEditing(true)
         }
-
-        saveProfile()
     }
 
-    const saveProfile = async () => {
+    const saveProfile = async (formValues: PatientSettingsFormValues) => {
         setIsSaving(true)
         try {
             const updatedProfile = await updatePatientProfile({
-                name: form.name,
-                email: form.email,
-                mobile: form.mobile,
+                name: formValues.name,
+                email: formValues.email,
+                mobile: formValues.mobile,
             })
 
-            const updatedForm: PatientSettingsForm = {
+            reset({
                 name: updatedProfile.name,
                 email: updatedProfile.email,
                 mobile: updatedProfile.mobile,
                 dateOfBirth: updatedProfile.dateOfBirth.split('T')[0] || '',
                 gender: updatedProfile.gender,
-            }
-
+            })
             setPatientProfile(updatedProfile)
-            setForm(updatedForm)
-            setSavedState(updatedForm)
             setIsEditing(false)
 
             if (user) {
@@ -172,12 +155,28 @@ const PatientSettings = () => {
         }
     }
 
+    const onSubmit = async (formValues: PatientSettingsFormValues) => {
+        const emailChanged = formValues.email !== patientProfile?.email
+
+        if (emailChanged) {
+            toast('Please verify your new email')
+            setPendingFormValues(formValues)
+            setPendingEmail(formValues.email)
+            setShowEmailOtpModal(true)
+            return
+        }
+
+        await saveProfile(formValues)
+    }
+
     const handleVerifyEmailOtp = async (otp: string) => {
         setIsVerifyingEmail(true)
         try {
             await verifyOtp(pendingEmail, otp)
             setShowEmailOtpModal(false)
-            await saveProfile()
+            if (pendingFormValues) {
+                await saveProfile(pendingFormValues)
+            }
         } catch (error) {
             toast.error(getErrorMessage(error))
         } finally {
@@ -195,8 +194,17 @@ const PatientSettings = () => {
     }
 
     const handleDiscard = () => {
-        setForm({ ...savedState })
-        setHasChanges(false)
+        if (patientProfile) {
+            reset({
+                name: patientProfile.name,
+                email: patientProfile.email,
+                mobile: patientProfile.mobile,
+                dateOfBirth: patientProfile.dateOfBirth.split('T')[0] || '',
+                gender: patientProfile.gender,
+            })
+        }
+        setIsEditing(false)
+        toast.success('Changes discarded')
     }
 
     const handleResetPassword = () => {
@@ -244,11 +252,13 @@ const PatientSettings = () => {
 
             await uploadToS3(presignRes.uploadUrl, croppedFile)
 
-            const updatedProfile = await updatePatientProfile({
+            const values = getValues()
+            await updatePatientProfile({
+                name: values.name,
+                email: values.email,
+                mobile: values.mobile,
                 profileImage: presignRes.key,
             })
-
-            setPatientProfile(updatedProfile)
 
             const currentUser = await getCurrentUser()
             if (user) {
@@ -272,120 +282,137 @@ const PatientSettings = () => {
             ? `${import.meta.env.VITE_S3_BASE_URL}${profileImageSrc}`
             : profileImageSrc
 
+    const nameValue = getValues('name')
+
     return (
-        <MainWrapper>
-            <h2 className={styles.title}>Settings</h2>
-            <div className={styles.profileCard}>
-                <div className={styles.left}>
-                    <div className={styles.avatarWrap}>
-                        <input
-                            type="file"
-                            id="patientProfileImageInput"
-                            accept="image/*"
-                            hidden
-                            onChange={handleImageSelect}
-                        />
+        <MainWrapper title="Settings" subtitle="Manage your profile and account preferences.">
+            <form onSubmit={handleSubmit(onSubmit)}>
+                <Section>
+                    <div className={styles.profileHeader}>
+                        <div className={styles.left}>
+                            <div className={styles.avatarWrap}>
+                                <input
+                                    type="file"
+                                    id="patientProfileImageInput"
+                                    accept="image/*"
+                                    hidden
+                                    onChange={handleImageSelect}
+                                />
 
-                        {resolvedProfileImage ? (
-                            <img
-                                src={resolvedProfileImage}
-                                className={styles.avatar}
-                                alt={form.name || 'Patient profile'}
-                            />
-                        ) : (
-                            <div className={styles.avatarFallback}>
-                                {(form.name || user?.name || 'P').charAt(0).toUpperCase()}
+                                {resolvedProfileImage ? (
+                                    <img
+                                        src={resolvedProfileImage}
+                                        className={styles.avatar}
+                                        alt={nameValue || 'Patient profile'}
+                                    />
+                                ) : (
+                                    <div className={styles.avatarFallback}>
+                                        {(nameValue || user?.name || 'P').charAt(0).toUpperCase()}
+                                    </div>
+                                )}
+
+                                <label
+                                    htmlFor="patientProfileImageInput"
+                                    className={`${styles.avatarBadge} ${isUploadingImage ? styles.uploading : ''}`}
+                                >
+                                    <Camera size={14} />
+                                </label>
                             </div>
-                        )}
+                            <div>
+                                <h3 className={styles.name}>{patientProfile?.name || user?.name}</h3>
 
-                        <label
-                            htmlFor="patientProfileImageInput"
-                            className={`${styles.avatarBadge} ${isUploadingImage ? styles.uploading : ''}`}
+                                <p className={styles.conditions}>
+                                    Conditions:{' '}
+                                    {patientProfile?.conditions?.length
+                                        ? patientProfile.conditions.join(', ')
+                                        : 'No conditions'}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className={styles.right}>
+                            <span className={styles.label}>Patient ID</span>
+                            <p className={styles.patientId}>
+                                {patientProfile?.patientId ? `#${patientProfile.patientId}` : '--'}
+                            </p>
+                        </div>
+                    </div>
+                </Section>
+
+                <Section
+                    title="Profile Information"
+                    actions={
+                        <button
+                            type="button"
+                            className={`${styles.editButton} ${isEditing ? styles.editButtonActive : ''}`}
+                            onClick={handleToggleEditing}
+                            aria-label="Toggle personal information editing"
                         >
-                            <Camera size={14} />
-                        </label>
+                            <Pencil size={16} />
+                        </button>
+                    }
+                >
+                    <div className={styles.grid}>
+                        <InputField
+                            id="patient-name"
+                            label="Full Name"
+                            {...register('name')}
+                            disabled={!isEditing}
+                            errors={errors.name?.message}
+                        />
+                        <InputField
+                            id="patient-email"
+                            label="Email"
+                            {...register('email')}
+                            disabled={!isEditing}
+                            errors={errors.email?.message}
+                        />
+                        <Controller
+                            name="mobile"
+                            control={control}
+                            render={({ field }) => (
+                                <PhoneInput
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    label="Phone Number"
+                                    error={errors.mobile?.message}
+                                    disabled={!isEditing}
+                                />
+                            )}
+                        />
+                        <InputField
+                            id="patient-dob"
+                            label="Date of Birth"
+                            type="date"
+                            {...register('dateOfBirth')}
+                            disabled
+                        />
+                        <InputField id="patient-gender" label="Gender" {...register('gender')} disabled />
                     </div>
-                    <div>
-                        <h3 className={styles.name}>{savedState.name || user?.name}</h3>
 
-                        <p className={styles.conditions}>
-                            Conditions:{' '}
-                            {patientProfile?.conditions?.length
-                                ? patientProfile.conditions.join(', ')
-                                : 'No conditions'}
-                        </p>
-                    </div>
-                </div>
-
-                <div className={styles.right}>
-                    <span className={styles.label}>Patient ID</span>
-                    <p className={styles.patientId}>
-                        {patientProfile?.patientId ? `#${patientProfile.patientId}` : '--'}
-                    </p>
-                </div>
-            </div>
-
-            <Section
-                title="Profile Information"
-                actions={
-                    <button
-                        type="button"
-                        className={`${styles.editButton} ${isEditing ? styles.editButtonActive : ''}`}
-                        onClick={handleToggleEditing}
-                        aria-label="Toggle personal information editing"
-                    >
-                        <Pencil size={16} />
-                    </button>
-                }
-            >
-                <div className={styles.grid}>
-                    <InputField
-                        name="name"
-                        placeholder="Full Name"
-                        value={form.name}
-                        onChange={handleChange}
-                        disabled={!isEditing}
-                    />
-                    <InputField
-                        name="email"
-                        placeholder="Email"
-                        value={form.email}
-                        onChange={handleChange}
-                        disabled={!isEditing}
-                    />
-                    <InputField
-                        name="mobile"
-                        placeholder="Phone Number"
-                        value={form.mobile}
-                        onChange={handleChange}
-                        disabled={!isEditing}
-                    />
-                    <InputField
-                        name="dateOfBirth"
-                        type="date"
-                        placeholder="Date of Birth"
-                        value={form.dateOfBirth}
-                        onChange={handleChange}
-                        disabled
-                    />
-                    <InputField
-                        name="gender"
-                        placeholder="gender"
-                        value={form.gender}
-                        onChange={handleChange}
-                        disabled
-                    />
-                </div>
-            </Section>
-            <DoctorSecuritySection onResetPassword={handleResetPassword} />
-
-            <DoctorSettingsActions
-                hasChanges={hasChanges}
-                isSaving={isSaving}
-                isLoadingProfile={isLoadingProfile}
-                onDiscard={handleDiscard}
-                onSave={handleSave}
-            />
+                    {isEditing && (
+                        <div className={styles.actionsInline}>
+                            <button
+                                type="button"
+                                className={styles.ghostButton}
+                                onClick={handleDiscard}
+                                disabled={!isDirty || isSaving || isLoadingProfile}
+                            >
+                                Discard
+                            </button>
+                            <button
+                                type="button"
+                                className={styles.saveButton}
+                                onClick={handleSubmit(onSubmit)}
+                                disabled={!isDirty || isSaving || isLoadingProfile}
+                            >
+                                {isSaving ? 'Saving Changes...' : 'Save All Changes'}
+                            </button>
+                        </div>
+                    )}
+                </Section>
+                <DoctorSecuritySection onResetPassword={handleResetPassword} />
+            </form>
 
             <ChangePasswordForm
                 isOpen={showPasswordModal}
