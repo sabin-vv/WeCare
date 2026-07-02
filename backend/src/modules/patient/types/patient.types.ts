@@ -79,6 +79,9 @@ export interface PatientDetailsDTO {
     status: string
     clinicalStatus: string
     appointmentStatus: string
+    appointmentId?: string
+    appointmentDate?: Date
+    slotStart?: string
     vitals: PatientVitalDTO[]
     prescriptions: PatientPrescriptionDTO[]
 }

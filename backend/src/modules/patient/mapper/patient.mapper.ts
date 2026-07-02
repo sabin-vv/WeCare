@@ -146,6 +146,9 @@ export const toPatientDetailsDTO = (
         status,
         clinicalStatus: patient.clinicalStatus || 'active',
         appointmentStatus: appointmentStatusForDetails,
+        appointmentId: appointment?._id.toString(),
+        appointmentDate: appointment?.appointmentDate,
+        slotStart: appointment?.slotStart,
         vitals: mappedVitals,
         prescriptions: mappedPrescriptions,
     }
