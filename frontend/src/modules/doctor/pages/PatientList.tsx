@@ -1,3 +1,4 @@
+import { Video } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
@@ -12,6 +13,7 @@ import Pagination from '@/shared/components/Pagination/Pagination'
 import SearchField from '@/shared/components/SearchField/SearchField'
 import DataTable from '@/shared/components/Table/DataTable'
 import type { Column } from '@/shared/components/Table/dataTable.types'
+import { useSocket } from '@/shared/context/SocketContext'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { getFileUrl } from '@/utils/getFileUrl'
 
@@ -58,6 +60,7 @@ const PatientList = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false)
 
     const navigate = useNavigate()
+    const { joinedPatients } = useSocket()
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -118,7 +121,14 @@ const PatientList = () => {
             key: 'patientId',
             render: (item: Patients) => (
                 <div className={styles.patientCell}>
-                    <PatientAvatar name={item.name} profileImage={item.profileImage} />
+                    <div className={styles.avatarWrapper}>
+                        <PatientAvatar name={item.name} profileImage={item.profileImage} />
+                        {joinedPatients.has(item._id) && (
+                            <span className={styles.videoCallBadge} title="Patient joined the call">
+                                <Video size={10} />
+                            </span>
+                        )}
+                    </div>
                     <div className={styles.patientInfo}>
                         <span className={styles.patientName}>{item.name}</span>
                         <span className={styles.patientId}>#{item.patientId}</span>

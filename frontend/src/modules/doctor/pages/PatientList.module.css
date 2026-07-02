@@ -244,3 +244,25 @@
 .actionBtn:hover {
     background-color: #0056b3;
 }
+
+.avatarWrapper {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.videoCallBadge {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 20px;
+    height: 20px;
+    background: #10b981;
+    border: 2px solid white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.4);
+    animation: joinPulse 1.5s ease-in-out infinite;
+}
