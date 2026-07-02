@@ -8,6 +8,7 @@ import type { AdminAppointment } from '../types/admin.types'
 import styles from './AdminAppointmentsPage.module.css'
 
 import DateRangePicker from '@/shared/components/DateRangePicker/DateRangePicker'
+import PageHeader from '@/shared/components/PageHeader/PageHeader'
 import Pagination from '@/shared/components/Pagination/Pagination'
 import SearchField from '@/shared/components/SearchField/SearchField'
 import SelectField from '@/shared/components/SelectField/SelectField'
@@ -183,11 +184,8 @@ const AdminAppointmentsPage = () => {
     const hasActiveFilters = Object.values(filters).some((v) => v !== '' && v !== 'all')
 
     return (
-        <div className={styles.container}>
-            <div className={styles.header}>
-                <h1 className={styles.pageTitle}>Appointments</h1>
-                <p className={styles.subtitle}>View and manage all platform appointments</p>
-            </div>
+        <>
+            <PageHeader title="Appointments" subtitle="View and manage all platform appointments" />
 
             <div className={styles.filterSection}>
                 <div className={styles.searchRow}>
@@ -237,7 +235,7 @@ const AdminAppointmentsPage = () => {
                     />
                 )}
             </DataTable>
-        </div>
+        </>
     )
 }
 
