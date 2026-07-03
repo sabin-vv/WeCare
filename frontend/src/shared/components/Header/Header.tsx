@@ -86,6 +86,9 @@ const Header = ({ titlePrefix = '', subtitle, navLinks = [], children, leading, 
                     {links.map((link) => (
                         <li key={link.path} className={styles.link} onClick={() => navigate(link.path)}>
                             {link.label}
+                            {link.badge != null && link.badge > 0 && (
+                                <span className={styles.linkBadge}>{link.badge > 9 ? '9+' : link.badge}</span>
+                            )}
                         </li>
                     ))}
                 </ul>
@@ -149,6 +152,9 @@ const Header = ({ titlePrefix = '', subtitle, navLinks = [], children, leading, 
                                             onClick={() => handleLinkClick(link.path)}
                                         >
                                             {link.label}
+                                            {link.badge != null && link.badge > 0 && (
+                                                <span className={styles.menuItemBadge}>{link.badge > 9 ? '9+' : link.badge}</span>
+                                            )}
                                         </button>
                                     ))}
                                     <button

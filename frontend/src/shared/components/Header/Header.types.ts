@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 export interface NavLink {
     label: string
     path: string
+    badge?: number
 }
 
 export interface HeaderProps {
