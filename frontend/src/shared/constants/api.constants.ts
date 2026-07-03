@@ -39,3 +39,5 @@ export const NOTIFICATIONS_API = '/notifications'
 export const MEDICAL_RECORDS_API = '/medical-records'
 
 export const VIDEO_CALL_API = '/video-call'
+
+export const CHAT_API = '/chat'
