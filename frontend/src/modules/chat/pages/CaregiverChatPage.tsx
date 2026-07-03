@@ -32,6 +32,14 @@ const CaregiverChatPage = () => {
         resetChatCount()
     }, [resetChatCount])
 
+    const handleSelectConversation = useCallback(
+        async (patientId: string) => {
+            await selectConversation(patientId)
+            await resetChatCount()
+        },
+        [selectConversation, resetChatCount],
+    )
+
     const [showModal, setShowModal] = useState(false)
     const [selectedInfo, setSelectedInfo] = useState<{
         otherPersonName: string
@@ -73,7 +81,7 @@ const CaregiverChatPage = () => {
                     <ConversationList
                         conversations={conversations}
                         selectedPatientId={selectedPatientId}
-                        onSelect={selectConversation}
+                        onSelect={handleSelectConversation}
                         currentUserRole={currentUserRole ?? 'caregiver'}
                         onNewChat={() => setShowModal(true)}
                     />
