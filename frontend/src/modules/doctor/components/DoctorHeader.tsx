@@ -4,6 +4,7 @@ import Header from '../../../shared/components/Header/Header'
 
 import styles from './DoctorHeader.module.css'
 
+import { useUnreadChatCount } from '@/modules/chat/hooks/useUnreadChatCount'
 import { doctorNavLinks } from '@/shared/constants/navLinks'
 import { useAuth } from '@/shared/context/AuthContext'
 import { useSocket } from '@/shared/context/SocketContext'
@@ -15,6 +16,7 @@ interface DoctorHeaderProps {
 const DoctorHeader = ({ onMenuClick }: DoctorHeaderProps) => {
     const { user } = useAuth()
     const { joinedPatients } = useSocket()
+    const { unreadChatCount } = useUnreadChatCount()
 
     const hamburgerButton = onMenuClick ? (
         <button onClick={onMenuClick} className={styles.sidebarToggleBtn} aria-label="Toggle sidebar">
@@ -29,11 +31,15 @@ const DoctorHeader = ({ onMenuClick }: DoctorHeaderProps) => {
         </div>
     ) : null
 
+    const links = doctorNavLinks.map((link) =>
+        link.label === 'Chat' ? { ...link, badge: unreadChatCount } : link,
+    )
+
     return (
         <Header
             titlePrefix="Dr. "
             subtitle={user?.professionalTitle}
-            navLinks={doctorNavLinks}
+            navLinks={links}
             leading={hamburgerButton}
             trailing={videoBadge}
         />
