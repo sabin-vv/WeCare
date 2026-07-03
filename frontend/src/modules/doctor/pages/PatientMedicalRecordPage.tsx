@@ -1,7 +1,7 @@
 import { Activity, Heart, Droplets, Thermometer } from 'lucide-react'
 import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import toast from 'react-hot-toast'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 
 import { addClinicalNote, getPatientMedicalRecord, updateMedicalRecord } from '../api/doctor.api'
 import type { ClinicalNote, MedicalRecordData } from '../types/doctor.types'
@@ -15,7 +15,6 @@ import { getErrorMessage } from '@/utils/getErrorMessage'
 
 const PatientMedicalRecordPage = () => {
     const { patientId } = useParams<{ patientId: string }>()
-    const navigate = useNavigate()
     const [record, setRecord] = useState<MedicalRecordData | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [allergiesInput, setAllergiesInput] = useState('')
@@ -175,10 +174,6 @@ const PatientMedicalRecordPage = () => {
     return (
         <MainWrapper>
             <div className={styles.page}>
-                <button className={styles.backBtn} onClick={() => navigate(`/doctor/patients/${patientId}`)}>
-                    ← Back to Patient
-                </button>
-
                 <div className={styles.header}>
                     <div className={styles.headerImage}>
                         {record.profileImage ? (
