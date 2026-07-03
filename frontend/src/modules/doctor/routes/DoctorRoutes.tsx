@@ -11,6 +11,7 @@ import PatientViewPage from '../pages/PatientViewPage'
 
 import DoctorLayout from '@/layout/DoctorLayout'
 import { Role } from '@/modules/auth/types/auth.types'
+import DoctorChatPage from '@/modules/chat/pages/DoctorChatPage'
 import ProtectedRoute from '@/shared/components/ProtectedRoute/ProtectedRoute'
 
 export const DoctorRoutes: RouteObject[] = [
@@ -54,6 +55,10 @@ export const DoctorRoutes: RouteObject[] = [
             {
                 path: '/doctor/alerts',
                 element: <AlertPage />,
+            },
+            {
+                path: '/doctor/chat',
+                element: <DoctorChatPage />,
             },
         ],
     },
