@@ -34,3 +34,8 @@ export const sendMessage = async (
 export const markMessageAsRead = async (messageId: string): Promise<void> => {
     await api.patch(`${CHAT_API}/messages/${messageId}/read`)
 }
+
+export const getUnreadChatCount = async (): Promise<number> => {
+    const res = await api.get<{ data: { unreadCount: number } }>(`${CHAT_API}/unread-count`)
+    return res.data.data.unreadCount
+}
