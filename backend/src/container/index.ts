@@ -20,6 +20,19 @@ import { AppointmentRepository } from '../modules/appointment/repository/appoint
 import { AppointmentService } from '../modules/appointment/service/appointment.service'
 import { IAssistantService } from '../modules/assistant/interfaces/assistant.service.interface'
 import { AssistantService } from '../modules/assistant/service/assistant.service'
+import {
+    ActivityTool,
+    AlertTool,
+    AppointmentTool,
+    MedicalRecordTool,
+    MedicationTool,
+    PatientTool,
+    PrescriptionTool,
+    SubscriptionTool,
+    SymptomTool,
+    VitalTool,
+    WalletTool,
+} from '../modules/assistant/tools'
 import { IAuthService } from '../modules/auth/interfaces/auth.service.interface'
 import { IOtpService } from '../modules/auth/interfaces/otp.service.interface'
 import { IUserRepository } from '../modules/auth/interfaces/user.repository.interface'
@@ -212,3 +225,15 @@ container.register<IChatRepository>(TOKENS.IChatRepository, {
 container.register<IChatService>(TOKENS.IChatService, {
     useClass: ChatService,
 })
+
+container.register<AppointmentTool>(TOKENS.IAppointmentTool, { useClass: AppointmentTool })
+container.register<MedicationTool>(TOKENS.IMedicationTool, { useClass: MedicationTool })
+container.register<WalletTool>(TOKENS.IWalletTool, { useClass: WalletTool })
+container.register<SubscriptionTool>(TOKENS.ISubscriptionTool, { useClass: SubscriptionTool })
+container.register<PatientTool>(TOKENS.IPatientTool, { useClass: PatientTool })
+container.register<PrescriptionTool>(TOKENS.IPrescriptionTool, { useClass: PrescriptionTool })
+container.register<MedicalRecordTool>(TOKENS.IMedicalRecordTool, { useClass: MedicalRecordTool })
+container.register<VitalTool>(TOKENS.IVitalTool, { useClass: VitalTool })
+container.register<SymptomTool>(TOKENS.ISymptomTool, { useClass: SymptomTool })
+container.register<AlertTool>(TOKENS.IAlertTool, { useClass: AlertTool })
+container.register<ActivityTool>(TOKENS.IActivityTool, { useClass: ActivityTool })

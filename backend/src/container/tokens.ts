@@ -49,4 +49,16 @@ export const TOKENS = {
     IVideoCallService: Symbol('IVideoCallService'),
     IChatRepository: Symbol('IChatRepository'),
     IChatService: Symbol('IChatService'),
+
+    IAppointmentTool: Symbol('IAppointmentTool'),
+    IMedicationTool: Symbol('IMedicationTool'),
+    IWalletTool: Symbol('IWalletTool'),
+    ISubscriptionTool: Symbol('ISubscriptionTool'),
+    IPatientTool: Symbol('IPatientTool'),
+    IPrescriptionTool: Symbol('IPrescriptionTool'),
+    IMedicalRecordTool: Symbol('IMedicalRecordTool'),
+    IVitalTool: Symbol('IVitalTool'),
+    ISymptomTool: Symbol('ISymptomTool'),
+    IAlertTool: Symbol('IAlertTool'),
+    IActivityTool: Symbol('IActivityTool'),
 }
