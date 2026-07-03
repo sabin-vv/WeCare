@@ -22,6 +22,7 @@ import { Section } from '@/shared/components/Section/Section'
 import SelectField from '@/shared/components/SelectField/SelectField'
 import DataTable from '@/shared/components/Table/DataTable'
 import type { Column } from '@/shared/components/Table/dataTable.types'
+import TimePicker from '@/shared/components/TimePicker/TimePicker'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 
 type VitalPlanOptionId = 'blood_pressure' | 'heart_rate' | 'spo2' | 'blood_sugar'
@@ -811,17 +812,11 @@ const MedicationTable = ({ patientId, patientName, hasConditions, onSuccess, vit
                                         <label className={styles.scheduleTimesLabel}>Schedule Times</label>
                                         <div className={styles.scheduleTimesList}>
                                             {medication.scheduleTimes.map((time) => (
-                                                <div key={time.id} className={styles.scheduleTimeItem}>
-                                                    <input
-                                                        type="time"
-                                                        className={styles.timeInput}
+                                                <div key={time.id}>
+                                                    <TimePicker
                                                         value={time.time}
-                                                        onChange={(e) =>
-                                                            handleUpdateScheduleTime(
-                                                                medication.id,
-                                                                time.id,
-                                                                e.target.value,
-                                                            )
+                                                        onChange={(newValue) =>
+                                                            handleUpdateScheduleTime(medication.id, time.id, newValue)
                                                         }
                                                     />
                                                 </div>
