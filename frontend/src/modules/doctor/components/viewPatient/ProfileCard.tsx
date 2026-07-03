@@ -122,21 +122,24 @@ const ProfileCard = ({
                 </div>
             </div>
             {appointmentStatus === 'confirmed' ? (
-                <button
-                    className={`${styles.startBtn} ${hasPatientJoined ? styles.hasJoined : ''}`}
-                    onClick={onStartConsultation}
-                    disabled={!isWithinJoinWindow}
-                >
-                    Join Video Call
-                    {hasPatientJoined && <span className={styles.joinBadge}>!</span>}
-                </button>
+                <div className={styles.consulatation}>
+                    <button
+                        className={`${styles.startBtn} ${hasPatientJoined ? styles.hasJoined : ''}`}
+                        onClick={onStartConsultation}
+                        disabled={!isWithinJoinWindow}
+                    >
+                        <Video /> Join Video Call
+                        {hasPatientJoined && <span className={styles.joinBadge}>!</span>}
+                    </button>
+                    <span className={styles.appointmentTime}> Appointment time is {slotStart}</span>
+                </div>
             ) : appointmentStatus === 'in_consultation' ? (
                 <div className={styles.consulatationStatus}>
                     <button
                         className={`${styles.startBtn} ${hasPatientJoined ? styles.hasJoined : ''}`}
                         onClick={onStartConsultation}
                     >
-                        Join Video Call
+                        <Video /> Join Video Call
                         {hasPatientJoined && <span className={styles.joinBadge}>!</span>}
                     </button>
                     <button className={styles.inConsultationBtn} onClick={onCompleteConsultation}>
