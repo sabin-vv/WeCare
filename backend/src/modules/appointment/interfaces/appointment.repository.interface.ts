@@ -36,6 +36,8 @@ export interface IAppointmentRepository {
 
     findDoctorVisibleCurrentAppointment(doctorId: string, patientUserId: string): Promise<AppointmentDocument | null>
 
+    hasDoctorPatientRelationship(doctorId: string, patientUserId: string): Promise<boolean>
+
     cancelAppointment(id: string, reason: string, cancelledBy: string): Promise<AppointmentDocument | null>
 
     cancelFutureAppointmentsByPatientId(patientId: string, reason: string, cancelledBY: string): Promise<number>

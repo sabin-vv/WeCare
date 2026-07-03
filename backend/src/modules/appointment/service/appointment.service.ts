@@ -272,10 +272,6 @@ export class AppointmentService implements IAppointmentService {
                 throw new AppError(HTTP_STATUS.INTERNAL_SERVER_ERROR, MSG.FAILED_CONFIRM_WALLET)
             }
 
-            await this._patientRepo.updateByUserId(new Types.ObjectId(dto.patientId), {
-                primaryDoctorId: new Types.ObjectId(dto.doctorId),
-            })
-
             await this._activityLogService.logActivity({
                 performedBy: dto.patientId,
                 performedByRole: 'patient',
@@ -664,6 +660,10 @@ export class AppointmentService implements IAppointmentService {
 
         await this._appointmentRepo.update(appointment._id.toString(), { status: 'completed' })
 
+        if (!patient.primaryDoctorId) {
+            await this._patientRepo.updateByUserId(patient.userId, { primaryDoctorId: doctor._id })
+        }
+
         getIO().to(`user:${doctorId}`).emit('consultation_completed', {
             patientMongoId: patientId,
         })
@@ -718,9 +718,6 @@ export class AppointmentService implements IAppointmentService {
                 )
 
                 await this._appointmentRepo.update(appointmentId, { status: 'confirmed', confirmedAt: new Date() })
-                await this._patientRepo.updateByUserId(new Types.ObjectId(dto.patientId), {
-                    primaryDoctorId: appointment.doctorId as Types.ObjectId,
-                })
 
                 if (appointment.paymentId) {
                     await this._paymentRepo.updateById(appointment.paymentId.toString(), {

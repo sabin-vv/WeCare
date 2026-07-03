@@ -207,6 +207,17 @@ export class AppointmentRepository extends BaseRepository<AppointmentDocument> i
         )
     }
 
+    async hasDoctorPatientRelationship(doctorId: string, patientUserId: string): Promise<boolean> {
+        const appointment = await this.model
+            .findOne({
+                doctorId,
+                patientId: patientUserId,
+                status: { $in: ['confirmed', 'in_consultation', 'completed'] },
+            })
+            .lean()
+        return !!appointment
+    }
+
     async getLastAppointmentId(): Promise<string | null> {
         const last = await this.model.findOne().sort({ appointmentId: -1 }).select('appointmentId').lean()
         return last?.appointmentId || null

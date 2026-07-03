@@ -100,7 +100,13 @@ export class PatientService implements IPatientService {
         }
 
         if (patient.primaryDoctorId?.toString() !== doctor._id.toString()) {
-            throw new AppError(HTTP_STATUS.FORBIDDEN, MSG.NOT_AUTHORIZED_TO_VIEW)
+            const hasRelationship = await this._appointmentRepo.hasDoctorPatientRelationship(
+                doctor._id.toString(),
+                patient.userId.toString(),
+            )
+            if (!hasRelationship) {
+                throw new AppError(HTTP_STATUS.FORBIDDEN, MSG.NOT_AUTHORIZED_TO_VIEW)
+            }
         }
 
         return { doctor, patient }
