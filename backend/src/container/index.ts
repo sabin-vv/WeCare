@@ -34,6 +34,10 @@ import { ICaregiverActivityRepository } from '../modules/caregiverActivity/inter
 import { ICaregiverActivityService } from '../modules/caregiverActivity/interfaces/caregiverActivity.service.interface'
 import { CaregiverActivityRepository } from '../modules/caregiverActivity/repository/caregiverActivity.repository'
 import { CaregiverActivityService } from '../modules/caregiverActivity/service/caregiverActivity.service'
+import { IChatRepository } from '../modules/chat/interfaces/chat.repository.interface'
+import { IChatService } from '../modules/chat/interfaces/chat.service.interface'
+import { ChatRepository } from '../modules/chat/repository/chat.repository'
+import { ChatService } from '../modules/chat/service/chat.service'
 import { IAvailabilityNotificationService } from '../modules/doctor/interfaces/availabilityNotification.service.interface'
 import { IDoctorRepository } from '../modules/doctor/interfaces/doctor.repository.interface'
 import { IDoctorService } from '../modules/doctor/interfaces/doctor.service.interface'
@@ -200,4 +204,11 @@ container.register<IVideoCallRepository>(TOKENS.IVideoCallRepository, {
 })
 container.register<IVideoCallService>(TOKENS.IVideoCallService, {
     useClass: VideoCallService,
+})
+
+container.register<IChatRepository>(TOKENS.IChatRepository, {
+    useClass: ChatRepository,
+})
+container.register<IChatService>(TOKENS.IChatService, {
+    useClass: ChatService,
 })
