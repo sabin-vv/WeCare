@@ -359,10 +359,8 @@ const PatientViewPage = () => {
                         />
                     ))}
             </div>
-            <Section title="Vitals Check Requests">
-                {vitalPlans.length === 0 ? (
-                    <p className={styles.emptyVitalPlans}>No active vitals check requests.</p>
-                ) : (
+            {vitalPlans.length > 0 && (
+                <Section title="Vitals Check Requests">
                     <div className={styles.vitalsGrid}>
                         {vitalPlans.flatMap((plan) =>
                             plan.vitals.map((vital) => (
@@ -412,8 +410,8 @@ const PatientViewPage = () => {
                             )),
                         )}
                     </div>
-                )}
-            </Section>
+                </Section>
+            )}
             <MedicationTable
                 patientId={patient._id}
                 patientName={patient.name}
