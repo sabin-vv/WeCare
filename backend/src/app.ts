@@ -11,6 +11,7 @@ import { createAssistantRoutes } from './modules/assistant/routes/assistant.rout
 import { createAuthRoutes } from './modules/auth/routes/auth.route'
 import { createCaregiverRoutes } from './modules/caregiver/routes/caregiver.route'
 import { createCaregiverActivityRoutes } from './modules/caregiverActivity/routes/caregiverActivity.route'
+import { createChatRoutes } from './modules/chat/routes/chat.route'
 import { createDoctorRoutes } from './modules/doctor/routes/doctor.route'
 import { createFeedbackRoutes } from './modules/feedback/routes/feedback.route'
 import { createMedicalRecordRoutes } from './modules/medicalRecord/routes/medicalRecord.route'
@@ -87,6 +88,8 @@ app.use('/api/activity-logs', createActivityLogRoutes())
 app.use('/api/admin', createAdminRoutes())
 
 app.use('/api/video-call', createVideoCallRoutes())
+
+app.use('/api/chat', createChatRoutes())
 
 app.use(errorMiddleware)
 
