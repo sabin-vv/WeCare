@@ -226,16 +226,6 @@ export class AppointmentService implements IAppointmentService {
             const doctor = await this._doctorRepo.findByIdWithUser(dto.doctorId)
             doctorName = (doctor?.userId as unknown as { name?: string })?.name ?? 'Doctor'
 
-            await this._activityLogService.logActivity({
-                performedBy: dto.patientId,
-                performedByRole: 'patient',
-                category: 'appointment',
-                action: 'appointment_booked',
-                targetId: appointment._id.toString(),
-                targetType: 'appointment',
-                description: `Booked Appointment with Dr. ${doctorName} via wallet`,
-            })
-
             const wallet = await this._walletService.debit(
                 dto.patientId,
                 totalAmount,

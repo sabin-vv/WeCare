@@ -92,16 +92,6 @@ export class PaymentService implements IPaymentService {
                     performedBy: payment.patientId.toString(),
                     performedByRole: 'patient',
                     category: 'appointment',
-                    action: 'appointment_booked',
-                    targetId: appointment._id.toString(),
-                    targetType: 'appointment',
-                    description: `Booked Appointment with Dr. ${doctorName} (Appointment ID: ${appointment.appointmentId})`,
-                })
-
-                await this._activityLogService.logActivity({
-                    performedBy: payment.patientId.toString(),
-                    performedByRole: 'patient',
-                    category: 'appointment',
                     action: 'appointment_confirmed',
                     targetId: appointment._id.toString(),
                     targetType: 'appointment',
