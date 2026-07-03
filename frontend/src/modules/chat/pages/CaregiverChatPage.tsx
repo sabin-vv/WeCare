@@ -1,6 +1,7 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { useChat } from '../hooks/useChat'
+import { useUnreadChatCount } from '../hooks/useUnreadChatCount'
 import type { PatientOption } from '../types/chat.types'
 
 import { getMyPatients } from '@/modules/caregiver/api/caregiver.api'
@@ -24,6 +25,12 @@ const CaregiverChatPage = () => {
         sendMessage,
         startNewChat,
     } = useChat()
+
+    const { reset: resetChatCount } = useUnreadChatCount()
+
+    useEffect(() => {
+        resetChatCount()
+    }, [resetChatCount])
 
     const [showModal, setShowModal] = useState(false)
     const [selectedInfo, setSelectedInfo] = useState<{

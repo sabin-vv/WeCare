@@ -1,6 +1,7 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { useChat } from '../hooks/useChat'
+import { useUnreadChatCount } from '../hooks/useUnreadChatCount'
 import type { PatientOption } from '../types/chat.types'
 
 import ChatLayout from '@/modules/chat/components/ChatLayout'
@@ -24,6 +25,12 @@ const DoctorChatPage = () => {
         sendMessage,
         startNewChat,
     } = useChat()
+
+    const { reset: resetChatCount } = useUnreadChatCount()
+
+    useEffect(() => {
+        resetChatCount()
+    }, [resetChatCount])
 
     const [showModal, setShowModal] = useState(false)
     const [selectedInfo, setSelectedInfo] = useState<{
