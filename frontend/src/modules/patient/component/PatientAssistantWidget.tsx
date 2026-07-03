@@ -22,10 +22,10 @@ const PatientAssistantWidget = () => {
     }, [conversation])
 
     const quickQuestions = [
-        '💊 Explain Metformin',
-        '🩺 What is diabetes?',
-        '📅 How do I book an appointment?',
-        '💳 How does wallet payment work?',
+        '📅 When is my next appointment?',
+        '💊 What medications am I taking?',
+        '🩺 Explain diabetes',
+        '💳 What is my wallet balance?',
         '🥗 Give me healthy diet tips',
     ]
 
@@ -114,9 +114,9 @@ const PatientAssistantWidget = () => {
                         />
                         <button
                             className={styles.sendButton}
-                            onClick={() => handleSubmit}
+                            onClick={() => handleSubmit(message)}
                             type="button"
-                            disabled={isLoading}
+                            disabled={isLoading || !message.trim()}
                         >
                             {isLoading ? <Loader2 size={18} className={styles.spinner} /> : <SendHorizonal size={18} />}
                         </button>
