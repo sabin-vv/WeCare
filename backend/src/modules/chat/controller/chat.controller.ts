@@ -23,6 +23,18 @@ export class ChatController {
         res.status(HTTP_STATUS.OK).json({ success: true, data: result })
     }
 
+    getUnreadCount = async (req: Request, res: Response) => {
+        const { userId, role } = req.user ?? {}
+        if (!userId || !role) throw new AppError(HTTP_STATUS.UNAUTHORIZED, 'User not authenticated')
+
+        if (role !== 'doctor' && role !== 'caregiver') {
+            throw new AppError(HTTP_STATUS.FORBIDDEN, 'Only doctors and caregivers can access chat')
+        }
+
+        const result = await this._chatService.getTotalUnreadCount(userId, role)
+        res.status(HTTP_STATUS.OK).json({ success: true, data: result })
+    }
+
     getMessages = async (req: Request, res: Response) => {
         const { userId, role } = req.user ?? {}
         if (!userId || !role) throw new AppError(HTTP_STATUS.UNAUTHORIZED, 'User not authenticated')

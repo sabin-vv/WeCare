@@ -98,6 +98,14 @@ export class ChatService implements IChatService {
         return { conversations: conversationDTOs }
     }
 
+    async getTotalUnreadCount(
+        userId: string,
+        role: 'doctor' | 'caregiver',
+    ): Promise<{ unreadCount: number }> {
+        const total = await this._chatRepo.getTotalUnreadCount(new Types.ObjectId(userId), role)
+        return { unreadCount: total }
+    }
+
     async getMessages(
         userId: string,
         role: 'doctor' | 'caregiver',

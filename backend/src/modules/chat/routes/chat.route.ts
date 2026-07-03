@@ -12,6 +12,7 @@ export const createChatRoutes = () => {
 
     router.use(requireAuth)
 
+    router.get('/unread-count', chatController.getUnreadCount)
     router.get('/conversations', chatController.getConversations)
     router.get('/conversations/:patientId/messages', chatController.getMessages)
     router.post('/conversations/:patientId/messages', validate(sendMessageSchema), chatController.sendMessage)

@@ -69,6 +69,18 @@ export class ChatRepository implements IChatRepository {
         return { messages, totalCount }
     }
 
+    async getTotalUnreadCount(
+        userId: Types.ObjectId,
+        role: 'doctor' | 'caregiver',
+    ): Promise<number> {
+        const field = role === 'doctor' ? 'doctorId' : 'caregiverId'
+        const result = await ConversationModel.aggregate([
+            { $match: { [field]: userId } },
+            { $group: { _id: null, total: { $sum: `$unreadCount.${role}` } } },
+        ])
+        return result.length > 0 ? result[0].total : 0
+    }
+
     async markMessageAsRead(messageId: Types.ObjectId): Promise<void> {
         await MessageModel.findByIdAndUpdate(messageId, { $set: { readAt: new Date() } })
     }

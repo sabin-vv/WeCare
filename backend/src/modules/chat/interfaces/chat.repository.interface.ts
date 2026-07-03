@@ -22,6 +22,7 @@ export interface IChatRepository {
         page: number,
         limit: number,
     ): Promise<{ messages: MessageDocument[]; totalCount: number }>
+    getTotalUnreadCount(userId: Types.ObjectId, role: 'doctor' | 'caregiver'): Promise<number>
     markMessageAsRead(messageId: Types.ObjectId): Promise<void>
     markConversationMessagesAsRead(
         conversationId: Types.ObjectId,

@@ -2,6 +2,7 @@ import { ConversationListResponse, MessagesResponse, SendMessageResponse } from 
 
 export interface IChatService {
     getConversations(userId: string, role: 'doctor' | 'caregiver'): Promise<ConversationListResponse>
+    getTotalUnreadCount(userId: string, role: 'doctor' | 'caregiver'): Promise<{ unreadCount: number }>
     getMessages(
         userId: string,
         role: 'doctor' | 'caregiver',
