@@ -551,8 +551,8 @@ const PatientDashboardPage = () => {
                 </Section>
             )}
 
-            <Section title="Recent Notifications">
-                {notifications.length > 0 ? (
+            {notifications.length > 0 && (
+                <Section title="Recent Notifications">
                     <div className={styles.notificationList}>
                         {notifications.slice(0, 5).map((n) => (
                             <div key={n._id} className={`${styles.notificationItem} ${!n.isRead ? styles.unread : ''}`}>
@@ -567,10 +567,8 @@ const PatientDashboardPage = () => {
                             </div>
                         ))}
                     </div>
-                ) : (
-                    <p className={styles.emptyText}>No notifications</p>
-                )}
-            </Section>
+                </Section>
+            )}
 
             {nextAppointment === null && !hasActiveSubscription && (
                 <div className={styles.noAppointments}>
