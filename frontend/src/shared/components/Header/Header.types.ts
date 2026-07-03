@@ -1,15 +1,16 @@
-import type { ReactNode } from 'react'
+import type { ComponentType, ReactNode } from 'react'
 
-export interface NavLink {
+export interface NavLinks {
     label: string
     path: string
     badge?: number
+    icon?: ComponentType<{ size?: number; color?: string }>
 }
 
 export interface HeaderProps {
     titlePrefix?: string
     subtitle?: string
-    navLinks?: NavLink[]
+    navLinks?: NavLinks[]
     children?: ReactNode
     leading?: ReactNode
     trailing?: ReactNode

@@ -8,7 +8,7 @@ const LogoutButton = () => {
     const handleLogout = useLogout()
     return (
         <button className={styles.logoutBtn} onClick={handleLogout}>
-            <LogOutIcon />
+            <LogOutIcon size={16} />
             Logout
         </button>
     )

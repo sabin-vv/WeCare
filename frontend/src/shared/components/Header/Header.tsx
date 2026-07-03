@@ -1,12 +1,12 @@
 import { BellRing, Settings } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 
 import Button from '../Button/Button'
 import NotificationDropdown from '../NotificationDropdown/NotificationDropdown'
 
 import styles from './Header.module.css'
-import type { HeaderProps, NavLink, RoleRoute } from './Header.types'
+import type { HeaderProps, NavLinks, RoleRoute } from './Header.types'
 
 import { env } from '@/config/env'
 import LogoutButton from '@/shared/components/LogoutButton/LogoutButton'
@@ -27,7 +27,7 @@ const Header = ({ titlePrefix = '', subtitle, navLinks = [], children, leading, 
 
     const isAuthenticated = !!user
 
-    const publicLinks: NavLink[] = [
+    const publicLinks: NavLinks[] = [
         { label: 'Home', path: '/' },
         { label: 'Book an Appointment', path: '/doctors' },
     ]
@@ -75,7 +75,7 @@ const Header = ({ titlePrefix = '', subtitle, navLinks = [], children, leading, 
                 {leading}
                 <img
                     src={`${baseUrl}${settings?.platformLogo}`}
-                    alt='logo'
+                    alt="logo"
                     className={styles.logo}
                     onClick={() => navigate('/')}
                 />
@@ -84,12 +84,18 @@ const Header = ({ titlePrefix = '', subtitle, navLinks = [], children, leading, 
             <nav className={styles.center}>
                 <ul>
                     {links.map((link) => (
-                        <li key={link.path} className={styles.link} onClick={() => navigate(link.path)}>
+                        <NavLink
+                            key={link.path}
+                            to={link.path}
+                            className={({ isActive }) => `${styles.link} ${isActive ? styles.activeLink : ''}`}
+                            onClick={() => navigate(link.path)}
+                        >
+                            {link.icon && <link.icon size={16} />}
                             {link.label}
                             {link.badge != null && link.badge > 0 && (
                                 <span className={styles.linkBadge}>{link.badge > 9 ? '9+' : link.badge}</span>
                             )}
-                        </li>
+                        </NavLink>
                     ))}
                 </ul>
                 {children}
@@ -113,14 +119,6 @@ const Header = ({ titlePrefix = '', subtitle, navLinks = [], children, leading, 
                                 />
                             )}
                         </div>
-                        <Settings
-                            className={styles.icon}
-                            onClick={() => {
-                                navigate(currentRoutes?.settings || '/')
-                            }}
-                        />
-
-                        <LogoutButton />
 
                         <div className={styles.profile} ref={menuRef}>
                             <div className={styles.profileMain} onClick={() => setIsMenuOpen(!isMenuOpen)}>
@@ -134,7 +132,7 @@ const Header = ({ titlePrefix = '', subtitle, navLinks = [], children, leading, 
                                 {user?.profileImage ? (
                                     <img
                                         src={`${baseUrl}${user?.profileImage}`}
-                                        alt='/profile'
+                                        alt="/profile"
                                         className={styles.profileImg}
                                     />
                                 ) : (
@@ -145,24 +143,30 @@ const Header = ({ titlePrefix = '', subtitle, navLinks = [], children, leading, 
                             </div>
                             {isMenuOpen && (
                                 <div className={styles.mobileMenu}>
-                                    {links.map((link) => (
-                                        <button
-                                            key={link.path}
-                                            className={styles.menuItem}
-                                            onClick={() => handleLinkClick(link.path)}
-                                        >
-                                            {link.label}
-                                            {link.badge != null && link.badge > 0 && (
-                                                <span className={styles.menuItemBadge}>{link.badge > 9 ? '9+' : link.badge}</span>
-                                            )}
-                                        </button>
-                                    ))}
+                                    <div className={styles.dropdownNavLinks}>
+                                        {links.map((link) => (
+                                            <button
+                                                key={link.path}
+                                                className={styles.menuItem}
+                                                onClick={() => handleLinkClick(link.path)}
+                                            >
+                                                {link.icon && <link.icon size={16} />}
+                                                {link.label}
+                                                {link.badge != null && link.badge > 0 && (
+                                                    <span className={styles.menuItemBadge}>
+                                                        {link.badge > 9 ? '9+' : link.badge}
+                                                    </span>
+                                                )}
+                                            </button>
+                                        ))}
+                                    </div>
                                     <button
                                         className={styles.menuItem}
                                         onClick={() => handleLinkClick(currentRoutes?.settings || '/')}
                                     >
-                                        Settings
+                                        <Settings size={16} /> Settings
                                     </button>
+                                    <LogoutButton />
                                 </div>
                             )}
                         </div>

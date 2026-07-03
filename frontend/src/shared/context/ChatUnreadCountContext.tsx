@@ -1,9 +1,9 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 
-import { getConversations } from '@/modules/chat/api/chat.api'
-
 import { useAuth } from './AuthContext'
 import { useSocket } from './SocketContext'
+
+import { getConversations } from '@/modules/chat/api/chat.api'
 
 interface ChatUnreadCountContextValue {
     unreadChatCount: number
@@ -86,11 +86,7 @@ export const ChatUnreadCountProvider = ({ children }: { children: ReactNode }) =
         [unreadChatCount, reset, setConversationRead],
     )
 
-    return (
-        <ChatUnreadCountContext.Provider value={value}>
-            {children}
-        </ChatUnreadCountContext.Provider>
-    )
+    return <ChatUnreadCountContext.Provider value={value}>{children}</ChatUnreadCountContext.Provider>
 }
 
 export const useChatUnreadCount = (): ChatUnreadCountContextValue => {
