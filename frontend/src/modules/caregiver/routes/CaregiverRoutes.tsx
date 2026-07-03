@@ -8,8 +8,10 @@ import CaregiverReminders from '../pages/CaregiverReminders'
 import CaregiverSettings from '../pages/CaregiverSettings'
 import PrescriptionPage from '../pages/PrescriptionPage'
 
+
 import CaregiverLayout from '@/layout/CaregiverLayout'
 import { Role } from '@/modules/auth/types/auth.types'
+import CaregiverChatPage from '@/modules/chat/pages/CaregiverChatPage'
 import ProtectedRoute from '@/shared/components/ProtectedRoute/ProtectedRoute'
 
 export const CaregiverRoutes: RouteObject[] = [
@@ -48,6 +50,10 @@ export const CaregiverRoutes: RouteObject[] = [
             {
                 path: 'settings',
                 element: <CaregiverSettings />,
+            },
+            {
+                path: 'chat',
+                element: <CaregiverChatPage />,
             },
         ],
     },
