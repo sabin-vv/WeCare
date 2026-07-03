@@ -1,4 +1,5 @@
 import crypto from 'crypto'
+import { Types } from 'mongoose'
 import { inject, injectable } from 'tsyringe'
 
 import { TOKENS } from '../../../container/tokens'
@@ -60,7 +61,7 @@ export class PaymentService implements IPaymentService {
 
             const appointment = await this._appointmentRepo.findById(payment.appointmentId.toString())
             if (appointment) {
-                await this._patientRepo.updateByUserId(payment.patientId, { primaryDoctorId: appointment.doctorId })
+                await this._patientRepo.updateByUserId(appointment.patientId as Types.ObjectId, { primaryDoctorId: appointment.doctorId })
 
                 const doctor = await this._doctorRepo
                     .findByIdWithUser(appointment.doctorId.toString())

@@ -26,7 +26,7 @@ const CaregiverChatPage = () => {
         startNewChat,
     } = useChat()
 
-    const { reset: resetChatCount } = useUnreadChatCount()
+    const { reset: resetChatCount, setConversationRead } = useUnreadChatCount()
 
     useEffect(() => {
         resetChatCount()
@@ -35,9 +35,9 @@ const CaregiverChatPage = () => {
     const handleSelectConversation = useCallback(
         async (patientId: string) => {
             await selectConversation(patientId)
-            await resetChatCount()
+            setConversationRead(patientId)
         },
-        [selectConversation, resetChatCount],
+        [selectConversation, setConversationRead],
     )
 
     const [showModal, setShowModal] = useState(false)
