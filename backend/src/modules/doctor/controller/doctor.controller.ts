@@ -4,6 +4,7 @@ import { inject, injectable } from 'tsyringe'
 import { TOKENS } from '../../../container/tokens'
 import { HTTP_STATUS } from '../../../core/constants/httpStatus'
 import { AppError } from '../../../core/errors/AppError'
+import { sendSuccess } from '../../../core/response/ApiResponse'
 import { IAppointmentService } from '../../appointment/interfaces/appointment.service.interface'
 import { MSG } from '../constants/messages'
 import { IDoctorService } from '../interfaces/doctor.service.interface'
@@ -23,7 +24,7 @@ export class DoctorController {
 
         const result = await this._doctorService.getProfile(userId)
 
-        res.status(HTTP_STATUS.OK).json({ success: true, message: MSG.PROFILE_FETCHED, data: result })
+        sendSuccess(res, MSG.PROFILE_FETCHED, result)
     }
 
     createProfile = async (req: Request, res: Response) => {
@@ -34,7 +35,7 @@ export class DoctorController {
 
         const result = await this._doctorService.createProfile(userId, req.body)
 
-        res.status(HTTP_STATUS.CREATED).json({ success: true, message: MSG.PROFILE_UPDATED, data: result })
+        sendSuccess(res, MSG.PROFILE_UPDATED, result, HTTP_STATUS.CREATED)
     }
 
     updateActiveStatus = async (req: Request, res: Response) => {
@@ -45,7 +46,7 @@ export class DoctorController {
 
         const result = await this._doctorService.updateActiveStatus(userId, req.body)
 
-        res.status(HTTP_STATUS.OK).json({ success: true, message: MSG.PROFILE_UPDATED, data: result })
+        sendSuccess(res, MSG.PROFILE_UPDATED, result)
     }
 
     updateProfile = async (req: Request, res: Response) => {
@@ -56,7 +57,7 @@ export class DoctorController {
 
         const result = await this._doctorService.updateProfile(userId, req.body)
 
-        res.status(HTTP_STATUS.OK).json({ success: true, message: MSG.PROFILE_UPDATED, data: result })
+        sendSuccess(res, MSG.PROFILE_UPDATED, result)
     }
 
     getAvailability = async (req: Request, res: Response) => {
@@ -67,7 +68,7 @@ export class DoctorController {
 
         const result = await this._doctorService.getAvailability(userId)
 
-        res.status(HTTP_STATUS.OK).json({ success: true, message: MSG.AVAILABILITY_FETCHED, data: result })
+        sendSuccess(res, MSG.AVAILABILITY_FETCHED, result)
     }
 
     updateAvailability = async (req: Request, res: Response) => {
@@ -78,7 +79,7 @@ export class DoctorController {
 
         const result = await this._doctorService.updateAvailability(userId, req.body)
 
-        res.status(HTTP_STATUS.OK).json({ success: true, message: MSG.AVAILABILITY_UPDATED, data: result })
+        sendSuccess(res, MSG.AVAILABILITY_UPDATED, result)
     }
 
     private validSortBy = ['rating', 'name', 'newest'] as const
@@ -126,10 +127,7 @@ export class DoctorController {
 
         const result = await this._doctorService.getDoctorById(doctorId)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: result,
-        })
+        sendSuccess(res, undefined, result)
     }
 
     getDoctorSlots = async (req: Request, res: Response) => {
@@ -143,10 +141,7 @@ export class DoctorController {
 
         const result = await this._doctorService.getDoctorSlots(doctorId, dateParam)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: result,
-        })
+        sendSuccess(res, undefined, result)
     }
 
     getDashboard = async (req: Request, res: Response) => {
@@ -157,7 +152,7 @@ export class DoctorController {
 
         const result = await this._doctorService.getDashboardStats(userId)
 
-        res.status(HTTP_STATUS.OK).json({ success: true, message: MSG.DASHBOARD_FETCHED, data: result })
+        sendSuccess(res, MSG.DASHBOARD_FETCHED, result)
     }
 
     getAppointmentStats = async (req: Request, res: Response) => {
@@ -175,7 +170,7 @@ export class DoctorController {
 
         const result = await this._doctorService.getAppointmentStats(userId, startDate, endDate)
 
-        res.status(HTTP_STATUS.OK).json({ success: true, data: result })
+        sendSuccess(res, undefined, result)
     }
 
     startConsultation = async (req: Request, res: Response) => {
@@ -191,11 +186,7 @@ export class DoctorController {
 
         const appointmentId = await this._appointmentService.startConsultation(doctorId, patientId)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            message: MSG.CONSULTATION_STARTED,
-            data: { appointmentId },
-        })
+        sendSuccess(res, MSG.CONSULTATION_STARTED, { appointmentId })
     }
 
     completeConsultation = async (req: Request, res: Response) => {
@@ -211,9 +202,6 @@ export class DoctorController {
 
         await this._appointmentService.completeConsultation(doctorId, patientId as string)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            message: MSG.CONSULTATION_COMPLETED,
-        })
+        sendSuccess(res, MSG.CONSULTATION_COMPLETED)
     }
 }
