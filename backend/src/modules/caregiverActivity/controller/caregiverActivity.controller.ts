@@ -4,6 +4,7 @@ import { inject, injectable } from 'tsyringe'
 import { TOKENS } from '../../../container/tokens'
 import { HTTP_STATUS } from '../../../core/constants/httpStatus'
 import { AppError } from '../../../core/errors/AppError'
+import { sendSuccess } from '../../../core/response/ApiResponse'
 import { MSG } from '../constants/messages'
 import { ICaregiverActivityService } from '../interfaces/caregiverActivity.service.interface'
 
@@ -22,6 +23,6 @@ export class CaregiverActivityController {
         const limit = parseInt(req.query.limit as string, 10) || 8
 
         const result = await this._activityService.getActivityLogs(userId, page, limit)
-        res.status(HTTP_STATUS.OK).json({ success: true, data: result })
+        sendSuccess(res, undefined, result)
     }
 }
