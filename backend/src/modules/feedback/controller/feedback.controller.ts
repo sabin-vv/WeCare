@@ -4,6 +4,7 @@ import { inject, injectable } from 'tsyringe'
 import { TOKENS } from '../../../container/tokens'
 import { HTTP_STATUS } from '../../../core/constants/httpStatus'
 import { AppError } from '../../../core/errors/AppError'
+import { sendSuccess } from '../../../core/response/ApiResponse'
 import { MSG } from '../constants/messages'
 import { IFeedbackService } from '../interfaces/feedback.service.interface'
 
@@ -19,6 +20,6 @@ export class FeedbackController {
         if (!userId) throw new AppError(HTTP_STATUS.UNAUTHORIZED, MSG.USER_NOT_AUTHENTICATED)
 
         const result = await this._feedbackService.submitFeedback(userId, req.body)
-        res.status(HTTP_STATUS.CREATED).json({ success: true, message: MSG.SUBMITTED, data: result })
+        sendSuccess(res, MSG.SUBMITTED, result, HTTP_STATUS.CREATED)
     }
 }
