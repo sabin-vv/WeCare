@@ -4,6 +4,7 @@ import { inject, injectable } from 'tsyringe'
 import { TOKENS } from '../../../container/tokens'
 import { HTTP_STATUS } from '../../../core/constants/httpStatus'
 import { AppError } from '../../../core/errors/AppError'
+import { sendSuccess } from '../../../core/response/ApiResponse'
 import { MSG } from '../constants/messages'
 import { IAppointmentService } from '../interfaces/appointment.service.interface'
 
@@ -22,10 +23,7 @@ export class AppointmentController {
             patientId,
         })
 
-        res.status(HTTP_STATUS.CREATED).json({
-            success: true,
-            data: order,
-        })
+        sendSuccess(res, undefined, order, HTTP_STATUS.CREATED)
     }
 
     getPatientAppointments = async (req: Request, res: Response) => {
@@ -36,11 +34,7 @@ export class AppointmentController {
 
         const appointments = await this._appointmentService.getPatientAppointments(patientId)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            message: MSG.FETCHED,
-            data: appointments,
-        })
+        sendSuccess(res, MSG.FETCHED, appointments)
     }
 
     getDoctorAppointments = async (req: Request, res: Response) => {
@@ -56,11 +50,7 @@ export class AppointmentController {
             date: (req.query.date as string)?.trim() || undefined,
         })
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            message: MSG.DOCTOR_FETCHED,
-            data: appointments,
-        })
+        sendSuccess(res, MSG.DOCTOR_FETCHED, appointments)
     }
 
     cancellAppointment = async (req: Request, res: Response) => {
@@ -69,14 +59,11 @@ export class AppointmentController {
 
         const result = await this._appointmentService.cancelAppointment(appointmentId as string, reason)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            message:
-                result.refundAmount > 0
-                    ? `Appointment cancelled. Refund of ₹${result.refundAmount} initiated.`
-                    : MSG.CANCELLED,
-            data: { refundAmount: result.refundAmount },
-        })
+        const cancelMessage =
+            result.refundAmount > 0
+                ? `Appointment cancelled. Refund of ₹${result.refundAmount} initiated.`
+                : MSG.CANCELLED
+        sendSuccess(res, cancelMessage, { refundAmount: result.refundAmount })
     }
 
     getAppointmentById = async (req: Request, res: Response) => {
@@ -88,10 +75,7 @@ export class AppointmentController {
         const { appointmentId } = req.params as { appointmentId: string }
         const appointment = await this._appointmentService.getAppointmentById(appointmentId, patientId)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: appointment,
-        })
+        sendSuccess(res, undefined, appointment)
     }
 
     rescheduleAppointment = async (req: Request, res: Response) => {
@@ -102,17 +86,9 @@ export class AppointmentController {
 
         const { appointmentId } = req.params as { appointmentId: string }
 
-        const appointment = await this._appointmentService.rescheduleAppointment(
-            appointmentId,
-            patientId,
-            req.body,
-        )
+        const appointment = await this._appointmentService.rescheduleAppointment(appointmentId, patientId, req.body)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            message: MSG.RESCHEDULED,
-            data: appointment,
-        })
+        sendSuccess(res, MSG.RESCHEDULED, appointment)
     }
 
     retryPayment = async (req: Request, res: Response) => {
@@ -129,9 +105,6 @@ export class AppointmentController {
             patientId,
         })
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: result,
-        })
+        sendSuccess(res, undefined, result)
     }
 }
