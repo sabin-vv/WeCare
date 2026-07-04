@@ -4,6 +4,7 @@ import { inject, injectable } from 'tsyringe'
 import { TOKENS } from '../../../container/tokens'
 import { env } from '../../../core/config/env'
 import { HTTP_STATUS } from '../../../core/constants/httpStatus'
+import { sendSuccess } from '../../../core/response/ApiResponse'
 import { MSG } from '../constants/messages'
 import { IAuthService } from '../interfaces/auth.service.interface'
 import { UserRole } from '../types/auth.types'
@@ -24,11 +25,7 @@ export class AuthController {
         const { confirmPassword: _confirmPassword, ...cleanDto } = req.body
         const result = await this._authService.register(cleanDto)
 
-        res.status(HTTP_STATUS.CREATED).json({
-            success: true,
-            message: MSG.USER_CREATED,
-            data: result,
-        })
+        sendSuccess(res, MSG.USER_CREATED, result, HTTP_STATUS.CREATED)
     }
 
     sendOtp = async (req: Request, res: Response) => {
@@ -36,7 +33,7 @@ export class AuthController {
 
         await this._authService.sendOtp(email, purpose)
 
-        res.status(HTTP_STATUS.OK).json({ success: true, message: MSG.OTP_SENT })
+        sendSuccess(res, MSG.OTP_SENT)
     }
 
     verifyOtp = async (req: Request, res: Response) => {
@@ -44,10 +41,7 @@ export class AuthController {
 
         await this._authService.verifyOtp(email, otp)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            message: MSG.OTP_VERIFIED,
-        })
+        sendSuccess(res, MSG.OTP_VERIFIED)
     }
 
     login = async (req: Request, res: Response) => {
@@ -60,7 +54,7 @@ export class AuthController {
         res.cookie('accessToken', accessToken, cookieOptions)
         res.cookie('refreshToken', refreshToken, cookieOptions)
 
-        res.status(HTTP_STATUS.OK).json({ success: true, message: MSG.LOGIN_SUCCESS, data: result.user })
+        sendSuccess(res, MSG.LOGIN_SUCCESS, result.user)
     }
 
     refreshToken = async (req: Request, res: Response) => {
@@ -69,23 +63,20 @@ export class AuthController {
 
         res.cookie('accessToken', accessToken, cookieOptions)
 
-        res.status(HTTP_STATUS.OK).json({ success: true, message: MSG.TOKEN_REFRESHED })
+        sendSuccess(res, MSG.TOKEN_REFRESHED)
     }
 
     resetPassword = async (req: Request, res: Response) => {
         await this._authService.resetPassword(req.body)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            message: MSG.PASSWORD_RESET,
-        })
+        sendSuccess(res, MSG.PASSWORD_RESET)
     }
 
     logout = async (_req: Request, res: Response) => {
         res.clearCookie('accessToken', cookieOptions)
         res.clearCookie('refreshToken', cookieOptions)
 
-        res.status(HTTP_STATUS.OK).json({ success: true, message: MSG.LOGGED_OUT })
+        sendSuccess(res, MSG.LOGGED_OUT)
     }
 
     getCurrentUser = async (req: Request, res: Response) => {
@@ -94,7 +85,7 @@ export class AuthController {
 
         const user = await this._authService.getCurrentUser(userId!, role)
 
-        res.status(HTTP_STATUS.OK).json({ success: true, data: user })
+        sendSuccess(res, undefined, user)
     }
 
     changePassword = async (req: Request, res: Response) => {
@@ -102,9 +93,6 @@ export class AuthController {
 
         await this._authService.changePassword(userId!, req.body)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            message: MSG.PASSWORD_CHANGED,
-        })
+        sendSuccess(res, MSG.PASSWORD_CHANGED)
     }
 }
