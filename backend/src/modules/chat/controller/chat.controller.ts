@@ -4,6 +4,7 @@ import { inject, injectable } from 'tsyringe'
 import { TOKENS } from '../../../container/tokens'
 import { HTTP_STATUS } from '../../../core/constants/httpStatus'
 import { AppError } from '../../../core/errors/AppError'
+import { sendSuccess } from '../../../core/response/ApiResponse'
 import { MSG } from '../constants/messages'
 import { IChatService } from '../interfaces/chat.service.interface'
 
@@ -20,7 +21,7 @@ export class ChatController {
         }
 
         const result = await this._chatService.getConversations(userId, role)
-        res.status(HTTP_STATUS.OK).json({ success: true, data: result })
+        sendSuccess(res, undefined, result)
     }
 
     getUnreadCount = async (req: Request, res: Response) => {
@@ -32,7 +33,7 @@ export class ChatController {
         }
 
         const result = await this._chatService.getTotalUnreadCount(userId, role)
-        res.status(HTTP_STATUS.OK).json({ success: true, data: result })
+        sendSuccess(res, undefined, result)
     }
 
     getMessages = async (req: Request, res: Response) => {
@@ -48,7 +49,7 @@ export class ChatController {
         const limit = parseInt(req.query.limit as string, 10) || 50
 
         const result = await this._chatService.getMessages(userId, role, patientId, page, limit)
-        res.status(HTTP_STATUS.OK).json({ success: true, data: result })
+        sendSuccess(res, undefined, result)
     }
 
     sendMessage = async (req: Request, res: Response) => {
@@ -63,7 +64,7 @@ export class ChatController {
         const { message } = req.body
 
         const result = await this._chatService.sendMessage(userId, role, patientId, message)
-        res.status(HTTP_STATUS.CREATED).json({ success: true, data: result, message: MSG.MESSAGE_SENT })
+        sendSuccess(res, MSG.MESSAGE_SENT, result, HTTP_STATUS.CREATED)
     }
 
     markAsRead = async (req: Request, res: Response) => {
@@ -76,6 +77,6 @@ export class ChatController {
 
         const messageId = req.params.messageId as string
         await this._chatService.markAsRead(userId, role, messageId)
-        res.status(HTTP_STATUS.OK).json({ success: true, message: MSG.MESSAGE_READ })
+        sendSuccess(res, MSG.MESSAGE_READ)
     }
 }
