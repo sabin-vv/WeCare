@@ -4,6 +4,7 @@ import { inject, injectable } from 'tsyringe'
 import { TOKENS } from '../../../container/tokens'
 import { HTTP_STATUS } from '../../../core/constants/httpStatus'
 import { AppError } from '../../../core/errors/AppError'
+import { sendSuccess } from '../../../core/response/ApiResponse'
 import { MSG } from '../constants/messages'
 import { IAlertService } from '../interfaces/alert.service.interface'
 
@@ -25,7 +26,7 @@ export class AlertController {
             limit: Number.isFinite(parsedLimit) ? parsedLimit : undefined,
             page: Number.isFinite(parsedPage) ? parsedPage : undefined,
         })
-        res.status(HTTP_STATUS.OK).json({ success: true, data: result })
+        sendSuccess(res, undefined, result)
     }
 
     getMyAlertCount = async (req: Request, res: Response) => {
@@ -33,7 +34,7 @@ export class AlertController {
         if (!userId) throw new AppError(HTTP_STATUS.UNAUTHORIZED, MSG.USER_NOT_AUTHENTICATED)
 
         const count = await this._alertService.getPatientAlertCount(userId)
-        res.status(HTTP_STATUS.OK).json({ success: true, data: { count } })
+        sendSuccess(res, undefined, { count })
     }
 
     acknowledgeAlert = async (req: Request, res: Response) => {
@@ -45,6 +46,6 @@ export class AlertController {
 
         const { note } = req.body
         const alert = await this._alertService.acknowledgeAlert(userId, alertId, note)
-        res.status(HTTP_STATUS.OK).json({ success: true, data: alert, message: MSG.ACKNOWLEDGED })
+        sendSuccess(res, MSG.ACKNOWLEDGED, alert)
     }
 }
