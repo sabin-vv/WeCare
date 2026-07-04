@@ -4,6 +4,7 @@ import { inject, injectable } from 'tsyringe'
 import { TOKENS } from '../../../container/tokens'
 import { HTTP_STATUS } from '../../../core/constants/httpStatus'
 import { AppError } from '../../../core/errors/AppError'
+import { sendSuccess } from '../../../core/response/ApiResponse'
 import { UserRole } from '../../auth/types/auth.types'
 import { MSG } from '../constants/messages'
 import { IAssistantService } from '../interfaces/assistant.service.interface'
@@ -35,6 +36,6 @@ export class AssistantController {
         }
 
         const response = await this.assistantService.chat({ userId, role, message })
-        res.status(HTTP_STATUS.OK).json({ success: true, data: response })
+        sendSuccess(res, undefined, response)
     }
 }
