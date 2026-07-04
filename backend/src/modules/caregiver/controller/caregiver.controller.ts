@@ -5,6 +5,7 @@ import { inject, injectable } from 'tsyringe'
 import { TOKENS } from '../../../container/tokens'
 import { HTTP_STATUS } from '../../../core/constants/httpStatus'
 import { AppError } from '../../../core/errors/AppError'
+import { sendSuccess } from '../../../core/response/ApiResponse'
 import { MSG } from '../constants/messages'
 import { ICaregiverRepository } from '../interfaces/caregiver.repository.interface'
 import { ICaregiverService } from '../interfaces/caregiver.service.interface'
@@ -25,11 +26,7 @@ export class CaregiverController {
 
         const result = await this._caregiverService.createProfile(userId, req.body)
 
-        res.status(HTTP_STATUS.CREATED).json({
-            success: true,
-            data: result,
-            message: MSG.PROFILE_CREATED,
-        })
+        sendSuccess(res, MSG.PROFILE_CREATED, result, HTTP_STATUS.CREATED)
     }
 
     getProfile = async (req: Request, res: Response) => {
@@ -40,11 +37,7 @@ export class CaregiverController {
 
         const result = await this._caregiverService.getProfile(userId)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: result,
-            message: MSG.PROFILE_FETCHED,
-        })
+        sendSuccess(res, MSG.PROFILE_FETCHED, result)
     }
 
     updateActiveStatus = async (req: Request, res: Response) => {
@@ -55,7 +48,7 @@ export class CaregiverController {
 
         const result = await this._caregiverService.updateActiveStatus(userId, req.body)
 
-        res.status(HTTP_STATUS.OK).json({ success: true, message: MSG.PROFILE_UPDATED, data: result })
+        sendSuccess(res, MSG.PROFILE_UPDATED, result)
     }
 
     updateProfile = async (req: Request, res: Response) => {
@@ -66,11 +59,7 @@ export class CaregiverController {
 
         const result = await this._caregiverService.updateProfile(userId, req.body)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: result,
-            message: MSG.PROFILE_UPDATED,
-        })
+        sendSuccess(res, MSG.PROFILE_UPDATED, result)
     }
 
     listCaregivers = async (req: Request, res: Response) => {
@@ -78,11 +67,7 @@ export class CaregiverController {
 
         const result = await this._caregiverService.listCaregivers(search as string | undefined)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: result,
-            message: MSG.CAREGIVERS_FETCHED,
-        })
+        sendSuccess(res, MSG.CAREGIVERS_FETCHED, result)
     }
 
     getPatientMedications = async (req: Request, res: Response) => {
@@ -100,11 +85,7 @@ export class CaregiverController {
 
         const medications = await this._caregiverService.getPatientMedications(caregiver._id, patientId)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: medications,
-            message: MSG.PATIENT_MEDICATIONS_FETCHED,
-        })
+        sendSuccess(res, MSG.PATIENT_MEDICATIONS_FETCHED, medications)
     }
 
     getPatientVitalPlans = async (req: Request, res: Response) => {
@@ -122,11 +103,7 @@ export class CaregiverController {
 
         const vitalPlans = await this._caregiverService.getPatientVitalPlans(caregiver._id, patientId)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: vitalPlans,
-            message: MSG.PATIENT_VITAL_PLANS_FETCHED,
-        })
+        sendSuccess(res, MSG.PATIENT_VITAL_PLANS_FETCHED, vitalPlans)
     }
 
     getPatientVitalSchedules = async (req: Request, res: Response) => {
@@ -144,11 +121,7 @@ export class CaregiverController {
 
         const schedules = await this._caregiverService.getPatientVitalSchedules(caregiver._id, patientId)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: schedules,
-            message: MSG.PATIENT_VITAL_SCHEDULES_FETCHED,
-        })
+        sendSuccess(res, MSG.PATIENT_VITAL_SCHEDULES_FETCHED, schedules)
     }
 
     getMyPatients = async (req: Request, res: Response) => {
@@ -164,11 +137,7 @@ export class CaregiverController {
 
         const patients = await this._caregiverService.getMyPatients(caregiver._id)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: patients,
-            message: MSG.PATIENTS_FETCHED,
-        })
+        sendSuccess(res, MSG.PATIENTS_FETCHED, patients)
     }
 
     getAlerts = async (req: Request, res: Response) => {
@@ -198,11 +167,7 @@ export class CaregiverController {
             page: page ? Number(page) : undefined,
         })
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: result,
-            message: MSG.ALERTS_FETCHED,
-        })
+        sendSuccess(res, MSG.ALERTS_FETCHED, result)
     }
 
     logMedication = async (req: Request, res: Response) => {
@@ -224,11 +189,7 @@ export class CaregiverController {
             req.body as LogMedicationDTO,
         )
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: result,
-            message: MSG.MEDICATION_LOG_SAVED,
-        })
+        sendSuccess(res, MSG.MEDICATION_LOG_SAVED, result)
     }
 
     logVitalReading = async (req: Request, res: Response) => {
@@ -249,11 +210,7 @@ export class CaregiverController {
             req.body as LogVitalReadingDTO,
         )
 
-        res.status(HTTP_STATUS.CREATED).json({
-            success: true,
-            data: result,
-            message: MSG.VITAL_READING_SAVED,
-        })
+        sendSuccess(res, MSG.VITAL_READING_SAVED, result, HTTP_STATUS.CREATED)
     }
 
     logSymptom = async (req: Request, res: Response) => {
@@ -270,10 +227,6 @@ export class CaregiverController {
         const { patientId } = req.params as { patientId: string }
         const result = await this._caregiverService.logSymptom(caregiver._id, patientId, req.body as LogSymptomDTO)
 
-        res.status(HTTP_STATUS.CREATED).json({
-            success: true,
-            data: result,
-            message: MSG.SYMPTOM_LOG_SAVED,
-        })
+        sendSuccess(res, MSG.SYMPTOM_LOG_SAVED, result, HTTP_STATUS.CREATED)
     }
 }
