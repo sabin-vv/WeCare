@@ -660,15 +660,17 @@ export class AppointmentService implements IAppointmentService {
 
         const patientExists = await this._patientRepo.findUserByUserId(appointment.patientId as Types.ObjectId)
         const patientName = (patientExists?.userId as unknown as { name: string })?.name
+        const doctorWithUser = await this._doctorRepo.findByIdWithUser(doctor._id.toString())
+        const doctorName = (doctorWithUser?.userId as unknown as { name?: string })?.name ?? 'Doctor'
 
         await this._activityLogService.logActivity({
-            performedBy: (doctor.userId as unknown as { _id: string })._id.toString(),
+            performedBy: doctorId,
             performedByRole: 'doctor',
             category: 'appointment',
             action: 'appointment_completed',
             targetId: appointment._id.toString(),
             targetType: 'appointment',
-            description: `Appointment completed for patient ${patientName} by Dr. ${(doctor.userId as unknown as { name?: string }).name}`,
+            description: `Consultation completed for patient ${patientName} by Dr. ${doctorName}`,
         })
     }
 
