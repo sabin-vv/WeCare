@@ -3,6 +3,8 @@ import { inject, injectable } from 'tsyringe'
 
 import { TOKENS } from '../../../container/tokens'
 import { HTTP_STATUS } from '../../../core/constants/httpStatus'
+import { AppError } from '../../../core/errors/AppError'
+import { sendSuccess } from '../../../core/response/ApiResponse'
 import { MSG } from '../constants/messages'
 import { IWalletService } from '../interfaces/wallet.service.interface'
 
@@ -14,68 +16,33 @@ export class WalletController {
         const { amount, description, referenceId } = req.body
         const userId = req.user?.userId
 
-        if (!userId) {
-            res.status(HTTP_STATUS.UNAUTHORIZED).json({
-                success: false,
-                message: MSG.UNAUTHORIZED,
-            })
-            return
-        }
+        if (!userId) throw new AppError(HTTP_STATUS.UNAUTHORIZED, MSG.UNAUTHORIZED)
 
         const result = await this._walletService.credit(userId, amount, description, referenceId)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            message: MSG.CREDITED,
-            data: result,
-        })
+        sendSuccess(res, MSG.CREDITED, result)
     }
 
     debit = async (req: Request, res: Response) => {
         const { amount, description, referenceId } = req.body
         const userId = req.user?.userId
 
-        if (!userId) {
-            res.status(HTTP_STATUS.UNAUTHORIZED).json({
-                success: false,
-                message: MSG.UNAUTHORIZED,
-            })
-            return
-        }
+        if (!userId) throw new AppError(HTTP_STATUS.UNAUTHORIZED, MSG.UNAUTHORIZED)
 
         const result = await this._walletService.debit(userId, amount, description, referenceId)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            message: MSG.DEBITED,
-            data: result,
-        })
+        sendSuccess(res, MSG.DEBITED, result)
     }
 
     getWallet = async (req: Request, res: Response) => {
         const userId = req.user?.userId
 
-        if (!userId) {
-            res.status(HTTP_STATUS.UNAUTHORIZED).json({
-                success: false,
-                message: MSG.UNAUTHORIZED,
-            })
-            return
-        }
+        if (!userId) throw new AppError(HTTP_STATUS.UNAUTHORIZED, MSG.UNAUTHORIZED)
 
         const result = await this._walletService.getWallet(userId)
 
-        if (!result) {
-            res.status(HTTP_STATUS.NOT_FOUND).json({
-                success: false,
-                message: MSG.NOT_FOUND,
-            })
-            return
-        }
+        if (!result) throw new AppError(HTTP_STATUS.NOT_FOUND, MSG.NOT_FOUND)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: result,
-        })
+        sendSuccess(res, undefined, result)
     }
 }

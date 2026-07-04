@@ -4,6 +4,7 @@ import { inject, injectable } from 'tsyringe'
 import { TOKENS } from '../../../container/tokens'
 import { HTTP_STATUS } from '../../../core/constants/httpStatus'
 import { AppError } from '../../../core/errors/AppError'
+import { sendSuccess } from '../../../core/response/ApiResponse'
 import { MSG } from '../constants/messages'
 import { IVitalService } from '../interfaces/vital.service.interface'
 import { CreateVitalPlanDTO } from '../validator/vital.schema'
@@ -21,10 +22,7 @@ export class VitalController {
         const dto: CreateVitalPlanDTO = req.body
         const plan = await this._vitalService.createVitalPlan(userId, dto)
 
-        res.status(HTTP_STATUS.CREATED).json({
-            success: true,
-            data: plan,
-        })
+        sendSuccess(res, undefined, plan, HTTP_STATUS.CREATED)
     }
 
     getPatientVitalPlans = async (req: Request, res: Response) => {
@@ -33,10 +31,7 @@ export class VitalController {
 
         const plans = await this._vitalService.getPatientVitalPlans(patientId, status as string | undefined)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: plans,
-        })
+        sendSuccess(res, undefined, plans)
     }
 
     cancelVitalPlan = async (req: Request, res: Response) => {
@@ -48,11 +43,7 @@ export class VitalController {
         const { planId } = req.params as { planId: string }
         const plan = await this._vitalService.cancelVitalPlan(userId, planId)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: plan,
-            message: MSG.PLAN_CANCELLED,
-        })
+        sendSuccess(res, MSG.PLAN_CANCELLED, plan)
     }
 
     getPatientVitalSchedules = async (req: Request, res: Response) => {
@@ -63,11 +54,7 @@ export class VitalController {
 
         const schedules = await this._vitalService.getPatientVitalSchedules(userId)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: schedules,
-            message: MSG.SCHEDULES_FETCHED,
-        })
+        sendSuccess(res, MSG.SCHEDULES_FETCHED, schedules)
     }
 
     generateVitalSchedules = async (req: Request, res: Response) => {
@@ -76,9 +63,6 @@ export class VitalController {
 
         await this._vitalService.generateDailyVitalSchedule(today)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            message: MSG.GENERATED,
-        })
+        sendSuccess(res, MSG.GENERATED)
     }
 }

@@ -4,6 +4,7 @@ import { inject, injectable } from 'tsyringe'
 import { TOKENS } from '../../../container/tokens'
 import { HTTP_STATUS } from '../../../core/constants/httpStatus'
 import { AppError } from '../../../core/errors/AppError'
+import { sendSuccess } from '../../../core/response/ApiResponse'
 import { MSG } from '../constants/messages'
 import { ISymptomLogService } from '../interfaces/symptomLog.service.interface'
 import { CreateSymptomLogDTO } from '../validator/symptomLog.schema'
@@ -21,20 +22,13 @@ export class SymptomLogController {
         const dto: CreateSymptomLogDTO = req.body
         const log = await this._logService.create(userId, dto)
 
-        res.status(HTTP_STATUS.CREATED).json({
-            success: true,
-            data: log,
-            message: 'Symptom log created successfully',
-        })
+        sendSuccess(res, 'Symptom log created successfully', log, HTTP_STATUS.CREATED)
     }
 
     getPatientLogs = async (req: Request, res: Response) => {
         const { patientId } = req.params
         const logs = await this._logService.getPatientLogs(String(patientId))
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: logs,
-        })
+        sendSuccess(res, undefined, logs)
     }
 }

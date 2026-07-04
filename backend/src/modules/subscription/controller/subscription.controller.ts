@@ -4,6 +4,7 @@ import { inject, injectable } from 'tsyringe'
 import { TOKENS } from '../../../container/tokens'
 import { HTTP_STATUS } from '../../../core/constants/httpStatus'
 import { AppError } from '../../../core/errors/AppError'
+import { sendSuccess } from '../../../core/response/ApiResponse'
 import { MSG } from '../constants/messages'
 import { ISubscriptionService } from '../interfaces/subscription.service.interface'
 import { createSubscriptionSchema } from '../validator/subscription.schema'
@@ -20,11 +21,7 @@ export class SubscriptionController {
 
         const subscription = await this._subscriptionService.getMySubscription(userId)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: subscription,
-            message: subscription ? MSG.FETCHED : 'No active subscription found',
-        })
+        sendSuccess(res, subscription ? MSG.FETCHED : 'No active subscription found', subscription)
     }
 
     createSubscription = async (req: Request, res: Response) => {
@@ -37,11 +34,7 @@ export class SubscriptionController {
         const dto = createSubscriptionSchema.parse(req.body)
         const result = await this._subscriptionService.createSubscription(userId, role, dto)
 
-        res.status(HTTP_STATUS.CREATED).json({
-            success: true,
-            data: result,
-            message: MSG.CREATED,
-        })
+        sendSuccess(res, MSG.CREATED, result, HTTP_STATUS.CREATED)
     }
 
     verifySubscriptionPayment = async (req: Request, res: Response) => {
@@ -53,11 +46,7 @@ export class SubscriptionController {
 
         const subscription = await this._subscriptionService.verifySubscriptionPayment(userId, role, req.body)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: subscription,
-            message: MSG.ACTIVATED,
-        })
+        sendSuccess(res, MSG.ACTIVATED, subscription)
     }
 
     cancelSubscription = async (req: Request, res: Response) => {
@@ -70,9 +59,6 @@ export class SubscriptionController {
         const { subscriptionId } = req.params as { subscriptionId: string }
         await this._subscriptionService.cancelSubscription(subscriptionId, userId, role)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            message: MSG.CANCELLED,
-        })
+        sendSuccess(res, MSG.CANCELLED)
     }
 }

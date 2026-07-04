@@ -4,6 +4,7 @@ import { inject, injectable } from 'tsyringe'
 import { TOKENS } from '../../../container/tokens'
 import { HTTP_STATUS } from '../../../core/constants/httpStatus'
 import { AppError } from '../../../core/errors/AppError'
+import { sendSuccess } from '../../../core/response/ApiResponse'
 import { MSG } from '../constants/messages'
 import { IMedicalRecordService } from '../interfaces/medicalRecord.service.interface'
 
@@ -21,11 +22,7 @@ export class MedicalRecordController {
 
         const result = await this._medicalRecordService.getMedicalRecord(doctorId, patientId as string)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: result,
-            message: MSG.FETCHED,
-        })
+        sendSuccess(res, MSG.FETCHED, result)
     }
 
     updateMedicalRecord = async (req: Request, res: Response) => {
@@ -38,11 +35,7 @@ export class MedicalRecordController {
 
         const result = await this._medicalRecordService.updateMedicalRecord(doctorId, patientId as string, req.body)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: result,
-            message: MSG.UPDATED,
-        })
+        sendSuccess(res, MSG.UPDATED, result)
     }
 
     addClinicalNote = async (req: Request, res: Response) => {
@@ -56,10 +49,6 @@ export class MedicalRecordController {
 
         const result = await this._medicalRecordService.addClinicalNote(doctorId, patientId as string, note)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: result,
-            message: MSG.NOTE_ADDED,
-        })
+        sendSuccess(res, MSG.NOTE_ADDED, result)
     }
 }

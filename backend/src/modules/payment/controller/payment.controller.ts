@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import { inject, injectable } from 'tsyringe'
 
 import { TOKENS } from '../../../container/tokens'
-import { HTTP_STATUS } from '../../../core/constants/httpStatus'
+import { sendSuccess } from '../../../core/response/ApiResponse'
 import { MSG } from '../constants/messages'
 import { IPaymentService } from '../interfaces/payment.service.interface'
 
@@ -13,10 +13,6 @@ export class PaymentController {
     verifyPayment = async (req: Request, res: Response) => {
         const result = await this._paymentService.verifyPayment(req.body)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            message: MSG.VERIFIED,
-            data: result,
-        })
+        sendSuccess(res, MSG.VERIFIED, result)
     }
 }

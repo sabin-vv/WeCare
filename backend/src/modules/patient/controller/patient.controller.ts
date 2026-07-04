@@ -4,6 +4,7 @@ import { inject, injectable } from 'tsyringe'
 import { TOKENS } from '../../../container/tokens'
 import { HTTP_STATUS } from '../../../core/constants/httpStatus'
 import { AppError } from '../../../core/errors/AppError'
+import { sendSuccess } from '../../../core/response/ApiResponse'
 import { MSG } from '../constants/messages'
 import { IPatientService } from '../interfaces/patient.service.interface'
 
@@ -14,11 +15,7 @@ export class PatientController {
     registerPatient = async (req: Request, res: Response) => {
         const result = await this._patientService.registerPatient(req.body)
 
-        res.status(HTTP_STATUS.CREATED).json({
-            success: true,
-            data: result,
-            message: MSG.REGISTERED,
-        })
+        sendSuccess(res, MSG.REGISTERED, result, HTTP_STATUS.CREATED)
     }
 
     getProfile = async (req: Request, res: Response) => {
@@ -29,11 +26,7 @@ export class PatientController {
 
         const result = await this._patientService.getProfile(userId)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: result,
-            message: MSG.PROFILE_FETCHED,
-        })
+        sendSuccess(res, MSG.PROFILE_FETCHED, result)
     }
 
     updateProfile = async (req: Request, res: Response) => {
@@ -44,11 +37,7 @@ export class PatientController {
 
         const result = await this._patientService.updateProfile(userId, req.body)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: result,
-            message: MSG.PROFILE_UPDATED,
-        })
+        sendSuccess(res, MSG.PROFILE_UPDATED, result)
     }
 
     getPatients = async (req: Request, res: Response) => {
@@ -67,11 +56,7 @@ export class PatientController {
             limit: parseInt(limit as string) || 8,
         })
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: result,
-            message: MSG.LIST_FETCHED,
-        })
+        sendSuccess(res, MSG.LIST_FETCHED, result)
     }
 
     getPatientById = async (req: Request, res: Response) => {
@@ -85,11 +70,7 @@ export class PatientController {
 
         const result = await this._patientService.getPatientById(doctorId, patientId as string)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: result,
-            message: MSG.DETAILS_FETCHED,
-        })
+        sendSuccess(res, MSG.DETAILS_FETCHED, result)
     }
 
     updatePatientCondition = async (req: Request, res: Response) => {
@@ -103,11 +84,7 @@ export class PatientController {
 
         const result = await this._patientService.updatePatientCondition(doctorId, patientId as string, req.body)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: result,
-            message: MSG.CONDITION_UPDATED,
-        })
+        sendSuccess(res, MSG.CONDITION_UPDATED, result)
     }
 
     assignCaregiver = async (req: Request, res: Response) => {
@@ -122,11 +99,7 @@ export class PatientController {
 
         const result = await this._patientService.assignCaregiver(doctorId, patientId as string, caregiverId)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: result,
-            message: MSG.CAREGIVER_ASSIGNED,
-        })
+        sendSuccess(res, MSG.CAREGIVER_ASSIGNED, result)
     }
 
     getCareTeam = async (req: Request, res: Response) => {
@@ -137,11 +110,7 @@ export class PatientController {
 
         const result = await this._patientService.getCareTeam(userId)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: result,
-            message: MSG.CARE_TEAM_FETCHED,
-        })
+        sendSuccess(res, MSG.CARE_TEAM_FETCHED, result)
     }
 
     updateClinicalStatus = async (req: Request, res: Response) => {
@@ -156,10 +125,6 @@ export class PatientController {
 
         const result = await this._patientService.updateClinicalStatus(doctorId, patientId as string, clinicalStatus)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: result,
-            message: MSG.CLINICAL_STATUS_UPDATED,
-        })
+        sendSuccess(res, MSG.CLINICAL_STATUS_UPDATED, result)
     }
 }

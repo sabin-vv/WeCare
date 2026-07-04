@@ -4,6 +4,7 @@ import { inject, injectable } from 'tsyringe'
 import { TOKENS } from '../../../container/tokens'
 import { HTTP_STATUS } from '../../../core/constants/httpStatus'
 import { AppError } from '../../../core/errors/AppError'
+import { sendSuccess } from '../../../core/response/ApiResponse'
 import { IAppointmentRepository } from '../../appointment/interfaces/appointment.repository.interface'
 import { IDoctorRepository } from '../../doctor/interfaces/doctor.repository.interface'
 import { IVideoCallService } from '../interfaces/videoCall.service.interface'
@@ -51,10 +52,7 @@ export class VideoCallController {
         )
         const token = await this._videoCallService.getToken(roomName, userId)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: { roomName, appointmentID, token },
-        })
+        sendSuccess(res, undefined, { roomName, appointmentID, token })
     }
 
     getToken = async (req: Request, res: Response) => {
@@ -70,10 +68,7 @@ export class VideoCallController {
 
         const token = await this._videoCallService.getToken(roomName, userId)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: { token },
-        })
+        sendSuccess(res, undefined, { token })
     }
 
     getRoomByAppointment = async (req: Request, res: Response) => {
@@ -107,10 +102,7 @@ export class VideoCallController {
         const { roomName } = await this._videoCallService.getRoomByAppointment(appointmentId)
         const token = await this._videoCallService.getToken(roomName, userId)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: { roomName, token },
-        })
+        sendSuccess(res, undefined, { roomName, token })
     }
 
     completeRoom = async (req: Request, res: Response) => {
@@ -122,10 +114,7 @@ export class VideoCallController {
 
         await this._videoCallService.completeRoom(roomName)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            message: 'Consultation completed successfully',
-        })
+        sendSuccess(res, 'Consultation completed successfully')
     }
 
     endRoom = async (req: Request, res: Response) => {
@@ -137,9 +126,6 @@ export class VideoCallController {
 
         await this._videoCallService.endRoom(roomName)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            message: 'Video room ended',
-        })
+        sendSuccess(res, 'Video room ended')
     }
 }

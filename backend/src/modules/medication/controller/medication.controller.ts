@@ -4,6 +4,7 @@ import { inject, injectable } from 'tsyringe'
 import { TOKENS } from '../../../container/tokens'
 import { HTTP_STATUS } from '../../../core/constants/httpStatus'
 import { AppError } from '../../../core/errors/AppError'
+import { sendSuccess } from '../../../core/response/ApiResponse'
 import { MSG } from '../constants/messages'
 import { IMedicationService } from '../interfaces/medication.service.interface'
 
@@ -19,11 +20,7 @@ export class MedicationController {
 
         const medications = await this._medicationService.getPatientMedications(userId)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            data: medications,
-            message: MSG.FETCHED,
-        })
+        sendSuccess(res, MSG.FETCHED, medications)
     }
 
     generateMedications = async (req: Request, res: Response) => {
@@ -32,9 +29,6 @@ export class MedicationController {
 
         await this._medicationService.generateDailySchedule(today)
 
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            message: MSG.GENERATED,
-        })
+        sendSuccess(res, MSG.GENERATED)
     }
 }
