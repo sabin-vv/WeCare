@@ -4,6 +4,7 @@ import { inject, injectable } from 'tsyringe'
 import { TOKENS } from '../../../container/tokens'
 import { HTTP_STATUS } from '../../../core/constants/httpStatus'
 import { AppError } from '../../../core/errors/AppError'
+import { sendSuccess } from '../../../core/response/ApiResponse'
 import { MSG } from '../constants/messages'
 import { INotificationService } from '../interfaces/notification.service.interface'
 
@@ -34,7 +35,7 @@ export class NotificationController {
         if (!notificationId) throw new AppError(HTTP_STATUS.BAD_REQUEST, MSG.ID_REQUIRED)
 
         const notification = await this._notificationService.markAsRead(userId, notificationId)
-        res.status(HTTP_STATUS.OK).json({ success: true, data: notification })
+        sendSuccess(res, undefined, notification)
     }
 
     markAllAsRead = async (req: Request, res: Response) => {
@@ -42,7 +43,7 @@ export class NotificationController {
         if (!userId) throw new AppError(HTTP_STATUS.UNAUTHORIZED, MSG.USER_NOT_AUTHENTICATED)
 
         await this._notificationService.markAllAsRead(userId)
-        res.status(HTTP_STATUS.OK).json({ success: true, message: 'All notifications marked as read' })
+        sendSuccess(res, 'All notifications marked as read')
     }
 
     getUnreadCount = async (req: Request, res: Response) => {
@@ -50,7 +51,7 @@ export class NotificationController {
         if (!userId) throw new AppError(HTTP_STATUS.UNAUTHORIZED, MSG.USER_NOT_AUTHENTICATED)
 
         const count = await this._notificationService.getUnreadCount(userId)
-        res.status(HTTP_STATUS.OK).json({ success: true, data: { count } })
+        sendSuccess(res, undefined, { count })
     }
 
     deleteNotification = async (req: Request, res: Response) => {
@@ -61,6 +62,6 @@ export class NotificationController {
         if (!notificationId) throw new AppError(HTTP_STATUS.BAD_REQUEST, MSG.ID_REQUIRED)
 
         await this._notificationService.deleteNotification(userId, notificationId)
-        res.status(HTTP_STATUS.OK).json({ success: true, message: 'Notification deleted' })
+        sendSuccess(res, 'Notification deleted')
     }
 }
