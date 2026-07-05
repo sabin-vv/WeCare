@@ -26,7 +26,7 @@ import {
     toCaregiverProfileResponse,
     toCaregiverProfileResponseFromAggregation,
 } from '../mapper/caregiver.mapper'
-import { CaregiverProfileResponse, CaregiverVitalLogResponse, SymptomLogDTO } from '../types/caregiver.types'
+import { CaregiverDocument, CaregiverProfileResponse, CaregiverVitalLogResponse, SymptomLogDTO, VerificationStatus } from '../types/caregiver.types'
 import { CreateCaregiverProfileDTO } from '../validator/caregiver.schema'
 import { LogMedicationDTO, LogSymptomDTO, LogVitalReadingDTO } from '../validator/caregiverLogging.schema'
 import { UpdateCaregiverActiveStatusDTO } from '../validator/updateCaregiverActiveStatus.schema'
@@ -105,16 +105,43 @@ export class CaregiverService implements ICaregiverService {
             throw new AppError(HTTP_STATUS.NOT_FOUND, MSG.PROFILE_NOT_FOUND)
         }
 
-        await this._userRepo.update(userId, {
-            name: dto.fullName,
-            email: dto.email,
-            mobile: dto.phoneNumber,
-        })
+        const userUpdates: Record<string, string> = {}
+        if (dto.fullName !== undefined) {
+            userUpdates.name = dto.fullName
+        }
+        if (dto.email !== undefined) {
+            userUpdates.email = dto.email
+        }
+        if (dto.phoneNumber !== undefined) {
+            userUpdates.mobile = dto.phoneNumber
+        }
+        if (Object.keys(userUpdates).length > 0) {
+            await this._userRepo.update(userId, userUpdates)
+        }
 
-        const caregiver = await this._caregiverRepo.updateByUserId(new Types.ObjectId(userId), {
+        const hasVerificationResubmission =
+            dto.govIdImage !== undefined ||
+            dto.certificateNumber !== undefined ||
+            dto.certificateImage !== undefined ||
+            dto.licenseNumber !== undefined ||
+            dto.licenseImage !== undefined
+
+        const caregiverUpdates: Partial<CaregiverDocument> = {
             isActive: dto.isActive !== undefined ? dto.isActive : existingCaregiver.isActive,
-            profileImage: dto.profileImage || existingCaregiver.profileImage,
-        })
+            profileImage: dto.profileImage ?? existingCaregiver.profileImage,
+            govIdImage: dto.govIdImage ?? existingCaregiver.govIdImage,
+            certificateNumber: dto.certificateNumber ?? existingCaregiver.certificateNumber,
+            certificateImage: dto.certificateImage ?? existingCaregiver.certificateImage,
+            licenseNumber: dto.licenseNumber ?? existingCaregiver.licenseNumber,
+            licenseImage: dto.licenseImage ?? existingCaregiver.licenseImage,
+        }
+
+        if (hasVerificationResubmission) {
+            caregiverUpdates.verificationStatus = 'pending' as VerificationStatus
+            caregiverUpdates.rejectReason = ''
+        }
+
+        const caregiver = await this._caregiverRepo.updateByUserId(new Types.ObjectId(userId), caregiverUpdates)
         if (!caregiver) {
             throw new AppError(HTTP_STATUS.NOT_FOUND, MSG.PROFILE_NOT_FOUND)
         }
