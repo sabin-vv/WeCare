@@ -2,6 +2,7 @@ import type {
     AlertData,
     CaregiverProfileData,
     CaregiverProfileResponse,
+    CaregiverProfileUpdateData,
     CreateReminderDTO,
     CaregiverActivityLogResponse,
     MedicationSchedule,
@@ -15,7 +16,13 @@ import type {
 
 import type { ApiInterface } from '@/modules/auth/api/auth.api.types'
 import { api } from '@/services/api'
-import { CAREGIVER_ACTIVITY_API, CAREGIVERS_API, PRESCRIPTIONS_API, REMINDERS_API } from '@/shared/constants/api.constants'
+import {
+    ALERTS_API,
+    CAREGIVER_ACTIVITY_API,
+    CAREGIVERS_API,
+    PRESCRIPTIONS_API,
+    REMINDERS_API,
+} from '@/shared/constants/api.constants'
 
 export type { PatientSummary, PrescriptionItem, VitalPlanItem } from '../types/caregiver.types'
 
@@ -29,7 +36,7 @@ export const getCaregiverProfile = async (): Promise<CaregiverProfileResponse> =
     return res.data
 }
 
-export const updateCaregiverProfile = async (data: FormData): Promise<ApiInterface> => {
+export const updateCaregiverProfile = async (data: CaregiverProfileUpdateData): Promise<CaregiverProfileResponse> => {
     const res = await api.put(`${CAREGIVERS_API}/me`, data)
     return res.data
 }
@@ -169,9 +176,13 @@ export const getPatientVitalPlans = async (patientId: string): Promise<VitalPlan
     return res.data.data
 }
 
-export const getCaregiverAlerts = async (
-    filters?: { type?: string; severity?: string; status?: string; limit?: number; page?: number },
-): Promise<{ alerts: AlertData[]; pagination: PaginationData }> => {
+export const getCaregiverAlerts = async (filters?: {
+    type?: string
+    severity?: string
+    status?: string
+    limit?: number
+    page?: number
+}): Promise<{ alerts: AlertData[]; pagination: PaginationData }> => {
     const res = await api.get<{ success: boolean; data: { alerts: AlertData[]; pagination: PaginationData } }>(
         `${CAREGIVERS_API}/alerts`,
         { params: filters },

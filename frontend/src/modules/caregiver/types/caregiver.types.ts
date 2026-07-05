@@ -41,6 +41,13 @@ export interface CaregiverDetailsFormProps {
     setRegisterData: Dispatch<React.SetStateAction<CaregiverRegisterState>>
 }
 
+export interface CaregiverProfileUpdateData {
+    fullName: string
+    phoneNumber: string
+    email: string
+    profileImage?: string
+}
+
 export interface CaregiverProfileData {
     id: string
     fullName: string
