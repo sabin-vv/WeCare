@@ -5,6 +5,8 @@ import { HTTP_STATUS } from '../../../core/constants/httpStatus'
 import { AppError } from '../../../core/errors/AppError'
 import { IActivityLogService } from '../../activityLog/interfaces/activityLog.service.interface'
 import { IUserRepository } from '../../auth/interfaces/user.repository.interface'
+import { ICaregiverRepository } from '../../caregiver/interfaces/caregiver.repository.interface'
+import { IDoctorRepository } from '../../doctor/interfaces/doctor.repository.interface'
 import { MSG } from '../constants/messages'
 import { IAdminRepository } from '../interfaces/admin.repository.interface'
 import { IAdminService } from '../interfaces/admin.service.interface'
@@ -36,6 +38,8 @@ export class AdminService implements IAdminService {
         @inject(TOKENS.IAdminRepository) private _adminRepo: IAdminRepository,
         @inject(TOKENS.IActivityLogService) private _activityLogService: IActivityLogService,
         @inject(TOKENS.IUserRepository) private _userRepo: IUserRepository,
+        @inject(TOKENS.IDoctorRepository) private _doctorRepo: IDoctorRepository,
+        @inject(TOKENS.ICaregiverRepository) private _caregiverRepo: ICaregiverRepository,
     ) {}
 
     async getPendingDoctors(page: number, limit: number, search: string): Promise<PendingDoctorsResponse> {
@@ -64,10 +68,12 @@ export class AdminService implements IAdminService {
             throw new AppError(HTTP_STATUS.BAD_REQUEST, MSG.INVALID_VERIFICATION_STATUS)
         }
 
-        const user = await this._userRepo.findById(doctorId)
-        if (!user) {
+        const doctor = await this._doctorRepo.findByIdWithUser(doctorId)
+        if (!doctor) {
             throw new AppError(HTTP_STATUS.NOT_FOUND, MSG.DOCTOR_NOT_FOUND)
         }
+        const doctorName = (doctor.userId as unknown as { name: string })?.name
+
         const result = await this._adminRepo.verifyDoctor(doctorId, status, adminId, reason)
         await this._activityLogService.logActivity({
             performedBy: adminId,
@@ -78,17 +84,13 @@ export class AdminService implements IAdminService {
             targetType: 'doctor',
             description:
                 status === 'verified'
-                    ? `Dr. ${user.name} Verification Approved`
-                    : `Dr. ${user.name} Verification Rejected`,
+                    ? `Dr. ${doctorName}'s Verification Approved`
+                    : `Dr. ${doctorName}'s Verification Rejected`,
         })
         return result
     }
 
-    async verifySpecialization(
-        doctorId: string,
-        specIndex: number,
-        verified: boolean,
-    ): Promise<{ message: string }> {
+    async verifySpecialization(doctorId: string, specIndex: number, verified: boolean): Promise<{ message: string }> {
         return this._adminRepo.verifySpecialization(doctorId, specIndex, verified)
     }
 
@@ -117,10 +119,14 @@ export class AdminService implements IAdminService {
             throw new AppError(HTTP_STATUS.BAD_REQUEST, MSG.INVALID_VERIFICATION_STATUS)
         }
         const result = await this._adminRepo.verifyCaregiver(caregiverId, status, adminId)
-        const user = await this._userRepo.findById(caregiverId)
-        if (!user) {
+
+        const caregiver = await this._caregiverRepo.findByIdWithUser(caregiverId)
+
+        if (!caregiver) {
             throw new AppError(HTTP_STATUS.NOT_FOUND, MSG.CAREGIVER_NOT_FOUND)
         }
+        const caregivername = (caregiver.userId as unknown as { name: string })?.name
+
         await this._activityLogService.logActivity({
             performedBy: adminId,
             performedByRole: 'admin',
@@ -130,8 +136,8 @@ export class AdminService implements IAdminService {
             targetType: 'caregiver',
             description:
                 status === 'verified'
-                    ? `Caregiver ${user.name} Verification Approved`
-                    : `Caregiver ${user.name} Verification Rejected`,
+                    ? `Caregiver ${caregivername}'s Verification Approved`
+                    : `Caregiver ${caregivername}'s Verification Rejected`,
         })
         return result
     }
