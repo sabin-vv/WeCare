@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 
-import { createCaregiverProfile } from '../api/caregiver.api'
+import { createCaregiverProfile, updateCaregiverProfile } from '../api/caregiver.api'
 
 import styles from './CaregiverDetailsForm.module.css'
 
@@ -108,6 +108,7 @@ const CaregiverDetailsForm = ({ documents: initialDocuments }: CaregiverDetailsF
 
         setIsUploading(true)
         try {
+            const hasExistingProfile = !!user?.isProfileComplete
             const formData = new FormData()
             formData.append('email', user.email)
 
@@ -141,15 +142,15 @@ const CaregiverDetailsForm = ({ documents: initialDocuments }: CaregiverDetailsF
                 formData.append('licenseImage', getStoredFileKey(documents.license.document))
             }
 
-            const res = await createCaregiverProfile(formData)
+            const res = hasExistingProfile
+                ? await updateCaregiverProfile(formData)
+                : await createCaregiverProfile(formData)
 
-            const data = res
-
-            if (!data.success) {
-                throw new Error(data.message || 'Failed to submit documents')
+            if (!res.success) {
+                throw new Error(res.message || 'Failed to submit documents')
             }
 
-            toast.success('Documents submitted successfully')
+            toast.success(res.message || 'Documents submitted successfully')
 
             const profile = await getCurrentUser()
             setAuth({
@@ -270,7 +271,11 @@ const CaregiverDetailsForm = ({ documents: initialDocuments }: CaregiverDetailsF
             </div>
 
             <Button type="button" onClick={handleRegister} disabled={isUploading}>
-                {isUploading ? 'Submitting...' : 'Submit Documents'}
+                {isUploading
+                    ? 'Submitting...'
+                    : user?.verificationStatus === 'rejected'
+                      ? 'Update Profile'
+                      : 'Submit Documents'}
             </Button>
 
             {imageCrop && (
