@@ -1,5 +1,6 @@
 import type { RouteObject } from 'react-router-dom'
 
+import RequireDoctorProfile from '../components/RequireDoctorProfile/RequireDoctorProfile'
 import AlertPage from '../pages/AlertPage'
 import AvailabilityPage from '../pages/AvailabilityPage'
 import DoctorAppointmentsPage from '../pages/DoctorAppointmentsPage'
@@ -29,36 +30,41 @@ export const DoctorRoutes: RouteObject[] = [
                 element: <DoctorDashboard />,
             },
             {
-                path: '/doctor/settings',
-                element: <DoctorSettings />,
-            },
-            {
-                path: '/doctor/availability',
-                element: <AvailabilityPage />,
-            },
-            {
-                path: '/doctor/appointments',
-                element: <DoctorAppointmentsPage />,
-            },
-            {
-                path: '/doctor/patients',
-                element: <PatientList />,
-            },
-            {
-                path: '/doctor/patients/:patientId',
-                element: <PatientViewPage />,
-            },
-            {
-                path: '/doctor/patients/:patientId/medical-record',
-                element: <PatientMedicalRecordPage />,
-            },
-            {
-                path: '/doctor/alerts',
-                element: <AlertPage />,
-            },
-            {
-                path: '/doctor/chat',
-                element: <DoctorChatPage />,
+                element: <RequireDoctorProfile />,
+                children: [
+                    {
+                        path: '/doctor/settings',
+                        element: <DoctorSettings />,
+                    },
+                    {
+                        path: '/doctor/availability',
+                        element: <AvailabilityPage />,
+                    },
+                    {
+                        path: '/doctor/appointments',
+                        element: <DoctorAppointmentsPage />,
+                    },
+                    {
+                        path: '/doctor/patients',
+                        element: <PatientList />,
+                    },
+                    {
+                        path: '/doctor/patients/:patientId',
+                        element: <PatientViewPage />,
+                    },
+                    {
+                        path: '/doctor/patients/:patientId/medical-record',
+                        element: <PatientMedicalRecordPage />,
+                    },
+                    {
+                        path: '/doctor/alerts',
+                        element: <AlertPage />,
+                    },
+                    {
+                        path: '/doctor/chat',
+                        element: <DoctorChatPage />,
+                    },
+                ],
             },
         ],
     },
