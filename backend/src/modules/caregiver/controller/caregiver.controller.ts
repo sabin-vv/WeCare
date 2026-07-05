@@ -132,7 +132,8 @@ export class CaregiverController {
 
         const caregiver = await this._caregiverRepo.findByUserId(new Types.ObjectId(userId))
         if (!caregiver) {
-            throw new AppError(HTTP_STATUS.NOT_FOUND, MSG.PROFILE_NOT_FOUND)
+            sendSuccess(res, MSG.PATIENTS_FETCHED, [])
+            return
         }
 
         const patients = await this._caregiverService.getMyPatients(caregiver._id)
@@ -148,7 +149,8 @@ export class CaregiverController {
 
         const caregiver = await this._caregiverRepo.findByUserId(new Types.ObjectId(userId))
         if (!caregiver) {
-            throw new AppError(HTTP_STATUS.NOT_FOUND, MSG.PROFILE_NOT_FOUND)
+            sendSuccess(res, MSG.ALERTS_FETCHED, { data: [], pagination: { page: 1, limit: 10, totalCount: 0, totalPages: 0 } })
+            return
         }
 
         const { type, severity, status, limit, page } = req.query as {
