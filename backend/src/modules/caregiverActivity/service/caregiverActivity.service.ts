@@ -2,10 +2,7 @@ import { Types } from 'mongoose'
 import { inject, injectable } from 'tsyringe'
 
 import { TOKENS } from '../../../container/tokens'
-import { HTTP_STATUS } from '../../../core/constants/httpStatus'
-import { AppError } from '../../../core/errors/AppError'
 import { ICaregiverRepository } from '../../caregiver/interfaces/caregiver.repository.interface'
-import { MSG } from '../constants/messages'
 import { ICaregiverActivityRepository } from '../interfaces/caregiverActivity.repository.interface'
 import { ICaregiverActivityService } from '../interfaces/caregiverActivity.service.interface'
 import { toCaregiverActivityLogResponseDTO } from '../mapper/caregiverActivity.mapper'
@@ -34,13 +31,17 @@ export class CaregiverActivityService implements ICaregiverActivityService {
     }
 
     async getActivityLogs(userId: string, page = 1, limit = 8): Promise<CaregiverActivityLogListResponse> {
-        const caregiver = await this._caregiverRepo.findByUserId(new Types.ObjectId(userId))
-        if (!caregiver) {
-            throw new AppError(HTTP_STATUS.NOT_FOUND, MSG.CAREGIVER_PROFILE_NOT_FOUND)
-        }
-
         const safePage = Math.max(1, page || 1)
         const safeLimit = Math.max(1, limit || 8)
+
+        const caregiver = await this._caregiverRepo.findByUserId(new Types.ObjectId(userId))
+        if (!caregiver) {
+            return {
+                data: [],
+                pagination: { page: safePage, limit: safeLimit, totalCount: 0, totalPages: 0 },
+            }
+        }
+
         const skip = (safePage - 1) * safeLimit
 
         const [data, total] = await Promise.all([
