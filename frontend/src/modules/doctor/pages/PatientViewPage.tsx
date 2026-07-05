@@ -14,6 +14,8 @@ import {
     listCaregivers,
     updateClinicalStatus,
 } from '../api/doctor.api'
+import AssignCaregiverModal from '../components/modals/AssignCaregiverModal'
+import SearchConditionModal from '../components/modals/SearchConditionModal'
 import MedicationTable from '../components/viewPatient/MedicationTable'
 import ProfileCard from '../components/viewPatient/ProfileCard'
 import VitalCard from '../components/viewPatient/VitalCard'
@@ -23,8 +25,6 @@ import styles from './PatientViewPage.module.css'
 
 import { type ConditionResult, searchConditions } from '@/modules/doctor/api/conditionsApi'
 import MainWrapper from '@/shared/components/MainWrapper/MainWrapper'
-import Modal from '@/shared/components/Modal/Modal'
-import SearchField from '@/shared/components/SearchField/SearchField'
 import { Section } from '@/shared/components/Section/Section'
 import { useSocket } from '@/shared/context/SocketContext'
 import { getErrorMessage } from '@/utils/getErrorMessage'
@@ -420,125 +420,37 @@ const PatientViewPage = () => {
                 onSuccess={fetchPatient}
             />
 
-            <Modal
+            <SearchConditionModal
                 isOpen={showConditionModal}
                 onClose={handleConditionModalClose}
-                title="Search Condition"
-                footer={
-                    <div className={styles.modalFooter}>
-                        <button type="button" className={styles.closeBtn} onClick={handleConditionModalClose}>
-                            Cancel
-                        </button>
-                        <button
-                            type="button"
-                            className={styles.applyBtn}
-                            onClick={applyConditionUpdate}
-                            disabled={selectedConditions.length === 0 || !selectedSeverity || isApplyingCondition}
-                        >
-                            {isApplyingCondition ? 'Saving...' : 'Apply'}
-                        </button>
-                    </div>
-                }
-            >
-                <div className={styles.modalBody}>
-                    <div className={styles.searchWrapper}>
-                        <SearchField
-                            placeholder="Search condition..."
-                            value={conditionQuery}
-                            onChange={setConditionQuery}
-                            onSearch={handleConditionSearch}
-                            suggestions={conditionSuggestions.map((condition) => condition.name)}
-                            isLoading={isSearchingConditions}
-                            onSelect={handleConditionSelect}
-                        />
-                    </div>
-                    {selectedConditions.length > 0 && (
-                        <div className={styles.selectedCondition}>
-                            <div className={styles.conditionChips}>
-                                {selectedConditions.map((condition) => (
-                                    <button
-                                        key={condition.name}
-                                        type="button"
-                                        className={styles.conditionChip}
-                                        onClick={() => handleConditionRemove(condition.name)}
-                                    >
-                                        {condition.name}
-                                        <span className={styles.conditionChipRemove}>x</span>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                    <div className={styles.severitySection}>
-                        <span className={styles.severityLabel}>Overall Severity Level</span>
-                        <div className={styles.severityOptions}>
-                            {SEVERITY_OPTIONS.map((option) => (
-                                <button
-                                    key={option.value}
-                                    type="button"
-                                    className={`${styles.severityBtn} ${
-                                        selectedSeverity === option.value ? styles.severityBtnActive : ''
-                                    }`}
-                                    onClick={() => setSelectedSeverity(option.value)}
-                                >
-                                    {option.label}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </Modal>
+                conditionQuery={conditionQuery}
+                setConditionQuery={setConditionQuery}
+                selectedConditions={selectedConditions}
+                selectedSeverity={selectedSeverity}
+                setSelectedSeverity={setSelectedSeverity}
+                conditionSuggestions={conditionSuggestions}
+                isSearchingConditions={isSearchingConditions}
+                isApplyingCondition={isApplyingCondition}
+                severityOptions={SEVERITY_OPTIONS}
+                onSearch={handleConditionSearch}
+                onSelect={handleConditionSelect}
+                onRemove={handleConditionRemove}
+                onApply={applyConditionUpdate}
+            />
 
-            <Modal
+            <AssignCaregiverModal
                 isOpen={showCaregiverModal}
                 onClose={handleCaregiverModalClose}
-                title="Assign Caregiver"
-                footer={
-                    <div className={styles.modalFooter}>
-                        <button type="button" className={styles.closeBtn} onClick={handleCaregiverModalClose}>
-                            Cancel
-                        </button>
-                        <button
-                            type="button"
-                            className={styles.applyBtn}
-                            onClick={handleAssignCaregiver}
-                            disabled={!selectedCaregiver || isAssigningCaregiver}
-                        >
-                            {isAssigningCaregiver ? 'Assigning...' : 'Assign'}
-                        </button>
-                    </div>
-                }
-            >
-                <div className={styles.modalBody}>
-                    <div className={styles.searchWrapper}>
-                        <SearchField
-                            placeholder="Search caregiver..."
-                            value={caregiverSearch}
-                            onChange={setCaregiverSearch}
-                            onSearch={handleCaregiverSearch}
-                            suggestions={caregivers.map((cg) => cg.fullName)}
-                            isLoading={isLoadingCaregivers}
-                            onSelect={(name) => {
-                                const caregiver = caregivers.find((cg) => cg.fullName === name)
-                                setSelectedCaregiver(caregiver || null)
-                            }}
-                        />
-                    </div>
-                    {selectedCaregiver && (
-                        <div className={styles.selectedCaregiver}>
-                            <p>
-                                <strong>Selected:</strong> {selectedCaregiver.fullName}
-                            </p>
-                            <p>
-                                <strong>Email:</strong> {selectedCaregiver.email}
-                            </p>
-                            <p>
-                                <strong>Phone:</strong> {selectedCaregiver.phoneNumber}
-                            </p>
-                        </div>
-                    )}
-                </div>
-            </Modal>
+                caregiverSearch={caregiverSearch}
+                setCaregiverSearch={setCaregiverSearch}
+                caregivers={caregivers}
+                selectedCaregiver={selectedCaregiver}
+                setSelectedCaregiver={setSelectedCaregiver}
+                isLoadingCaregivers={isLoadingCaregivers}
+                isAssigningCaregiver={isAssigningCaregiver}
+                onSearch={handleCaregiverSearch}
+                onAssign={handleAssignCaregiver}
+            />
         </MainWrapper>
     )
 }

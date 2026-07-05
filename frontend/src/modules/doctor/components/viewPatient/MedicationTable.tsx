@@ -9,20 +9,17 @@ import {
     updatePrescriptionStatus,
 } from '../../api/doctor.api'
 import { getMedicineNames, getMedicineStrengths } from '../../api/medicine.api'
-import { ADMINISTRATION_ROUTE, DURATION, FREQUENCY, MEDICAL_PRIORITY } from '../../constants/prescriptions.Constants'
 import type { MedicationProps, PatientPrescription, ScheduleTime, SelectedMedication } from '../../types/doctor.types'
+import PrescriptionModal from '../modals/PrescriptionModal'
+import VitalsCheckRequestModal from '../modals/VitalsCheckRequestModal'
 
 import styles from './MedicationTable.module.css'
 
 import Button from '@/shared/components/Button/Button'
-import Modal from '@/shared/components/Modal/Modal'
 import Pagination from '@/shared/components/Pagination/Pagination'
-import SearchField from '@/shared/components/SearchField/SearchField'
 import { Section } from '@/shared/components/Section/Section'
-import SelectField from '@/shared/components/SelectField/SelectField'
 import DataTable from '@/shared/components/Table/DataTable'
 import type { Column } from '@/shared/components/Table/dataTable.types'
-import TimePicker from '@/shared/components/TimePicker/TimePicker'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 
 type VitalPlanOptionId = 'blood_pressure' | 'heart_rate' | 'spo2' | 'blood_sugar'
@@ -594,27 +591,6 @@ const MedicationTable = ({ patientId, patientName, hasConditions, onSuccess, vit
         (med) => med.scheduleTimes.length > 0 && med.scheduleTimes.every((t) => t.time && t.time.trim() !== ''),
     )
 
-    const footerContent = (
-        <div className={styles.modalFooter}>
-            <button className={styles.cancelBtn} onClick={handleClosePrescriptionModal} type="button">
-                Cancel
-            </button>
-            <button
-                className={styles.addPrescriptionBtn}
-                onClick={handleAddPrescription}
-                disabled={
-                    selectedMedications.length === 0 ||
-                    isSaving ||
-                    !hasValidScheduleTimes ||
-                    (isEditMode && !hasChanges)
-                }
-                type="button"
-            >
-                {isSaving ? 'Saving...' : isEditMode ? 'Update Prescription' : 'Add Prescription'}
-            </button>
-        </div>
-    )
-
     return (
         <>
             <Section
@@ -658,316 +634,49 @@ const MedicationTable = ({ patientId, patientName, hasConditions, onSuccess, vit
                 )}
             </Section>
 
-            <Modal
+            <PrescriptionModal
                 isOpen={showPrescriptionModal}
                 onClose={handleClosePrescriptionModal}
-                title={isEditMode ? 'Edit Prescription' : 'Prescription'}
-                size="lg"
-                footer={footerContent}
-            >
-                <div className={styles.modalContent}>
-                    <div className={styles.searchSection}>
-                        <div className={styles.searchField}>
-                            <label className={styles.searchLabel}>Search Medication</label>
-                            <SearchField
-                                placeholder="Start typing medication name (e.g. Amoxicillin)"
-                                value={medicationSearch}
-                                onChange={setMedicationSearch}
-                                onSearch={isEditMode ? undefined : handleMedicineSearch}
-                                suggestions={isEditMode ? [] : medicineSuggestions}
-                                isLoading={isEditMode ? false : isSearchingMedicines}
-                                onSelect={isEditMode ? undefined : handleMedicineSelect}
-                                disabled={isEditMode}
-                            />
-                        </div>
-                        <div className={styles.dosageField}>
-                            <label className={styles.dosageLabel}>Dosage</label>
+                isEditMode={isEditMode}
+                medicationSearch={medicationSearch}
+                setMedicationSearch={setMedicationSearch}
+                dosage={dosage}
+                setDosage={setDosage}
+                availableStrengths={availableStrengths}
+                selectedMedicineName={selectedMedicineName}
+                selectedMedications={selectedMedications}
+                setSelectedMedications={setSelectedMedications}
+                medicineSuggestions={medicineSuggestions}
+                isSearchingMedicines={isSearchingMedicines}
+                isSaving={isSaving}
+                onMedicineSearch={handleMedicineSearch}
+                onMedicineSelect={handleMedicineSelect}
+                onAddMedication={handleAddMedicationToList}
+                onRemoveMedication={handleRemoveMedication}
+                onUpdateField={handleUpdateMedicationField}
+                onUpdateScheduleTime={handleUpdateScheduleTime}
+                onSave={handleAddPrescription}
+                hasValidScheduleTimes={hasValidScheduleTimes}
+                hasChanges={hasChanges}
+            />
 
-                            <div className={styles.dosageRow}>
-                                <SelectField
-                                    options={availableStrengths.map((s) => ({ label: s, value: s }))}
-                                    value={dosage}
-                                    onChange={(e) => {
-                                        setDosage(e.target.value)
-                                        if (isEditMode && selectedMedications.length > 0) {
-                                            setSelectedMedications(
-                                                selectedMedications.map((med, i) =>
-                                                    i === 0 ? { ...med, dosage: e.target.value } : med,
-                                                ),
-                                            )
-                                        }
-                                    }}
-                                    disabled={availableStrengths.length === 0}
-                                />
-
-                                {!isEditMode && (
-                                    <Button
-                                        onClick={handleAddMedicationToList}
-                                        disabled={!selectedMedicineName || !dosage}
-                                        className={styles.addMedicationBtn}
-                                    >
-                                        Add
-                                    </Button>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
-                    {selectedMedications.length > 0 && (
-                        <div className={styles.selectedMedicationsSection}>
-                            <h3 className={styles.selectedMedicationsTitle}>
-                                Selected Medications ({selectedMedications.length})
-                            </h3>
-
-                            {selectedMedications.map((medication) => (
-                                <div key={medication.id} className={styles.medicationCard}>
-                                    <div className={styles.medicationHeader}>
-                                        <div>
-                                            <h4 className={styles.medicationName}>
-                                                {medication.name} ({medication.dosage})
-                                            </h4>
-                                        </div>
-                                        <button
-                                            className={styles.medicationRemoveBtn}
-                                            onClick={() => handleRemoveMedication(medication.id)}
-                                            type="button"
-                                        >
-                                            ✕
-                                        </button>
-                                    </div>
-
-                                    <div className={styles.medicationGrid}>
-                                        <div className={styles.fieldGroup}>
-                                            <SelectField
-                                                label="Frequency"
-                                                options={FREQUENCY}
-                                                value={medication.frequency}
-                                                onChange={(e) =>
-                                                    handleUpdateMedicationField(
-                                                        medication.id,
-                                                        'frequency',
-                                                        e.target.value,
-                                                    )
-                                                }
-                                            />
-                                        </div>
-                                        <div className={styles.fieldGroup}>
-                                            <label className={styles.fieldLabel}>Duration</label>
-                                            <div className={styles.durationContainer}>
-                                                <input
-                                                    type="number"
-                                                    className={`${styles.fieldInput} ${styles.durationInput}`}
-                                                    value={medication.duration}
-                                                    onChange={(e) =>
-                                                        handleUpdateMedicationField(
-                                                            medication.id,
-                                                            'duration',
-                                                            parseInt(e.target.value) || 0,
-                                                        )
-                                                    }
-                                                />
-                                                <SelectField
-                                                    options={DURATION}
-                                                    value={medication.durationUnit}
-                                                    onChange={(e) =>
-                                                        handleUpdateMedicationField(
-                                                            medication.id,
-                                                            'durationUnit',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className={styles.medicationGrid}>
-                                        <div className={styles.fieldGroup}>
-                                            <SelectField
-                                                label="Medication Priority"
-                                                options={MEDICAL_PRIORITY}
-                                                value={medication.priority}
-                                                onChange={(e) =>
-                                                    handleUpdateMedicationField(
-                                                        medication.id,
-                                                        'priority',
-                                                        e.target.value,
-                                                    )
-                                                }
-                                            />
-                                        </div>
-                                        <div className={styles.fieldGroup}>
-                                            <SelectField
-                                                label="Administration Route"
-                                                options={ADMINISTRATION_ROUTE}
-                                                value={medication.route}
-                                                onChange={(e) =>
-                                                    handleUpdateMedicationField(medication.id, 'route', e.target.value)
-                                                }
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className={styles.scheduleTimesSection}>
-                                        <label className={styles.scheduleTimesLabel}>Schedule Times</label>
-                                        <div className={styles.scheduleTimesList}>
-                                            {medication.scheduleTimes.map((time) => (
-                                                <div key={time.id}>
-                                                    <TimePicker
-                                                        value={time.time}
-                                                        onChange={(newValue) =>
-                                                            handleUpdateScheduleTime(medication.id, time.id, newValue)
-                                                        }
-                                                    />
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <div className={styles.instructionsSection}>
-                                        <label className={styles.instructionsLabel}>
-                                            Instructions about Medication
-                                        </label>
-                                        <textarea
-                                            className={styles.instructionsInput}
-                                            placeholder="e.g. Take with food, finish the entire course"
-                                            value={medication.instructions || ''}
-                                            onChange={(e) =>
-                                                handleUpdateMedicationField(
-                                                    medication.id,
-                                                    'instructions',
-                                                    e.target.value,
-                                                )
-                                            }
-                                        />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            </Modal>
-
-            <Modal
+            <VitalsCheckRequestModal
                 isOpen={showVitalsModal}
                 onClose={handleCloseVitalsModal}
-                title="Create Vitals Check Request"
-                size="md"
-                footer={
-                    <div className={styles.modalFooter}>
-                        <button className={styles.cancelBtn} onClick={handleCloseVitalsModal} type="button">
-                            Cancel
-                        </button>
-                        <button
-                            className={styles.addPrescriptionBtn}
-                            onClick={handleConfirmVitalsRequest}
-                            disabled={selectedVitals.length === 0 || isSavingVitalPlan}
-                            type="button"
-                        >
-                            {isSavingVitalPlan ? 'Saving...' : 'Confirm'}
-                        </button>
-                    </div>
-                }
-            >
-                <div className={styles.vitalsModalContent}>
-                    <p className={styles.vitalsSubtext}>{patientName} needs specific vital monitoring.</p>
-
-                    <div className={styles.vitalsStep}>
-                        <span className={styles.stepBadge}>1</span>
-                        <span className={styles.stepTitle}>Select Vitals to Monitor</span>
-                    </div>
-
-                    <div className={styles.vitalsOptionsGrid}>
-                        {vitalOptions.map((vital) => {
-                            const isSelected = selectedVitals.includes(vital.id)
-                            const isAlreadyActive = vitalPlan?.includes(vital.id)
-                            return (
-                                <button
-                                    key={vital.id}
-                                    type="button"
-                                    className={`${styles.vitalOptionCard} ${isSelected ? styles.vitalOptionCardActive : ''}`}
-                                    onClick={() => handleToggleVital(vital.id)}
-                                    disabled={isAlreadyActive}
-                                >
-                                    <div className={styles.vitalOptionTop}>
-                                        <span className={`${styles.vitalOptionIcon} ${vital.iconClassName}`}>
-                                            {vital.icon}
-                                        </span>
-                                        {isAlreadyActive && <span className={styles.activeBadge}>Active</span>}
-                                    </div>
-                                    <span className={styles.vitalOptionLabel}>{vital.label}</span>
-                                </button>
-                            )
-                        })}
-                    </div>
-
-                    {selectedVitals.length > 0 && (
-                        <>
-                            <div className={styles.vitalsStep}>
-                                <span className={styles.stepBadge}>2</span>
-                                <span className={styles.stepTitle}>Set Individual Monitoring Frequency</span>
-                            </div>
-
-                            <div className={styles.vitalsMonitorList}>
-                                {vitalOptions
-                                    .filter((vital) => selectedVitals.includes(vital.id))
-                                    .map((vital) => (
-                                        <div key={vital.id} className={styles.vitalMonitorCard}>
-                                            <div className={styles.vitalMonitorHeader}>
-                                                <span className={`${styles.vitalOptionIcon} ${vital.iconClassName}`}>
-                                                    {vital.icon}
-                                                </span>
-                                                <span className={styles.vitalMonitorTitle}>{vital.label}</span>
-                                            </div>
-
-                                            <div className={styles.vitalMonitorFields}>
-                                                <div className={styles.fieldGroup}>
-                                                    <SelectField
-                                                        label="Frequency"
-                                                        options={frequencyOptions.map((f) => ({ label: f, value: f }))}
-                                                        value={vitalsPreferences[vital.id].frequency}
-                                                        onChange={(e) =>
-                                                            handleUpdateVitalPreference(
-                                                                vital.id,
-                                                                'frequency',
-                                                                e.target.value,
-                                                            )
-                                                        }
-                                                    />
-                                                </div>
-
-                                                <div className={styles.fieldGroup}>
-                                                    <SelectField
-                                                        label="Duration"
-                                                        options={durationOptions.map((d) => ({ label: d, value: d }))}
-                                                        value={vitalsPreferences[vital.id].duration}
-                                                        onChange={(e) =>
-                                                            handleUpdateVitalPreference(
-                                                                vital.id,
-                                                                'duration',
-                                                                e.target.value,
-                                                            )
-                                                        }
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                            </div>
-                            <div className={styles.instructionsSection}>
-                                <label className={styles.instructionsLabel}>
-                                    Instructions for Nursing Staff (Optional)
-                                </label>
-                                <textarea
-                                    className={styles.instructionsInput}
-                                    placeholder="e.g., Please wake patient if asleep for BP check..."
-                                    value={vitalsInstructions}
-                                    onChange={(e) => setVitalsInstructions(e.target.value)}
-                                />
-                            </div>
-                        </>
-                    )}
-                </div>
-            </Modal>
+                patientName={patientName}
+                vitalPlan={vitalPlan}
+                selectedVitals={selectedVitals}
+                vitalsInstructions={vitalsInstructions}
+                setVitalsInstructions={setVitalsInstructions}
+                vitalsPreferences={vitalsPreferences}
+                isSavingVitalPlan={isSavingVitalPlan}
+                frequencyOptions={frequencyOptions}
+                durationOptions={durationOptions}
+                vitalOptions={vitalOptions}
+                onToggleVital={handleToggleVital}
+                onUpdatePreference={handleUpdateVitalPreference}
+                onSave={handleConfirmVitalsRequest}
+            />
         </>
     )
 }
