@@ -25,7 +25,7 @@ export const getPendingDoctors = async (
     return res.data
 }
 
-export const getRecentDoctorVerifications = async (limit: number = 10): Promise<PendingDoctorsResponse> => {
+export const getRecentDoctorVerifications = async (limit: number = 5): Promise<PendingDoctorsResponse> => {
     const res = await api.get(`${ADMIN_API}/recent-doctor-verifications`, {
         params: { limit },
     })
@@ -63,7 +63,7 @@ export const getPendingCaregivers = async (
     return res.data
 }
 
-export const getRecentCaregiverVerifications = async (limit: number = 10): Promise<RecentCaregiversResponse> => {
+export const getRecentCaregiverVerifications = async (limit: number = 5): Promise<RecentCaregiversResponse> => {
     const res = await api.get(`${ADMIN_API}/recent-caregiver-verifications`, {
         params: { limit },
     })
@@ -79,7 +79,11 @@ export const verifyCaregiver = async (
     return res.data
 }
 
-export const getDashboardChartData = async (limit?: number, startDate?: string, endDate?: string): Promise<DashboardChartData> => {
+export const getDashboardChartData = async (
+    limit?: number,
+    startDate?: string,
+    endDate?: string,
+): Promise<DashboardChartData> => {
     const params: Record<string, string | number> = {}
     if (limit) params.limit = limit
     if (startDate) params.startDate = startDate
