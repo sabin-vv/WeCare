@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
@@ -27,6 +28,8 @@ const CaregiverVerificationPage = () => {
     const [activeTab, setActiveTab] = useState<'certificate' | 'license' | 'govid'>('certificate')
     const [recentCaregivers, setRecentCaregivers] = useState<RecentCaregiver[]>([])
     const [recentLoading, setRecentLoading] = useState(true)
+    const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false)
+    const [rejectionReason, setRejectionReason] = useState('')
     const { refreshCounts } = usePendingCount()
 
     const fetchCaregivers = async (page = 1, searchQuery = '') => {
@@ -54,17 +57,24 @@ const CaregiverVerificationPage = () => {
         }
     }
 
-    const handleAction = async (caregiverId: string, status: 'verified' | 'rejected') => {
+    const handleAction = async (caregiverId: string, status: 'verified' | 'rejected', reason?: string) => {
         try {
-            await verifyCaregiver(caregiverId, status)
+            await verifyCaregiver(caregiverId, status, reason)
             toast.success(`Caregiver ${status === 'verified' ? 'approved' : 'rejected'} successfully`)
             setIsModalOpen(false)
+            setIsRejectionModalOpen(false)
+            setRejectionReason('')
             fetchCaregivers(pagination.page)
             fetchRecentCaregivers()
             refreshCounts()
         } catch (error) {
             toast.error(getErrorMessage(error))
         }
+    }
+
+    const openRejectionModal = () => {
+        setRejectionReason('Information provided is insufficient')
+        setIsRejectionModalOpen(true)
     }
 
     const openDocumentViewer = (caregiver: PendingCaregiver) => {
@@ -104,7 +114,13 @@ const CaregiverVerificationPage = () => {
                     <button className={styles.approveBtn} onClick={() => handleAction(caregiver._id, 'verified')}>
                         Approve
                     </button>
-                    <button className={styles.rejectBtn} onClick={() => handleAction(caregiver._id, 'rejected')}>
+                    <button
+                        className={styles.rejectBtn}
+                        onClick={() => {
+                            setSelectedCaregiver(caregiver)
+                            openRejectionModal()
+                        }}
+                    >
                         Reject
                     </button>
                 </div>
@@ -177,10 +193,7 @@ const CaregiverVerificationPage = () => {
                 footer={
                     selectedCaregiver?.verificationStatus === 'pending' ? (
                         <>
-                            <button
-                                className={styles.rejectBtn}
-                                onClick={() => selectedCaregiver && handleAction(selectedCaregiver._id, 'rejected')}
-                            >
+                            <button className={styles.rejectBtn} onClick={openRejectionModal}>
                                 Reject
                             </button>
                             <button
@@ -246,6 +259,38 @@ const CaregiverVerificationPage = () => {
                         </div>
                     </div>
                 )}
+            </Modal>
+
+            <Modal
+                isOpen={isRejectionModalOpen}
+                onClose={() => setIsRejectionModalOpen(false)}
+                title="Reason for Rejection"
+                footer={
+                    <>
+                        <button className={styles.cancelBtn} onClick={() => setIsRejectionModalOpen(false)}>
+                            Cancel
+                        </button>
+                        <button
+                            className={styles.rejectBtn}
+                            onClick={() =>
+                                selectedCaregiver && handleAction(selectedCaregiver._id, 'rejected', rejectionReason)
+                            }
+                        >
+                            Confirm Reject
+                        </button>
+                    </>
+                }
+            >
+                <div className={styles.rejectionBody}>
+                    <p>Please provide a reason for rejecting {selectedCaregiver?.name}'s application:</p>
+                    <textarea
+                        className={styles.rejectionTextarea}
+                        value={rejectionReason}
+                        onChange={(e) => setRejectionReason(e.target.value)}
+                        placeholder="e.g. Certificate is expired or invalid..."
+                        rows={4}
+                    />
+                </div>
             </Modal>
         </>
     )
