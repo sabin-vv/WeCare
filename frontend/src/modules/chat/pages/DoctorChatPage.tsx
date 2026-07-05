@@ -7,7 +7,7 @@ import type { PatientOption } from '../types/chat.types'
 import ChatLayout from '@/modules/chat/components/ChatLayout'
 import ChatWindow from '@/modules/chat/components/ChatWindow'
 import ConversationList from '@/modules/chat/components/ConversationList'
-import StartNewChatModal from '@/modules/chat/components/StartNewChatModal'
+import StartNewChatModal from '@/modules/chat/components/modals/StartNewChatModal'
 import { listPatients } from '@/modules/doctor/api/doctor.api'
 import MainWrapper from '@/shared/components/MainWrapper/MainWrapper'
 
