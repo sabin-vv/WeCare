@@ -114,11 +114,12 @@ export class AdminService implements IAdminService {
         caregiverId: string,
         status: AdminVerificationStatus,
         adminId: string,
+        reason?: string,
     ): Promise<{ message: string }> {
         if (status !== 'verified' && status !== 'rejected') {
             throw new AppError(HTTP_STATUS.BAD_REQUEST, MSG.INVALID_VERIFICATION_STATUS)
         }
-        const result = await this._adminRepo.verifyCaregiver(caregiverId, status, adminId)
+        const result = await this._adminRepo.verifyCaregiver(caregiverId, status, adminId, reason)
 
         const caregiver = await this._caregiverRepo.findByIdWithUser(caregiverId)
 
