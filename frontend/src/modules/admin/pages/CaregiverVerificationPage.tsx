@@ -48,7 +48,7 @@ const CaregiverVerificationPage = () => {
     const fetchRecentCaregivers = async () => {
         setRecentLoading(true)
         try {
-            const data = await getRecentCaregiverVerifications(10)
+            const data = await getRecentCaregiverVerifications(5)
             setRecentCaregivers(data.caregivers)
         } catch (error) {
             toast.error(getErrorMessage(error))
