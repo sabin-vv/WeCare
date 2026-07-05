@@ -25,6 +25,10 @@ export class CaregiverRepository extends BaseRepository<CaregiverDocument> imple
         return this.model.findById(id).lean()
     }
 
+    async findByIdWithUser(id: string) {
+        return this.model.findById(id).populate('userId', 'name')
+    }
+
     async findAllActive(search?: string): Promise<CaregiverWithUser[]> {
         const pipeline: PipelineStage[] = [
             {
