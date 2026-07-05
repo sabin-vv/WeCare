@@ -19,6 +19,7 @@ export interface PatientSummary {
 export interface ICaregiverRepository {
     findByUserId(userId: Types.ObjectId): Promise<CaregiverDocument | null>
     findById(id: string): Promise<CaregiverDocument | null>
+    findByIdWithUser(id: string): Promise<CaregiverDocument | null>
     findAllActive(search?: string): Promise<CaregiverWithUser[]>
     create(data: Partial<CaregiverDocument>): Promise<CaregiverDocument>
     updateByUserId(userId: Types.ObjectId, data: Partial<CaregiverDocument>): Promise<CaregiverDocument | null>
