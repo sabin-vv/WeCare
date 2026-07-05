@@ -64,6 +64,7 @@
 
 .statusPanel {
     width: min(100%, 860px);
+    align-self: center;
     background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
     border: 1px solid #dbe5f0;
     border-radius: 24px;
@@ -97,6 +98,17 @@
     font-size: 32px;
     font-weight: 700;
     margin: 0 0 12px;
+}
+.iconCircle {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #fef3c7;
+    color: #b45309;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
 }
 
 .sub {

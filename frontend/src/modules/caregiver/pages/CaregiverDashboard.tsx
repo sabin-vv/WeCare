@@ -117,20 +117,37 @@ const CaregiverDashboard = () => {
             ) : (
                 <section className={styles.statusPanel}>
                     <span className={`${styles.badge} ${styles.pendingBadge}`}>Verification In Progress</span>
-                    <h1 className={styles.heading}>Account under verification</h1>
+                    <h1 className={styles.heading}>Your profile is under review</h1>
+
                     <p className={styles.sub}>
-                        We are reviewing your profile, certificates, and uploaded documents. Once approved, your full
-                        caregiver dashboard will be unlocked.
+                        We&apos;ve received your professional information and supporting documents. Our team is
+                        currently reviewing them. You&apos;ll receive a notification once the verification process is
+                        complete.
                     </p>
                     <div className={styles.infoGrid}>
                         <div className={styles.infoCard}>
                             <h2>Current status</h2>
-                            <p>Submitted successfully and waiting for admin approval.</p>
+                            <p>Your profile has been submitted successfully and is awaiting administrator review..</p>
                         </div>
                         <div className={styles.infoCard}>
-                            <h2>What to expect</h2>
+                            <h2>What to expect?</h2>
                             <p>
-                                You will be able to access patients and caregiving tasks after verification is complete.
+                                Once your profile is approved, You will be able to access patients and caregiving tasks
+                                after verification is complete.
+                            </p>
+                        </div>
+                        <div className={styles.infoCard}>
+                            <h2>Need to Make Changes?</h2>
+                            <p>
+                                If your profile is rejected, you&apos;ll receive the reason and can update your
+                                information before resubmitting it for verification.
+                            </p>
+                        </div>
+                        <div className={styles.infoCard}>
+                            <h2>Estimated Review Time</h2>
+                            <p>
+                                Most caregiver profiles are reviewed within <strong>1–2 business days</strong>. Review
+                                time may vary depending on document verification.
                             </p>
                         </div>
                     </div>
