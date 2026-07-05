@@ -186,13 +186,6 @@ export interface GetWalletResponse extends ApiInterface {
     data: GetWallet
 }
 
-export interface CancelModalContentProps {
-    cancellationReason: string
-    setCancellationReason: (reason: string) => void
-    customReason: string
-    setCustomReason: (reason: string) => void
-}
-
 export interface PaymentMethodModalProps {
     isOpen: boolean
     onClose: () => void

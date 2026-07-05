@@ -30,19 +30,17 @@ import {
     retryPayment,
     verifyPayment,
 } from '../api/patient.api'
-import PaymentMethodModal from '../component/PaymentMethodModal'
+import CancelAppointmentModal from '../components/modals/CancelAppointmentModal'
+import PaymentMethodModal from '../components/modals/PaymentMethodModal'
 import type { Appointment, PatientProfileData, Prescription, VitalSchedule } from '../types/patient.types'
 
 import styles from './PatientAppointmentDetailPage.module.css'
 
 import { env } from '@/config/env'
 import MainWrapper from '@/shared/components/MainWrapper/MainWrapper'
-import Modal from '@/shared/components/Modal/Modal'
 import { Section } from '@/shared/components/Section/Section'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { loadRazorpayScript } from '@/utils/loadRazorpay'
-
-const CANCELLATION_REASONS = ['Schedule conflict', 'Feeling better', 'Emergency', 'Financial reasons', 'Other']
 
 const getInitials = (name: string) =>
     name
@@ -309,23 +307,6 @@ const PatientAppointmentDetailPage = () => {
         },
     ]
 
-    const cancelModalFooter = (
-        <>
-            <button className={styles.modalCancelBtn} onClick={() => setIsCancelModalOpen(false)}>
-                Go Back
-            </button>
-            <button
-                className={styles.modalConfirmBtn}
-                onClick={handleConfirmCancel}
-                disabled={
-                    !cancellationReason || (cancellationReason === 'Other' && !customReason.trim()) || isCancelling
-                }
-            >
-                {isCancelling ? 'Cancelling...' : 'Confirm Cancel'}
-            </button>
-        </>
-    )
-
     return (
         <>
             <MainWrapper title="Appointment Details" subtitle="Manage and review your appointment">
@@ -453,9 +434,7 @@ const PatientAppointmentDetailPage = () => {
                                             <Video /> Join Video Call
                                         </button>
                                         {appointment.status === 'confirmed' && (
-                                            <span className={styles.joinWindowInfo}>
-                                                You can join at {joinTime}
-                                            </span>
+                                            <span className={styles.joinWindowInfo}>You can join at {joinTime}</span>
                                         )}
                                     </div>
                                 )}
@@ -686,40 +665,16 @@ const PatientAppointmentDetailPage = () => {
                 </div>
             </MainWrapper>
 
-            <Modal
+            <CancelAppointmentModal
                 isOpen={isCancelModalOpen}
                 onClose={() => setIsCancelModalOpen(false)}
-                title="Cancel Appointment"
-                footer={cancelModalFooter}
-                size="sm"
-            >
-                <div className={styles.cancelModalContent}>
-                    <p className={styles.cancelModalText}>Please select a reason for cancelling this appointment:</p>
-                    {CANCELLATION_REASONS.map((reason) => (
-                        <label key={reason} className={styles.reasonOption}>
-                            <input
-                                type="radio"
-                                name="cancellationReason"
-                                value={reason}
-                                checked={cancellationReason === reason}
-                                onChange={(e) => setCancellationReason(e.target.value)}
-                                className={styles.reasonRadio}
-                            />
-                            <span className={styles.reasonLabel}>{reason}</span>
-                        </label>
-                    ))}
-                    {cancellationReason === 'Other' && (
-                        <textarea
-                            className={styles.customReasonInput}
-                            placeholder="Please specify your reason..."
-                            value={customReason}
-                            onChange={(e) => setCustomReason(e.target.value)}
-                            rows={3}
-                            autoFocus
-                        />
-                    )}
-                </div>
-            </Modal>
+                cancellationReason={cancellationReason}
+                setCancellationReason={setCancellationReason}
+                customReason={customReason}
+                setCustomReason={setCustomReason}
+                isCancelling={isCancelling}
+                onConfirm={handleConfirmCancel}
+            />
 
             <PaymentMethodModal
                 isOpen={isPaymentModalOpen}

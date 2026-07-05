@@ -14,17 +14,16 @@ import {
     uploadToS3,
     verifyOtp,
 } from '@/modules/auth/api/auth.api'
-import OtpVerification from '@/modules/auth/components/OtpVerification'
 import { OtpPurpose } from '@/modules/auth/types/auth.types'
 import DoctorSecuritySection from '@/modules/doctor/form/settings/DoctorSecuritySection'
 import { getPatientProfile, updatePatientProfile } from '@/modules/patient/api/patient.api'
+import EmailOtpModal from '@/modules/patient/components/modals/EmailOtpModal'
 import type { PatientProfileData, PatientSettingsFormValues } from '@/modules/patient/types/patient.types'
 import { patientSettingsFormSchema } from '@/modules/patient/validator/settingsForm.validator'
 import ChangePasswordForm from '@/shared/components/ChangePasswordForm'
 import ImageCropper from '@/shared/components/ImageCropper/ImageCropper'
 import InputField from '@/shared/components/InputField/InputField'
 import MainWrapper from '@/shared/components/MainWrapper/MainWrapper'
-import Modal from '@/shared/components/Modal/Modal'
 import PhoneInput from '@/shared/components/PhoneInput/PhoneInput'
 import { Section } from '@/shared/components/Section/Section'
 import { useAuth } from '@/shared/context/AuthContext'
@@ -65,7 +64,6 @@ const PatientSettings = () => {
     const [pendingEmail, setPendingEmail] = useState('')
     const [pendingFormValues, setPendingFormValues] = useState<PatientSettingsFormValues | null>(null)
     const [isVerifyingEmail, setIsVerifyingEmail] = useState(false)
-    const [otpSent, setOtpSent] = useState(false)
     const [isLoadingProfile, setIsLoadingProfile] = useState(false)
 
     useEffect(() => {
@@ -91,21 +89,6 @@ const PatientSettings = () => {
 
         loadPatientProfile()
     }, [])
-
-    useEffect(() => {
-        if (!showEmailOtpModal || !pendingEmail || otpSent) return
-
-        const send = async () => {
-            try {
-                await sendOtp(pendingEmail, OtpPurpose.REGISTER)
-                setOtpSent(true)
-            } catch (error) {
-                toast.error(getErrorMessage(error))
-            }
-        }
-
-        send()
-    }, [showEmailOtpModal, pendingEmail, otpSent])
 
     const handleToggleEditing = () => {
         if (isEditing) {
@@ -421,24 +404,14 @@ const PatientSettings = () => {
                 isLoading={isChangingPassword}
             />
 
-            {showEmailOtpModal && (
-                <Modal
-                    isOpen={showEmailOtpModal}
-                    onClose={() => {
-                        setShowEmailOtpModal(false)
-                        setOtpSent(false)
-                    }}
-                    title=""
-                >
-                    <OtpVerification
-                        email={pendingEmail}
-                        onVerify={handleVerifyEmailOtp}
-                        onResend={handleResendEmailOtp}
-                        onBack={() => setShowEmailOtpModal(false)}
-                        loading={isVerifyingEmail}
-                    />
-                </Modal>
-            )}
+            <EmailOtpModal
+                isOpen={showEmailOtpModal}
+                onClose={() => setShowEmailOtpModal(false)}
+                email={pendingEmail}
+                onVerify={handleVerifyEmailOtp}
+                onResend={handleResendEmailOtp}
+                isVerifying={isVerifyingEmail}
+            />
 
             {imageCrop && (
                 <ImageCropper

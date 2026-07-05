@@ -3,57 +3,17 @@ import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 
 import { cancelAppointment, getPatientAppointments, getWallet, retryPayment, verifyPayment } from '../api/patient.api'
-import DetailedAppointmentCard from '../component/DetailedAppointmentCard/DetailedAppointmentCard'
-import PaymentMethodModal from '../component/PaymentMethodModal'
-import { type Appointment, type CancelModalContentProps } from '../types/patient.types'
+import DetailedAppointmentCard from '../components/DetailedAppointmentCard/DetailedAppointmentCard'
+import CancelAppointmentModal from '../components/modals/CancelAppointmentModal'
+import PaymentMethodModal from '../components/modals/PaymentMethodModal'
+import { type Appointment } from '../types/patient.types'
 
 import styles from './PatientAppointmentsPage.module.css'
 
 import { env } from '@/config/env'
 import MainWrapper from '@/shared/components/MainWrapper/MainWrapper'
-import Modal from '@/shared/components/Modal/Modal'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { loadRazorpayScript } from '@/utils/loadRazorpay'
-
-const CANCELLATION_REASONS = ['Schedule conflict', 'Feeling better', 'Emergency', 'Financial reasons', 'Other']
-
-const CancelModalContent = ({
-    cancellationReason,
-    setCancellationReason,
-    customReason,
-    setCustomReason,
-}: CancelModalContentProps) => {
-    return (
-        <div className={styles.cancelModalContent}>
-            <p className={styles.cancelModalText}>Please select a reason for cancelling this appointment:</p>
-            <div className={styles.reasonsList}>
-                {CANCELLATION_REASONS.map((reason) => (
-                    <label key={reason} className={styles.reasonOption}>
-                        <input
-                            type="radio"
-                            name="cancellationReason"
-                            value={reason}
-                            checked={cancellationReason === reason}
-                            onChange={(e) => setCancellationReason(e.target.value)}
-                            className={styles.reasonRadio}
-                        />
-                        <span className={styles.reasonLabel}>{reason}</span>
-                    </label>
-                ))}
-            </div>
-            {cancellationReason === 'Other' && (
-                <textarea
-                    className={styles.customReasonTextarea}
-                    placeholder="Please specify your reason..."
-                    value={customReason}
-                    onChange={(e) => setCustomReason(e.target.value)}
-                    rows={3}
-                    autoFocus
-                />
-            )}
-        </div>
-    )
-}
 
 const PatientAppointmentsPage = () => {
     const [appointments, setAppointments] = useState<Appointment[]>([])
@@ -213,23 +173,6 @@ const PatientAppointmentsPage = () => {
         return appDate < new Date(now.setHours(0, 0, 0, 0)) || app.status === 'completed' || app.status === 'cancelled'
     })
 
-    const cancelModalFooter = (
-        <>
-            <button className={styles.modalCancelBtn} onClick={() => setIsCancelModalOpen(false)}>
-                Go Back
-            </button>
-            <button
-                className={styles.modalConfirmBtn}
-                onClick={handleConfirmCancel}
-                disabled={
-                    !cancellationReason || (cancellationReason === 'Other' && !customReason.trim()) || isCancelling
-                }
-            >
-                {isCancelling ? 'Cancelling...' : 'Confirm Cancel'}
-            </button>
-        </>
-    )
-
     if (isLoading) {
         return (
             <div className={styles.loadingContainer}>
@@ -279,20 +222,16 @@ const PatientAppointmentsPage = () => {
                     </section>
                 )}
             </MainWrapper>
-            <Modal
+            <CancelAppointmentModal
                 isOpen={isCancelModalOpen}
                 onClose={() => setIsCancelModalOpen(false)}
-                title="Cancel Appointment"
-                footer={cancelModalFooter}
-                size="sm"
-            >
-                <CancelModalContent
-                    cancellationReason={cancellationReason}
-                    setCancellationReason={setCancellationReason}
-                    customReason={customReason}
-                    setCustomReason={setCustomReason}
-                />
-            </Modal>
+                cancellationReason={cancellationReason}
+                setCancellationReason={setCancellationReason}
+                customReason={customReason}
+                setCustomReason={setCustomReason}
+                isCancelling={isCancelling}
+                onConfirm={handleConfirmCancel}
+            />
 
             <PaymentMethodModal
                 isOpen={isPaymentModalOpen}
