@@ -2,12 +2,8 @@ import {
     Activity,
     AlertCircle,
     BadgeAlert,
-    CheckCircle2,
     ClipboardPlus,
     Clock3,
-    Clock4,
-    CircleX,
-    Gauge,
     Droplet,
     Heart,
     RefreshCw,
@@ -27,13 +23,15 @@ import {
     logVitalReading,
     type PatientSummary,
 } from '../api/caregiver.api'
+import MedicationLogModal from '../components/modals/MedicationLogModal'
+import SymptomLogModal from '../components/modals/SymptomLogModal'
+import VitalLogModal from '../components/modals/VitalLogModal'
 import ProfileCard from '../components/ProfileCard/ProfileCard'
 import type {
     AlertCard,
     MedicationLogFormState,
     MedicationSchedule,
     SymptomLogFormState,
-    SymptomSeverity,
     TimelineItem,
     VitalLogFormState,
     VitalScheduleItem,
@@ -42,7 +40,6 @@ import type {
 import styles from './CaregiverPatients.module.css'
 
 import MainWrapper from '@/shared/components/MainWrapper/MainWrapper'
-import Modal from '@/shared/components/Modal/Modal'
 import { Section } from '@/shared/components/Section/Section'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 
@@ -698,371 +695,39 @@ const CaregiverPatients = () => {
                         )}
                     </Section>
 
-                    <Modal
+                    <MedicationLogModal
                         isOpen={isMedicationModalOpen}
                         onClose={closeMedicationModal}
-                        title="Log Medication"
-                        size="md"
-                        footer={
-                            <div className={styles.modalFooter}>
-                                <button type="button" className={styles.modalCancelBtn} onClick={closeMedicationModal}>
-                                    Cancel
-                                </button>
-                                <button
-                                    type="button"
-                                    className={styles.modalSaveBtn}
-                                    disabled={
-                                        isSavingMedication || !medicationLogForm.takenTime || !medicationLogForm.route
-                                    }
-                                    onClick={handleMedicationLogSubmit}
-                                >
-                                    {isSavingMedication ? 'Saving...' : 'Save Log'}
-                                </button>
-                            </div>
-                        }
-                    >
-                        {selectedMedication && (
-                            <div className={styles.medicationModalBody}>
-                                <div className={styles.modalFieldGrid}>
-                                    <label className={styles.modalField}>
-                                        <span className={styles.modalLabel}>Medication Selection</span>
-                                        <input
-                                            className={styles.modalInput}
-                                            value={selectedMedication.medicineName}
-                                            readOnly
-                                        />
-                                    </label>
-                                    <label className={styles.modalField}>
-                                        <span className={styles.modalLabel}>Dosage Amount</span>
-                                        <input
-                                            className={styles.modalInput}
-                                            value={selectedMedication.dosage}
-                                            readOnly
-                                        />
-                                    </label>
-                                </div>
+                        medication={selectedMedication}
+                        formState={medicationLogForm}
+                        setFormState={setMedicationLogForm}
+                        onSave={handleMedicationLogSubmit}
+                        isSaving={isSavingMedication}
+                    />
 
-                                <div className={styles.statusSection}>
-                                    <span className={styles.modalLabel}>Medication Status</span>
-                                    <div className={styles.statusPillGroup}>
-                                        <button
-                                            type="button"
-                                            className={`${styles.statusPill} ${medicationLogForm.status === 'on_time' ? styles.statusPillActive : ''}`}
-                                            onClick={() =>
-                                                setMedicationLogForm((current) => ({ ...current, status: 'on_time' }))
-                                            }
-                                        >
-                                            <CheckCircle2 size={18} />
-                                            On Time
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className={`${styles.statusPill} ${medicationLogForm.status === 'taken_late' ? styles.statusPillActive : ''}`}
-                                            onClick={() =>
-                                                setMedicationLogForm((current) => ({
-                                                    ...current,
-                                                    status: 'taken_late',
-                                                }))
-                                            }
-                                        >
-                                            <Clock4 size={18} />
-                                            Taken Late
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className={`${styles.statusPill} ${medicationLogForm.status === 'skipped' ? styles.statusPillActive : ''}`}
-                                            onClick={() =>
-                                                setMedicationLogForm((current) => ({ ...current, status: 'skipped' }))
-                                            }
-                                        >
-                                            <CircleX size={18} />
-                                            Skipped
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className={styles.modalFieldGrid}>
-                                    <label className={styles.modalField}>
-                                        <span className={styles.modalLabel}>Taken Time</span>
-                                        <input
-                                            type="time"
-                                            className={styles.modalInput}
-                                            value={medicationLogForm.takenTime}
-                                            onChange={(e) =>
-                                                setMedicationLogForm((current) => ({
-                                                    ...current,
-                                                    takenTime: e.target.value,
-                                                }))
-                                            }
-                                        />
-                                    </label>
-                                    <label className={styles.modalField}>
-                                        <span className={styles.modalLabel}>Route</span>
-                                        <select
-                                            className={styles.modalSelect}
-                                            value={medicationLogForm.route}
-                                            onChange={(e) =>
-                                                setMedicationLogForm((current) => ({
-                                                    ...current,
-                                                    route: e.target.value,
-                                                }))
-                                            }
-                                        >
-                                            <option value="oral">Oral</option>
-                                            <option value="injection">Injection</option>
-                                            <option value="IV">IV</option>
-                                            <option value="inhalation">Inhalation</option>
-                                        </select>
-                                    </label>
-                                </div>
-
-                                <label className={styles.modalField}>
-                                    <span className={styles.modalLabel}>Observations</span>
-                                    <textarea
-                                        className={styles.modalTextarea}
-                                        placeholder="Provide context, triggers, or specific details..."
-                                        value={medicationLogForm.observations}
-                                        onChange={(e) =>
-                                            setMedicationLogForm((current) => ({
-                                                ...current,
-                                                observations: e.target.value,
-                                            }))
-                                        }
-                                    />
-                                </label>
-                            </div>
-                        )}
-                    </Modal>
-
-                    <Modal
+                    <VitalLogModal
                         isOpen={isVitalModalOpen}
-                        onClose={closeVitalModal}
-                        title="Log Vital Reading"
-                        size="sm"
-                        footer={
-                            <div className={styles.modalFooter}>
-                                <button type="button" className={styles.modalCancelBtn} onClick={closeVitalModal}>
-                                    Cancel
-                                </button>
-                                <button
-                                    type="button"
-                                    className={styles.modalSaveBtn}
-                                    disabled={
-                                        isSavingVital ||
-                                        !vitalLogForm.vitalType ||
-                                        !vitalLogForm.recordedAt ||
-                                        (isBloodPressure
-                                            ? !vitalLogForm.systolic || !vitalLogForm.diastolic
-                                            : !vitalLogForm.value)
-                                    }
-                                    onClick={handleVitalLogSubmit}
-                                >
-                                    {isSavingVital ? 'Saving...' : 'Save Reading'}
-                                </button>
-                            </div>
-                        }
-                    >
-                        <div className={styles.vitalModalBody}>
-                            <label className={styles.modalField}>
-                                <span className={styles.modalLabel}>Vital Type</span>
-                                <select
-                                    className={styles.modalSelect}
-                                    value={vitalLogForm.vitalType}
-                                    onChange={(e) => handleVitalTypeChange(e.target.value)}
-                                >
-                                    {vitalSchedules.length > 0 ? (
-                                        [...new Set(vitalSchedules.map((s) => s.vitalType))].map((type) => (
-                                            <option key={type} value={type}>
-                                                {labelMap[type] || type}
-                                            </option>
-                                        ))
-                                    ) : (
-                                        <option value="blood_pressure">Blood Pressure</option>
-                                    )}
-                                </select>
-                            </label>
+                        onClose={() => setIsVitalModalOpen(false)}
+                        formState={vitalLogForm}
+                        setFormState={setVitalLogForm}
+                        onSave={handleVitalLogSubmit}
+                        isSaving={isSavingVital}
+                        vitalSchedules={vitalSchedules}
+                        isBloodPressure={isBloodPressure}
+                        selectedVitalLabel={selectedVitalLabel}
+                        selectedVitalUnit={selectedVitalUnit}
+                        onVitalTypeChange={handleVitalTypeChange}
+                    />
 
-                            {isBloodPressure ? (
-                                <div className={styles.vitalMeasureSection}>
-                                    <span className={styles.modalLabel}>Blood Pressure Measurement</span>
-                                    <div className={styles.bpGrid}>
-                                        <label className={styles.modalField}>
-                                            <span className={styles.measureLabel}>Systolic</span>
-                                            <div className={styles.unitInputWrap}>
-                                                <input
-                                                    className={styles.modalInput}
-                                                    value={vitalLogForm.systolic}
-                                                    onChange={(e) =>
-                                                        setVitalLogForm((current) => ({
-                                                            ...current,
-                                                            systolic: e.target.value,
-                                                        }))
-                                                    }
-                                                />
-                                                <span className={styles.inputUnit}>mmHg</span>
-                                            </div>
-                                        </label>
-                                        <label className={styles.modalField}>
-                                            <span className={styles.measureLabel}>Diastolic</span>
-                                            <div className={styles.unitInputWrap}>
-                                                <input
-                                                    className={styles.modalInput}
-                                                    value={vitalLogForm.diastolic}
-                                                    onChange={(e) =>
-                                                        setVitalLogForm((current) => ({
-                                                            ...current,
-                                                            diastolic: e.target.value,
-                                                        }))
-                                                    }
-                                                />
-                                                <span className={styles.inputUnit}>mmHg</span>
-                                            </div>
-                                        </label>
-                                    </div>
-                                    <span className={styles.rangeHint}>
-                                        Normal range: 90-120 systolic / 60-80 diastolic
-                                    </span>
-                                </div>
-                            ) : (
-                                <label className={styles.modalField}>
-                                    <span className={styles.modalLabel}>{selectedVitalLabel} Measurement</span>
-                                    <div className={styles.singleMeasureWrap}>
-                                        <Gauge size={18} className={styles.measureIcon} />
-                                        <input
-                                            className={styles.measureInput}
-                                            value={vitalLogForm.value}
-                                            onChange={(e) =>
-                                                setVitalLogForm((current) => ({ ...current, value: e.target.value }))
-                                            }
-                                            placeholder={`Enter ${selectedVitalLabel.toLowerCase()}`}
-                                        />
-                                        <span className={styles.measureUnit}>{selectedVitalUnit}</span>
-                                    </div>
-                                </label>
-                            )}
-
-                            <label className={styles.modalField}>
-                                <span className={styles.modalLabel}>Recorded At</span>
-                                <input
-                                    type="time"
-                                    className={styles.modalInput}
-                                    value={vitalLogForm.recordedAt}
-                                    onChange={(e) =>
-                                        setVitalLogForm((current) => ({ ...current, recordedAt: e.target.value }))
-                                    }
-                                />
-                            </label>
-
-                            <label className={styles.modalField}>
-                                <span className={styles.modalLabel}>Observation / Notes</span>
-                                <textarea
-                                    className={styles.modalTextarea}
-                                    placeholder="Optional: patient seated for 5 minutes, right arm measurement..."
-                                    value={vitalLogForm.notes}
-                                    onChange={(e) =>
-                                        setVitalLogForm((current) => ({ ...current, notes: e.target.value }))
-                                    }
-                                />
-                            </label>
-                        </div>
-                    </Modal>
-
-                    <Modal
+                    <SymptomLogModal
                         isOpen={isSymptomModalOpen}
-                        onClose={closeSymptomModal}
-                        title="Log Symptom"
-                        size="sm"
-                        footer={
-                            <div className={styles.modalFooter}>
-                                <button type="button" className={styles.modalCancelBtn} onClick={closeSymptomModal}>
-                                    Cancel
-                                </button>
-                                <button
-                                    type="button"
-                                    className={styles.modalSaveBtn}
-                                    disabled={isSavingSymptom || !symptomLogForm.symptom || !symptomLogForm.onsetTime}
-                                    onClick={handleSymptomLogSubmit}
-                                >
-                                    {isSavingSymptom ? 'Saving...' : 'Save Log'}
-                                </button>
-                            </div>
-                        }
-                    >
-                        <div className={styles.symptomModalBody}>
-                            <div className={styles.modalFieldGrid}>
-                                <label className={styles.modalField}>
-                                    <span className={styles.modalLabel}>Select Symptom</span>
-                                    <select
-                                        className={styles.modalSelect}
-                                        value={symptomLogForm.symptom}
-                                        onChange={(e) =>
-                                            setSymptomLogForm((current) => ({
-                                                ...current,
-                                                symptom: e.target.value,
-                                            }))
-                                        }
-                                    >
-                                        {symptomOptions.map((symptom) => (
-                                            <option key={symptom} value={symptom}>
-                                                {symptom}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </label>
-
-                                <label className={styles.modalField}>
-                                    <span className={styles.modalLabel}>Onset Time</span>
-                                    <input
-                                        type="time"
-                                        className={styles.modalInput}
-                                        value={symptomLogForm.onsetTime}
-                                        onChange={(e) =>
-                                            setSymptomLogForm((current) => ({
-                                                ...current,
-                                                onsetTime: e.target.value,
-                                            }))
-                                        }
-                                    />
-                                </label>
-                            </div>
-
-                            <div className={styles.severitySection}>
-                                <span className={styles.modalLabel}>Severity Level</span>
-                                <div className={styles.severityGrid}>
-                                    {(['mild', 'moderate', 'severe', 'critical'] as SymptomSeverity[]).map((level) => (
-                                        <button
-                                            key={level}
-                                            type="button"
-                                            className={`${styles.severityPill} ${styles[`severity${level.charAt(0).toUpperCase() + level.slice(1)}`]} ${symptomLogForm.severity === level ? styles.severityPillActive : ''}`}
-                                            onClick={() =>
-                                                setSymptomLogForm((current) => ({
-                                                    ...current,
-                                                    severity: level,
-                                                }))
-                                            }
-                                        >
-                                            {level.charAt(0).toUpperCase() + level.slice(1)}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <label className={styles.modalField}>
-                                <span className={styles.modalLabel}>Detailed Observations</span>
-                                <textarea
-                                    className={styles.modalTextarea}
-                                    placeholder="Provide context, triggers, or specific details..."
-                                    value={symptomLogForm.observations}
-                                    onChange={(e) =>
-                                        setSymptomLogForm((current) => ({
-                                            ...current,
-                                            observations: e.target.value,
-                                        }))
-                                    }
-                                />
-                            </label>
-                        </div>
-                    </Modal>
+                        onClose={() => setIsSymptomModalOpen(false)}
+                        formState={symptomLogForm}
+                        setFormState={setSymptomLogForm}
+                        onSave={handleSymptomLogSubmit}
+                        isSaving={isSavingSymptom}
+                        symptomOptions={symptomOptions}
+                    />
                 </>
             )}
         </MainWrapper>

@@ -3,14 +3,12 @@ import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import { createReminder, deleteReminder, getMyPatients, getReminders, markReminderDone } from '../api/caregiver.api'
+import CreateReminderModal from '../components/modals/CreateReminderModal'
 import type { CreateReminderDTO, PatientOption, ReminderItem, RemindersResponse } from '../types/caregiver.types'
 
 import styles from './CaregiverReminders.module.css'
 
-import DateTimePicker from '@/shared/components/DateTimePicker/DateTimePicker'
-import InputField from '@/shared/components/InputField/InputField'
 import MainWrapper from '@/shared/components/MainWrapper/MainWrapper'
-import Modal from '@/shared/components/Modal/Modal'
 import { Section } from '@/shared/components/Section/Section'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 
@@ -20,12 +18,6 @@ const priorityLabels: Record<string, string> = {
     medium: 'Medium',
     low: 'Low',
 }
-
-const priorityOptions: { value: 'low' | 'medium' | 'high'; label: string }[] = [
-    { value: 'low', label: 'Low' },
-    { value: 'medium', label: 'Medium' },
-    { value: 'high', label: 'High' },
-]
 
 const CaregiverReminders = () => {
     const [data, setData] = useState<RemindersResponse | null>(null)
@@ -134,61 +126,6 @@ const CaregiverReminders = () => {
     const sorted: ReminderItem[] = data
         ? [...data.reminders].sort((a, b) => new Date(a.scheduleTime).getTime() - new Date(b.scheduleTime).getTime())
         : []
-
-    const createReminderForm = (
-        <div className={styles.modalBody}>
-            {patients.length >= 1 && <InputField label="Patient" value={patients[0].userName} readOnly />}
-
-            <InputField
-                label="Title *"
-                value={createForm.title}
-                placeholder="Type reminder title"
-                onChange={(e) => setCreateForm((f) => ({ ...f, title: e.target.value }))}
-            />
-
-            <label className={styles.textareaField}>
-                <span className={styles.modalLabel}>Description</span>
-                <textarea
-                    className={styles.modalTextarea}
-                    value={createForm.description ?? ''}
-                    placeholder="Optional note"
-                    onChange={(e) => setCreateForm((f) => ({ ...f, description: e.target.value }))}
-                />
-            </label>
-            <DateTimePicker
-                label="Date & time *"
-                value={
-                    createForm.scheduleTime
-                        ? {
-                              date: createForm.scheduleTime.split('T')[0],
-                              time: createForm.scheduleTime.split('T')[1],
-                          }
-                        : undefined
-                }
-                minDate={new Date()}
-                onChange={(val) =>
-                    setCreateForm((f) => ({
-                        ...f,
-                        scheduleTime: `${val.date}T${val.time}`,
-                    }))
-                }
-            />
-
-            <span className={styles.modalLabel}>Priority</span>
-            <div className={styles.priorityRow}>
-                {priorityOptions.map((opt) => (
-                    <button
-                        key={opt.value}
-                        type="button"
-                        className={`${styles.priorityBtn} ${createForm.priority === opt.value ? styles.priorityBtnActive : ''}`}
-                        onClick={() => setCreateForm((f) => ({ ...f, priority: opt.value }))}
-                    >
-                        {opt.label}
-                    </button>
-                ))}
-            </div>
-        </div>
-    )
 
     if (isLoading) {
         return (
@@ -381,33 +318,15 @@ const CaregiverReminders = () => {
                 </div>
             </section>
 
-            <Modal
+            <CreateReminderModal
                 isOpen={isCreateModalOpen}
                 onClose={() => setIsCreateModalOpen(false)}
-                title="Create Reminder"
-                size="sm"
-                footer={
-                    <>
-                        <button
-                            type="button"
-                            className={styles.modalCancelBtn}
-                            onClick={() => setIsCreateModalOpen(false)}
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="button"
-                            className={styles.modalSaveBtn}
-                            disabled={!createForm.title.trim() || !createForm.scheduleTime || isSaving}
-                            onClick={handleCreate}
-                        >
-                            {isSaving ? 'Saving...' : 'Create'}
-                        </button>
-                    </>
-                }
-            >
-                {createReminderForm}
-            </Modal>
+                formState={createForm}
+                setFormState={setCreateForm}
+                onSave={handleCreate}
+                isSaving={isSaving}
+                patientName={patients.length >= 1 ? patients[0].userName : ''}
+            />
         </MainWrapper>
     )
 }
