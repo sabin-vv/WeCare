@@ -306,6 +306,7 @@ export class AdminRepository implements IAdminRepository {
         caregiverId: string,
         status: AdminVerificationStatus,
         adminId: string,
+        reason?: string,
     ): Promise<{ message: string }> {
         const caregiver = await CaregiverModel.findById(caregiverId)
         if (!caregiver) {
@@ -315,7 +316,7 @@ export class AdminRepository implements IAdminRepository {
         caregiver.verificationStatus = status as VerificationStatus
         caregiver.verifiedBy = new Types.ObjectId(adminId)
         caregiver.verifiedAt = new Date()
-        caregiver.rejectReason = status === 'rejected' ? 'Rejected by admin' : ''
+        caregiver.rejectReason = status === 'rejected' ? reason || 'Rejected by admin' : ''
         caregiver.isActive = status === 'verified'
         await caregiver.save()
 
