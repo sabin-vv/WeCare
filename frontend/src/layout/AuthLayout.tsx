@@ -4,7 +4,7 @@ import Footer from '../shared/components/Footer/Footer'
 
 import styles from './AuthLayout.module.css'
 
-import PatientHeader from '@/modules/patient/component/PatientHeader'
+import PatientHeader from '@/modules/patient/components/PatientHeader'
 
 const AuthLayout = ({ children }: { children: ReactNode }) => {
     return (

@@ -17,8 +17,8 @@ import {
     getWallet,
     verifySubscriptionPayment,
 } from '../api/patient.api'
-import AppointmentCard from '../component/AppointmentCard'
-import SubscriptionModal from '../component/SubscriptionModal'
+import AppointmentCard from '../components/AppointmentCard'
+import SubscriptionModal from '../components/modals/SubscriptionModal'
 import {
     type Appointment,
     type CareTeamMember,

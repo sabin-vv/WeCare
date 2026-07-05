@@ -2,8 +2,8 @@ import { Outlet } from 'react-router-dom'
 
 import styles from './PatientLayout.module.css'
 
-import PatientAssistantWidget from '@/modules/patient/component/PatientAssistantWidget'
-import PatientHeader from '@/modules/patient/component/PatientHeader'
+import PatientAssistantWidget from '@/modules/patient/components/PatientAssistantWidget'
+import PatientHeader from '@/modules/patient/components/PatientHeader'
 import Footer from '@/shared/components/Footer/Footer'
 
 const PatientLayout = () => {

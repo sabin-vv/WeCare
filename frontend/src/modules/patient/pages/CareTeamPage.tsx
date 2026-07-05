@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import { getCareTeam, createFeedback } from '../api/patient.api'
-import FeedbackModal from '../component/FeedbackModal/FeedbackModal'
-import FeedbackProfileCard from '../component/FeedbackProfileCard'
+import FeedbackProfileCard from '../components/FeedbackProfileCard'
+import FeedbackModal from '../components/modals/FeedbackModal'
 import type { FeedbackTarget, TeamMember } from '../types/patient.types'
 
 import styles from './CareTeamPage.module.css'
