@@ -1,5 +1,6 @@
 import type { RouteObject } from 'react-router-dom'
 
+import RequireCaregiverProfile from '../components/RequireCaregiverProfile/RequireCaregiverProfile'
 import CaregiverActivityLog from '../pages/CaregiverActivityLog'
 import CaregiverAlertsPage from '../pages/CaregiverAlertsPage'
 import CaregiverDashboard from '../pages/CaregiverDashboard'
@@ -7,7 +8,6 @@ import CaregiverPatients from '../pages/CaregiverPatients'
 import CaregiverReminders from '../pages/CaregiverReminders'
 import CaregiverSettings from '../pages/CaregiverSettings'
 import PrescriptionPage from '../pages/PrescriptionPage'
-
 
 import CaregiverLayout from '@/layout/CaregiverLayout'
 import { Role } from '@/modules/auth/types/auth.types'
@@ -28,32 +28,37 @@ export const CaregiverRoutes: RouteObject[] = [
                 element: <CaregiverDashboard />,
             },
             {
-                path: 'patients',
-                element: <CaregiverPatients />,
-            },
-            {
-                path: 'patients/:patientId/prescription',
-                element: <PrescriptionPage />,
-            },
-            {
-                path: 'reminders',
-                element: <CaregiverReminders />,
-            },
-            {
-                path: 'alerts',
-                element: <CaregiverAlertsPage />,
-            },
-            {
-                path: 'activity-log',
-                element: <CaregiverActivityLog />,
-            },
-            {
-                path: 'settings',
-                element: <CaregiverSettings />,
-            },
-            {
-                path: 'chat',
-                element: <CaregiverChatPage />,
+                element: <RequireCaregiverProfile />,
+                children: [
+                    {
+                        path: 'patients',
+                        element: <CaregiverPatients />,
+                    },
+                    {
+                        path: 'patients/:patientId/prescription',
+                        element: <PrescriptionPage />,
+                    },
+                    {
+                        path: 'reminders',
+                        element: <CaregiverReminders />,
+                    },
+                    {
+                        path: 'alerts',
+                        element: <CaregiverAlertsPage />,
+                    },
+                    {
+                        path: 'activity-log',
+                        element: <CaregiverActivityLog />,
+                    },
+                    {
+                        path: 'settings',
+                        element: <CaregiverSettings />,
+                    },
+                    {
+                        path: 'chat',
+                        element: <CaregiverChatPage />,
+                    },
+                ],
             },
         ],
     },
