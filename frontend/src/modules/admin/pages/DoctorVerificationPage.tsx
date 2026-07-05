@@ -1,13 +1,13 @@
-/* eslint-disable react/no-unescaped-entities */
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import { getPendingDoctors, getRecentDoctorVerifications, verifyDoctor, verifySpecialization } from '../api/admin.api'
+import DoctorDocumentViewer from '../components/modals/DoctorDocumentViewer'
+import RejectionReasonModal from '../components/modals/RejectionReasonModal'
 import type { PendingDoctor } from '../types/admin.types'
 
 import styles from './DoctorVerification.module.css'
 
-import Modal from '@/shared/components/Modal/Modal'
 import PageHeader from '@/shared/components/PageHeader/PageHeader'
 import Pagination from '@/shared/components/Pagination/Pagination'
 import SearchField from '@/shared/components/SearchField/SearchField'
@@ -24,11 +24,9 @@ const DoctorVerificationPage = () => {
     const [pagination, setPagination] = useState({ page: 1, limit: 10, totalCount: 0, totalPages: 1 })
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [selectedDoctor, setSelectedDoctor] = useState<PendingDoctor | null>(null)
-    const [activeTab, setActiveTab] = useState<string>('council')
     const [recentDoctors, setRecentDoctors] = useState<PendingDoctor[]>([])
     const [recentLoading, setRecentLoading] = useState(true)
     const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false)
-    const [rejectionReason, setRejectionReason] = useState('')
     const { refreshCounts } = usePendingCount()
 
     const fetchDoctors = async (page = 1, searchQuery = '') => {
@@ -62,7 +60,6 @@ const DoctorVerificationPage = () => {
             toast.success(`Doctor ${status === 'verified' ? 'approved' : 'rejected'} successfully`)
             setIsModalOpen(false)
             setIsRejectionModalOpen(false)
-            setRejectionReason('')
             fetchDoctors(pagination.page)
             fetchRecentDoctors()
             refreshCounts()
@@ -72,7 +69,6 @@ const DoctorVerificationPage = () => {
     }
 
     const openRejectionModal = () => {
-        setRejectionReason('Information provided is insufficient')
         setIsRejectionModalOpen(true)
     }
 
@@ -104,7 +100,6 @@ const DoctorVerificationPage = () => {
 
     const openDocumentViewer = (doctor: PendingDoctor) => {
         setSelectedDoctor(doctor)
-        setActiveTab('council')
         setIsModalOpen(true)
     }
 
@@ -112,22 +107,6 @@ const DoctorVerificationPage = () => {
         fetchDoctors()
         fetchRecentDoctors()
     }, [])
-
-    const getDocUrl = () => {
-        if (!selectedDoctor) return ''
-        if (activeTab === 'council') return selectedDoctor.medicalCouncilImage
-        if (activeTab === 'certificate') return selectedDoctor.medicalCertificateImage
-        if (activeTab === 'govid') return selectedDoctor.govIdImage
-        if (activeTab.startsWith('spec-')) {
-            const index = parseInt(activeTab.split('-')[1])
-            return selectedDoctor.specializations[index]?.documentImage
-        }
-        return ''
-    }
-
-    const currentDocUrl = getDocUrl()
-    const currentSpecIndex = activeTab.startsWith('spec-') ? parseInt(activeTab.split('-')[1]) : -1
-    const isCurrentSpecVerified = currentSpecIndex !== -1 && selectedDoctor?.specializations[currentSpecIndex]?.verified
 
     const pendingColumns = [
         {
@@ -324,147 +303,21 @@ const DoctorVerificationPage = () => {
                 />
             </Section>
 
-            <Modal
+            <DoctorDocumentViewer
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                title={`Verification: Dr. ${selectedDoctor?.name}`}
-                footer={
-                    selectedDoctor?.verificationStatus === 'pending' ? (
-                        <>
-                            <button className={styles.rejectBtn} onClick={openRejectionModal}>
-                                Reject
-                            </button>
-                            <button
-                                className={styles.approveBtn}
-                                onClick={() => selectedDoctor && handleAction(selectedDoctor._id, 'verified')}
-                            >
-                                Approve
-                            </button>
-                        </>
-                    ) : null
-                }
-            >
-                {selectedDoctor && (
-                    <div className={styles.modalContent}>
-                        <div className={styles.docHead}>
-                            <p>
-                                <strong>Council Reg. No:</strong> #{selectedDoctor.medicalCouncilRegisterNumber}
-                            </p>
-                            <p>
-                                <strong>Certificate No:</strong> #{selectedDoctor.medicalCertificateNumber}
-                            </p>
-                            <p>
-                                <strong>Specialty:</strong>{' '}
-                                {selectedDoctor.specializations?.length
-                                    ? selectedDoctor.specializations.map((s) => s.name).join(', ')
-                                    : 'General'}
-                            </p>
-                        </div>
-                        <div className={styles.tabBar}>
-                            <button
-                                className={`${styles.tab} ${activeTab === 'council' ? styles.activeTab : ''}`}
-                                onClick={() => setActiveTab('council')}
-                            >
-                                Medical Council
-                            </button>
-                            <button
-                                className={`${styles.tab} ${activeTab === 'certificate' ? styles.activeTab : ''}`}
-                                onClick={() => setActiveTab('certificate')}
-                            >
-                                Medical Certificate
-                            </button>
-                            <button
-                                className={`${styles.tab} ${activeTab === 'govid' ? styles.activeTab : ''}`}
-                                onClick={() => setActiveTab('govid')}
-                            >
-                                Govt ID
-                            </button>
-                            {selectedDoctor.specializations.map((spec, i) => (
-                                <button
-                                    key={`spec-${i}`}
-                                    className={`${styles.tab} ${activeTab === `spec-${i}` ? styles.activeTab : ''}`}
-                                    onClick={() => setActiveTab(`spec-${i}`)}
-                                >
-                                    {spec.name} Cert {spec.verified && '✓'}
-                                </button>
-                            ))}
-                        </div>
+                doctor={selectedDoctor}
+                onApprove={() => selectedDoctor && handleAction(selectedDoctor._id, 'verified')}
+                onReject={openRejectionModal}
+                onSpecVerify={handleSpecVerify}
+            />
 
-                        {currentSpecIndex !== -1 && (
-                            <div className={styles.specActionBar}>
-                                {isCurrentSpecVerified ? (
-                                    <div className={styles.verifiedBadge}>
-                                        <span>Verified</span>
-                                    </div>
-                                ) : (
-                                    selectedDoctor?.verificationStatus === 'pending' && (
-                                        <div className={styles.specActionBar}>
-                                            <button
-                                                className={styles.specVerifyBtn}
-                                                onClick={() => handleSpecVerify(currentSpecIndex)}
-                                            >
-                                                Verify This Certificate
-                                            </button>
-                                        </div>
-                                    )
-                                )}
-                            </div>
-                        )}
-
-                        <div className={styles.docWrapper}>
-                            {currentDocUrl?.endsWith('.pdf') ? (
-                                <iframe
-                                    key={currentDocUrl}
-                                    src={getFileUrl(currentDocUrl)}
-                                    className={styles.docIframe}
-                                    title="Doctor Document Viewer"
-                                />
-                            ) : currentDocUrl ? (
-                                <img
-                                    key={currentDocUrl}
-                                    src={getFileUrl(currentDocUrl)}
-                                    className={styles.docImage}
-                                    alt="Doctor Document Preview"
-                                />
-                            ) : (
-                                <div className={styles.noDoc}>No document uploaded</div>
-                            )}
-                        </div>
-                    </div>
-                )}
-            </Modal>
-
-            <Modal
+            <RejectionReasonModal
                 isOpen={isRejectionModalOpen}
                 onClose={() => setIsRejectionModalOpen(false)}
-                title="Reason for Rejection"
-                footer={
-                    <>
-                        <button className={styles.cancelBtn} onClick={() => setIsRejectionModalOpen(false)}>
-                            Cancel
-                        </button>
-                        <button
-                            className={styles.rejectBtn}
-                            onClick={() =>
-                                selectedDoctor && handleAction(selectedDoctor._id, 'rejected', rejectionReason)
-                            }
-                        >
-                            Confirm Reject
-                        </button>
-                    </>
-                }
-            >
-                <div className={styles.rejectionBody}>
-                    <p>Please provide a reason for rejecting Dr. {selectedDoctor?.name}'s application:</p>
-                    <textarea
-                        className={styles.rejectionTextarea}
-                        value={rejectionReason}
-                        onChange={(e) => setRejectionReason(e.target.value)}
-                        placeholder="e.g. Medical certificate is expired or invalid..."
-                        rows={4}
-                    />
-                </div>
-            </Modal>
+                name={selectedDoctor?.name || ''}
+                onConfirm={(reason) => selectedDoctor && handleAction(selectedDoctor._id, 'rejected', reason)}
+            />
         </>
     )
 }

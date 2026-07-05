@@ -1,13 +1,13 @@
-/* eslint-disable react/no-unescaped-entities */
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import { getPendingCaregivers, getRecentCaregiverVerifications, verifyCaregiver } from '../api/admin.api'
+import CaregiverDocumentViewer from '../components/modals/CaregiverDocumentViewer'
+import RejectionReasonModal from '../components/modals/RejectionReasonModal'
 import type { PendingCaregiver, RecentCaregiver } from '../types/admin.types'
 
 import styles from './DoctorVerification.module.css'
 
-import Modal from '@/shared/components/Modal/Modal'
 import PageHeader from '@/shared/components/PageHeader/PageHeader'
 import Pagination from '@/shared/components/Pagination/Pagination'
 import SearchField from '@/shared/components/SearchField/SearchField'
@@ -122,11 +122,9 @@ const CaregiverVerificationPage = () => {
     const [pagination, setPagination] = useState({ page: 1, limit: 10, totalCount: 0, totalPages: 1 })
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [selectedCaregiver, setSelectedCaregiver] = useState<PendingCaregiver | null>(null)
-    const [activeTab, setActiveTab] = useState<'certificate' | 'license' | 'govid'>('certificate')
     const [recentCaregivers, setRecentCaregivers] = useState<RecentCaregiver[]>([])
     const [recentLoading, setRecentLoading] = useState(true)
     const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false)
-    const [rejectionReason, setRejectionReason] = useState('')
     const { refreshCounts } = usePendingCount()
 
     const fetchCaregivers = async (page = 1, searchQuery = '') => {
@@ -160,7 +158,6 @@ const CaregiverVerificationPage = () => {
             toast.success(`Caregiver ${status === 'verified' ? 'approved' : 'rejected'} successfully`)
             setIsModalOpen(false)
             setIsRejectionModalOpen(false)
-            setRejectionReason('')
             fetchCaregivers(pagination.page)
             fetchRecentCaregivers()
             refreshCounts()
@@ -170,13 +167,11 @@ const CaregiverVerificationPage = () => {
     }
 
     const openRejectionModal = () => {
-        setRejectionReason('Information provided is insufficient')
         setIsRejectionModalOpen(true)
     }
 
     const openDocumentViewer = (caregiver: PendingCaregiver) => {
         setSelectedCaregiver(caregiver)
-        setActiveTab('certificate')
         setIsModalOpen(true)
     }
 
@@ -184,13 +179,6 @@ const CaregiverVerificationPage = () => {
         fetchCaregivers()
         fetchRecentCaregivers()
     }, [])
-
-    const currentDocUrl = (() => {
-        if (!selectedCaregiver) return ''
-        if (activeTab === 'certificate') return selectedCaregiver.certificateImage
-        if (activeTab === 'license') return selectedCaregiver.licenseImage
-        return selectedCaregiver.govIdImage
-    })()
 
     const columnsWithActions = [
         ...pendingCaregiverColumns,
@@ -283,112 +271,20 @@ const CaregiverVerificationPage = () => {
                 />
             </Section>
 
-            <Modal
+            <CaregiverDocumentViewer
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                title={`Verification: ${selectedCaregiver?.name || ''}`}
-                footer={
-                    selectedCaregiver?.verificationStatus === 'pending' ? (
-                        <>
-                            <button className={styles.rejectBtn} onClick={openRejectionModal}>
-                                Reject
-                            </button>
-                            <button
-                                className={styles.approveBtn}
-                                onClick={() => selectedCaregiver && handleAction(selectedCaregiver._id, 'verified')}
-                            >
-                                Approve
-                            </button>
-                        </>
-                    ) : null
-                }
-            >
-                {selectedCaregiver && (
-                    <div className={styles.modalContent}>
-                        <div className={styles.docHead}>
-                            <p>
-                                <strong>Certificate No:</strong> #{selectedCaregiver.certificateNumber}
-                            </p>
-                            <p>
-                                <strong>License No:</strong> #{selectedCaregiver.licenseNumber}
-                            </p>
-                        </div>
+                caregiver={selectedCaregiver}
+                onApprove={() => selectedCaregiver && handleAction(selectedCaregiver._id, 'verified')}
+                onReject={openRejectionModal}
+            />
 
-                        <div className={styles.tabBar}>
-                            <button
-                                className={`${styles.tab} ${activeTab === 'certificate' ? styles.activeTab : ''}`}
-                                onClick={() => setActiveTab('certificate')}
-                            >
-                                Certificate
-                            </button>
-                            <button
-                                className={`${styles.tab} ${activeTab === 'license' ? styles.activeTab : ''}`}
-                                onClick={() => setActiveTab('license')}
-                            >
-                                License
-                            </button>
-                            <button
-                                className={`${styles.tab} ${activeTab === 'govid' ? styles.activeTab : ''}`}
-                                onClick={() => setActiveTab('govid')}
-                            >
-                                Govt ID
-                            </button>
-                        </div>
-
-                        <div className={styles.docWrapper}>
-                            {currentDocUrl?.endsWith('.pdf') ? (
-                                <iframe
-                                    key={currentDocUrl}
-                                    src={getFileUrl(currentDocUrl)}
-                                    className={styles.docIframe}
-                                    title="Caregiver Document Viewer"
-                                />
-                            ) : currentDocUrl ? (
-                                <img
-                                    key={currentDocUrl}
-                                    src={getFileUrl(currentDocUrl)}
-                                    className={styles.docImage}
-                                    alt="Caregiver Document Preview"
-                                />
-                            ) : (
-                                <div className={styles.noDoc}>No document uploaded</div>
-                            )}
-                        </div>
-                    </div>
-                )}
-            </Modal>
-
-            <Modal
+            <RejectionReasonModal
                 isOpen={isRejectionModalOpen}
                 onClose={() => setIsRejectionModalOpen(false)}
-                title="Reason for Rejection"
-                footer={
-                    <>
-                        <button className={styles.cancelBtn} onClick={() => setIsRejectionModalOpen(false)}>
-                            Cancel
-                        </button>
-                        <button
-                            className={styles.rejectBtn}
-                            onClick={() =>
-                                selectedCaregiver && handleAction(selectedCaregiver._id, 'rejected', rejectionReason)
-                            }
-                        >
-                            Confirm Reject
-                        </button>
-                    </>
-                }
-            >
-                <div className={styles.rejectionBody}>
-                    <p>Please provide a reason for rejecting {selectedCaregiver?.name}'s application:</p>
-                    <textarea
-                        className={styles.rejectionTextarea}
-                        value={rejectionReason}
-                        onChange={(e) => setRejectionReason(e.target.value)}
-                        placeholder="e.g. Certificate is expired or invalid..."
-                        rows={4}
-                    />
-                </div>
-            </Modal>
+                name={selectedCaregiver?.name || ''}
+                onConfirm={(reason) => selectedCaregiver && handleAction(selectedCaregiver._id, 'rejected', reason)}
+            />
         </>
     )
 }
