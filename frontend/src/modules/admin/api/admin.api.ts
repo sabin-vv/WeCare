@@ -73,8 +73,9 @@ export const getRecentCaregiverVerifications = async (limit: number = 10): Promi
 export const verifyCaregiver = async (
     caregiverId: string,
     status: 'verified' | 'rejected',
+    reason?: string,
 ): Promise<{ message: string }> => {
-    const res = await api.patch(`${ADMIN_API}/verify-caregiver/${caregiverId}`, { status })
+    const res = await api.patch(`${ADMIN_API}/verify-caregiver/${caregiverId}`, { status, reason })
     return res.data
 }
 
