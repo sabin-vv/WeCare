@@ -49,7 +49,7 @@ export interface IAdminRepository {
 
     getRecentCaregiverVerifications(limit: number): Promise<RecentCaregiversResponse>
 
-    verifyCaregiver(caregiverId: string, status: AdminVerificationStatus, adminId: string): Promise<{ message: string }>
+    verifyCaregiver(caregiverId: string, status: AdminVerificationStatus, adminId: string, reason?: string): Promise<{ message: string }>
 
     getPendingCount(): Promise<PendingCountResponse>
 
