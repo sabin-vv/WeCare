@@ -47,7 +47,7 @@ const DoctorVerificationPage = () => {
     const fetchRecentDoctors = async () => {
         setRecentLoading(true)
         try {
-            const data = await getRecentDoctorVerifications(10)
+            const data = await getRecentDoctorVerifications(5)
             setRecentDoctors(data.doctors)
         } catch (error) {
             toast.error(getErrorMessage(error))
