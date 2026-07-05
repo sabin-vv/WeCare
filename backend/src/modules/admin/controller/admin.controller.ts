@@ -77,11 +77,11 @@ export class AdminController {
 
     verifyCaregiver = async (req: Request, res: Response) => {
         const caregiverId = getSingleParam(req.params.caregiverId, 'caregiverId')
-        const { status } = req.body as { status: AdminVerificationStatus }
+        const { status, reason } = req.body as { status: AdminVerificationStatus; reason?: string }
         const adminId = (req as AuthenticatedRequest).user?.userId
         if (!adminId) throw new Error('Admin id missing from token')
 
-        const result = await this._adminService.verifyCaregiver(caregiverId, status, adminId)
+        const result = await this._adminService.verifyCaregiver(caregiverId, status, adminId, reason)
 
         res.status(HTTP_STATUS.OK).json(result)
     }
