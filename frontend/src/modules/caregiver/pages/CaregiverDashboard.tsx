@@ -1,3 +1,4 @@
+import { TriangleAlert } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
@@ -93,10 +94,19 @@ const CaregiverDashboard = () => {
         <MainWrapper title={`Good ${timePeriod}, ${user?.name}`}>
             {!user?.isProfileComplete || user.verificationStatus === 'rejected' ? (
                 <>
-                    {user && user.verificationStatus === 'rejected' && (
+                    {user?.verificationStatus === 'rejected' && (
                         <div className={styles.rejectBox}>
-                            <strong>Profile Rejected</strong>
-                            <p>{rejectReason}</p>
+                            <div className={styles.rejectHeader}>
+                                <TriangleAlert size={20} color="#f59e00" />
+                                <strong>Verification Rejected</strong>
+                            </div>
+
+                            <p className={styles.rejectMessage}>Your professional details could not be verified.</p>
+
+                            <div className={styles.reasonBox}>
+                                <span>Reason :</span>
+                                <p>{rejectReason}</p>
+                            </div>
                         </div>
                     )}
 
