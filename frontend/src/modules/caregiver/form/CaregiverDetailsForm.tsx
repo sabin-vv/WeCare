@@ -174,7 +174,7 @@ const CaregiverDetailsForm = ({ documents: initialDocuments }: CaregiverDetailsF
         >
             <div className={styles.gridContainer}>
                 <Card
-                    title="Government ID"
+                    title="Government ID *"
                     description="Upload a clear photo of your Passport, Driver's License, or National ID Card."
                 >
                     <FileUploadBox
@@ -202,7 +202,7 @@ const CaregiverDetailsForm = ({ documents: initialDocuments }: CaregiverDetailsF
                     />
                 </Card>
                 <Card
-                    title="Professional Certificate"
+                    title="Professional Certificate *"
                     description="Verification of your professional credentials is required for all caregivers."
                 >
                     <InputField
@@ -235,7 +235,7 @@ const CaregiverDetailsForm = ({ documents: initialDocuments }: CaregiverDetailsF
                     />
                 </Card>
                 <Card
-                    title="Nursing License"
+                    title="Nursing License *"
                     description="Verification of your active nursing license is required for all registered nurses."
                 >
                     <InputField
