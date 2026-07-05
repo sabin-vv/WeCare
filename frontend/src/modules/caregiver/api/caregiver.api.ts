@@ -29,8 +29,8 @@ export const getCaregiverProfile = async (): Promise<CaregiverProfileResponse> =
     return res.data
 }
 
-export const updateCaregiverProfile = async (data: Record<string, unknown>): Promise<CaregiverProfileResponse> => {
-    const res = await api.put<CaregiverProfileResponse>(`${CAREGIVERS_API}/me`, data)
+export const updateCaregiverProfile = async (data: FormData): Promise<ApiInterface> => {
+    const res = await api.put(`${CAREGIVERS_API}/me`, data)
     return res.data
 }
 
