@@ -1,15 +1,17 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import type { PatientOption, StartNewChatModalProps } from '../types/chat.types'
+import type { PatientOption, StartNewChatModalProps } from '../../types/chat.types'
+import styles from '../Chat.module.css'
 
-import styles from './Chat.module.css'
-
+import { env } from '@/config/env'
 import Modal from '@/shared/components/Modal/Modal'
 
 const StartNewChatModal = ({ isOpen, onClose, fetchPatients, onSelectPatient }: StartNewChatModalProps) => {
     const [patients, setPatients] = useState<PatientOption[]>([])
     const [search, setSearch] = useState('')
     const [loading, setLoading] = useState(false)
+
+    const baseUrl = env.AWS_BASE_URL
 
     const load = useCallback(async () => {
         try {
@@ -68,7 +70,11 @@ const StartNewChatModal = ({ isOpen, onClose, fetchPatients, onSelectPatient }: 
                             >
                                 <div className={styles.modalAvatar}>
                                     {patient.profileImage ? (
-                                        <img src={patient.profileImage} alt="" className={styles.modalAvatarImg} />
+                                        <img
+                                            src={`${baseUrl}${patient.profileImage}`}
+                                            alt=""
+                                            className={styles.modalAvatarImg}
+                                        />
                                     ) : (
                                         patient.name.charAt(0).toUpperCase()
                                     )}
