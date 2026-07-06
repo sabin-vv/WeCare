@@ -3,6 +3,8 @@
     flex-direction: column;
     gap: 12px;
     margin-bottom: 24px;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .searchRow {
@@ -52,10 +54,13 @@
     align-items: center;
     gap: 12px;
     flex-wrap: wrap;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .filterItem {
-    width: 220px;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .filterItem input,
@@ -64,8 +69,8 @@
 }
 
 .dateRangeItem {
-    width: 320px;
-    flex-shrink: 0;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .badge {
