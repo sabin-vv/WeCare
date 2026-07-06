@@ -130,6 +130,10 @@
     background: #edf2ff;
     color: #364fc7;
 }
+.statusMissed {
+    background: #f1f3f5;
+    color: #495057;
+}
 
 .detailsRow {
     display: flex;

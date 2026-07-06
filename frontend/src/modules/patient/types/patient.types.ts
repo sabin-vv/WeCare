@@ -209,7 +209,7 @@ export type RetryPaymentResponse =
           appointmentConfirmed: true
       }
 
-type AppointmentStatus = 'pending_payment' | 'confirmed' | 'in_consultation' | 'cancelled' | 'completed'
+type AppointmentStatus = 'pending_payment' | 'confirmed' | 'in_consultation' | 'cancelled' | 'completed' | 'missed'
 export interface AppointmentCardProps {
     doctorName: string
     date: string
@@ -373,4 +373,10 @@ export interface FeedbackTarget {
     role: 'doctor' | 'caregiver'
     initialRating?: number
     initialComment?: string
+}
+
+export interface DetailedAppointmentCardProps {
+    appointment: Appointment
+    onRetryPayment: (appointment: Appointment) => void
+    onCancel: (appointmentId: string) => void
 }
