@@ -4,20 +4,16 @@ import toast from 'react-hot-toast'
 
 import { createReminder, deleteReminder, getMyPatients, getReminders, markReminderDone } from '../api/caregiver.api'
 import CreateReminderModal from '../components/modals/CreateReminderModal'
+import { DEFAULT_REMINDER_FORM, PRIORITY_LABELS } from '../constants/caregiver.constants'
 import type { CreateReminderDTO, PatientOption, ReminderItem, RemindersResponse } from '../types/caregiver.types'
 
 import styles from './CaregiverReminders.module.css'
 
 import MainWrapper from '@/shared/components/MainWrapper/MainWrapper'
 import { Section } from '@/shared/components/Section/Section'
+import { DATE_FORMAT, formatDate as sharedFormatDate } from '@/shared/utils/format'
+import { formatRelativeDate } from '@/shared/utils/time.utils'
 import { getErrorMessage } from '@/utils/getErrorMessage'
-
-const priorityLabels: Record<string, string> = {
-    critical: 'Critical',
-    high: 'High',
-    medium: 'Medium',
-    low: 'Low',
-}
 
 const CaregiverReminders = () => {
     const [data, setData] = useState<RemindersResponse | null>(null)
@@ -26,11 +22,7 @@ const CaregiverReminders = () => {
     const [patients, setPatients] = useState<PatientOption[]>([])
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
-    const [createForm, setCreateForm] = useState<CreateReminderDTO>({
-        title: '',
-        scheduleTime: '',
-        priority: 'medium',
-    })
+    const [createForm, setCreateForm] = useState<CreateReminderDTO>(DEFAULT_REMINDER_FORM)
 
     const fetchData = async () => {
         try {
@@ -52,24 +44,6 @@ const CaregiverReminders = () => {
         fetchData()
     }, [])
 
-    const formatTime = (isoString: string) => {
-        const date = new Date(isoString)
-        return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
-    }
-
-    const formatDate = (isoString: string) => {
-        const today = new Date()
-        const date = new Date(isoString)
-        const diffTime = date.getTime() - today.getTime()
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-
-        if (diffDays < 0) return `Overdue (${Math.abs(diffDays)}d)`
-        if (diffDays === 0) return 'Today'
-        if (diffDays === 1) return 'Tomorrow'
-        if (diffDays <= 7) return `${diffDays} days away`
-        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-    }
-
     const handleCreate = async () => {
         if (!createForm.title.trim()) {
             toast.error('Title is required')
@@ -88,11 +62,8 @@ const CaregiverReminders = () => {
             })
             toast.success('Reminder created')
             setCreateForm((current) => ({
+                ...DEFAULT_REMINDER_FORM,
                 patientId: current.patientId,
-                title: '',
-                description: '',
-                scheduleTime: '',
-                priority: 'medium',
             }))
             await fetchData()
             setIsCreateModalOpen(false)
@@ -208,10 +179,10 @@ const CaregiverReminders = () => {
                                                         />
                                                         <div className={styles.reminderTime}>
                                                             <span className={styles.reminderTimeValue}>
-                                                                {formatTime(reminder.scheduleTime)}
+                                                                {sharedFormatDate(reminder.scheduleTime, { ...DATE_FORMAT.TIME, hour12: true })}
                                                             </span>
                                                             <span className={styles.reminderDateLabel}>
-                                                                {formatDate(reminder.scheduleTime)}
+                                                                {formatRelativeDate(reminder.scheduleTime)}
                                                             </span>
                                                         </div>
                                                     </div>
@@ -232,9 +203,9 @@ const CaregiverReminders = () => {
                                                                 </>
                                                             )}
                                                             <span
-                                                                className={`${styles.priorityBadge} ${styles[`priority${priorityLabels[reminder.priority]}`]}`}
+                                                                className={`${styles.priorityBadge} ${styles[`priority${PRIORITY_LABELS[reminder.priority]}`]}`}
                                                             >
-                                                                {priorityLabels[reminder.priority]}
+                                                                {PRIORITY_LABELS[reminder.priority]}
                                                             </span>
                                                             <span>·</span>
                                                             <span

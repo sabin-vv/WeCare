@@ -19,3 +19,16 @@ export const calculateAge = (dob: string): number => {
     }
     return age
 }
+
+export const formatRelativeDate = (isoString: string): string => {
+    const today = new Date()
+    const date = new Date(isoString)
+    const diffTime = date.getTime() - today.getTime()
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+    if (diffDays < 0) return `Overdue (${Math.abs(diffDays)}d)`
+    if (diffDays === 0) return 'Today'
+    if (diffDays === 1) return 'Tomorrow'
+    if (diffDays <= 7) return `${diffDays} days away`
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}

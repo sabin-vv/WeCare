@@ -1,4 +1,4 @@
-import type { CaregiverDocuments, MedicationSchedule } from '../types/caregiver.types'
+import type { CaregiverDocuments, CreateReminderDTO, MedicationSchedule } from '../types/caregiver.types'
 
 export const ALERT_STATUS_OPTIONS = [
     { label: 'All Statuses', value: '' },
@@ -86,6 +86,19 @@ export const MEDICATION_STATUS_META: Record<
         tone: 'warning' as const,
         actionLabel: 'Take Action',
     },
+}
+
+export const PRIORITY_LABELS: Record<string, string> = {
+    critical: 'Critical',
+    high: 'High',
+    medium: 'Medium',
+    low: 'Low',
+}
+
+export const DEFAULT_REMINDER_FORM: CreateReminderDTO = {
+    title: '',
+    scheduleTime: '',
+    priority: 'medium',
 }
 
 export const DEFAULT_CAREGIVER_DOCUMENTS: CaregiverDocuments = {
