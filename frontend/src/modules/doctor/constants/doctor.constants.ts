@@ -48,6 +48,34 @@ const DURATION_UNIT_MAP = {
     months: 'months',
 } as const
 
+export const CLINICAL_STATUS_OPTIONS = [
+    { label: 'All Accounts', value: 'all' },
+    { label: 'Active', value: 'active' },
+    { label: 'Hospitalized', value: 'hospitalized' },
+    { label: 'Deceased', value: 'deceased' },
+] as const
+
+export const formatAccountStatusLabel = (status?: string) => {
+    if (!status) return 'N/A'
+    if (status === 'active') return 'Active'
+    if (status === 'hospitalized') return 'Hospitalized'
+    if (status === 'deceased') return 'Deceased'
+    if (status === 'completed') return 'Completed'
+
+    return status
+        .split('_')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ')
+}
+
+export const formatRiskLevel = (riskLevel: string): string => {
+    if (riskLevel === 'mild') return 'Mild'
+    if (riskLevel === 'moderate') return 'Moderate'
+    if (riskLevel === 'severe') return 'Severe'
+    if (riskLevel === 'high_risk') return 'High Risk'
+    return riskLevel
+}
+
 export const DEFAULT_SETTINGS_FORM_VALUES = {
     name: '',
     email: '',
