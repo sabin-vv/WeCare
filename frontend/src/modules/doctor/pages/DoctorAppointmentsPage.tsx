@@ -3,7 +3,8 @@ import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 
 import { getDoctorAppointments } from '../api/doctor.api'
-import type { DoctorAppointment, PaginationData } from '../types/doctor.types'
+import { CONSULTATION_STATUS_OPTIONS, formatAppointmentStatusLabel } from '../constants/doctor.constants'
+import type { DoctorAppointment } from '../types/doctor.types'
 
 import styles from './DoctorAppointmentsPage.module.css'
 
@@ -12,14 +13,10 @@ import Pagination from '@/shared/components/Pagination/Pagination'
 import SearchField from '@/shared/components/SearchField/SearchField'
 import DataTable from '@/shared/components/Table/DataTable'
 import type { Column } from '@/shared/components/Table/dataTable.types'
+import { DEFAULT_PAGINATION } from '@/shared/constants/pagination.constants'
+import { DATE_FORMAT, formatDate, getInitials } from '@/shared/utils/format'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { getFileUrl } from '@/utils/getFileUrl'
-
-const CONSULTATION_STATUS_OPTIONS = [
-    { label: 'All', value: 'all' },
-    { label: 'Pending Consultation', value: 'confirmed' },
-    { label: 'Completed', value: 'completed' },
-] as const
 
 const DoctorAppointmentsPage = () => {
     const [appointments, setAppointments] = useState<DoctorAppointment[]>([])
@@ -27,12 +24,7 @@ const DoctorAppointmentsPage = () => {
     const [search, setSearch] = useState('')
     const [consultationStatus, setConsultationStatus] = useState('all')
     const [page, setPage] = useState(1)
-    const [pagination, setPagination] = useState<PaginationData>({
-        page: 1,
-        limit: 8,
-        totalCount: 0,
-        totalPages: 1,
-    })
+    const [pagination, setPagination] = useState(DEFAULT_PAGINATION)
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -60,23 +52,6 @@ const DoctorAppointmentsPage = () => {
         setPage(1)
     }, [search])
 
-    const formatAppointmentStatusLabel = (status: DoctorAppointment['status']) => {
-        if (status === 'confirmed') return 'Pending Consultation'
-
-        return status
-            .split('_')
-            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ')
-    }
-
-    const formatAppointmentDate = (value: string) => {
-        return new Date(value).toLocaleDateString('en-IN', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-        })
-    }
-
     const filteredAppointments = appointments.filter(
         (appointment) => consultationStatus === 'all' || appointment.status === consultationStatus,
     )
@@ -86,13 +61,7 @@ const DoctorAppointmentsPage = () => {
         const imageUrl = profileImage ? getFileUrl(profileImage) : ''
         const safeName = name?.trim() || 'Unknown Patient'
         if (!imageUrl || hasError) {
-            const initials = safeName
-                .split(' ')
-                .filter(Boolean)
-                .map((p) => p[0])
-                .join('')
-                .toUpperCase()
-                .slice(0, 2)
+            const initials = getInitials(safeName)
             return <div className={styles.avatarFallback}>{initials}</div>
         }
         return <img src={imageUrl} alt={safeName} className={styles.avatarImage} onError={() => setHasError(true)} />
@@ -115,7 +84,7 @@ const DoctorAppointmentsPage = () => {
         {
             header: 'Date',
             key: 'appointmentDate',
-            render: (item) => <span>{formatAppointmentDate(item.appointmentDate)}</span>,
+            render: (item) => <span>{formatDate(item.appointmentDate, DATE_FORMAT.SHORT)}</span>,
         },
         {
             header: 'Time',

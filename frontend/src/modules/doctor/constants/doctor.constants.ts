@@ -1,3 +1,18 @@
+export const CONSULTATION_STATUS_OPTIONS = [
+    { label: 'All', value: 'all' },
+    { label: 'Pending Consultation', value: 'confirmed' },
+    { label: 'Completed', value: 'completed' },
+] as const
+
+export const formatAppointmentStatusLabel = (status: string) => {
+    if (status === 'confirmed') return 'Pending Consultation'
+
+    return status
+        .split('_')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ')
+}
+
 export const FREQUENCY_SLOT_MAP: Record<string, number> = {
     'Once daily': 1,
     'Twice daily': 2,
@@ -5,28 +20,13 @@ export const FREQUENCY_SLOT_MAP: Record<string, number> = {
     'Four times daily': 4,
 }
 
-export const FREQUENCY_OPTIONS = [
-    'Every 1 hour',
-    'Every 2 hours',
-    'Every 6 hours',
-    'Every 1 day',
-    'Every 1 week',
-]
+export const FREQUENCY_OPTIONS = ['Every 1 hour', 'Every 2 hours', 'Every 6 hours', 'Every 1 day', 'Every 1 week']
 
-export const DURATION_OPTIONS = [
-    'Next 12 hours',
-    'Next 24 hours',
-    'Next 48 hours',
-    'For 7 days',
-    'For 4 weeks',
-]
+export const DURATION_OPTIONS = ['Next 12 hours', 'Next 24 hours', 'Next 48 hours', 'For 7 days', 'For 4 weeks']
 
 export type VitalPlanOptionId = 'blood_pressure' | 'heart_rate' | 'spo2' | 'blood_sugar'
 
-export const DEFAULT_VITALS_PREFERENCES: Record<
-    VitalPlanOptionId,
-    { frequency: string; duration: string }
-> = {
+export const DEFAULT_VITALS_PREFERENCES: Record<VitalPlanOptionId, { frequency: string; duration: string }> = {
     blood_pressure: { frequency: 'Every 2 hours', duration: 'Next 24 hours' },
     heart_rate: { frequency: 'Every 2 hours', duration: 'Next 24 hours' },
     spo2: { frequency: 'Every 2 hours', duration: 'Next 24 hours' },
