@@ -30,6 +30,7 @@ import {
     retryPayment,
     verifyPayment,
 } from '../api/patient.api'
+import { getAppointmentStatusClass } from '../constants/patient.constants'
 import CancelAppointmentModal from '../components/modals/CancelAppointmentModal'
 import PaymentMethodModal from '../components/modals/PaymentMethodModal'
 import type { Appointment, PatientProfileData, Prescription, VitalSchedule } from '../types/patient.types'
@@ -43,23 +44,6 @@ import { DATE_FORMAT, formatDate, getInitials } from '@/shared/utils/format'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { getFileUrl } from '@/utils/getFileUrl'
 import { loadRazorpayScript } from '@/utils/loadRazorpay'
-
-const getStatusClass = (status: string) => {
-    switch (status) {
-        case 'confirmed':
-            return 'statusConfirmed'
-        case 'pending_payment':
-            return 'statusPending'
-        case 'cancelled':
-            return 'statusCancelled'
-        case 'in_consultation':
-            return 'statusInConsultation'
-        case 'completed':
-            return 'statusCompleted'
-        default:
-            return ''
-    }
-}
 
 const getPaymentStatusClass = (status: string) => {
     switch (status) {
@@ -381,7 +365,7 @@ const PatientAppointmentDetailPage = () => {
                                 </div>
                                 <div className={styles.infoContent}>
                                     <span className={styles.infoLabel}>Status</span>
-                                    <span className={`${styles.badge} ${styles[getStatusClass(appointment.status)]}`}>
+                                    <span className={`${styles.badge} ${styles[getAppointmentStatusClass(appointment.status)]}`}>
                                         {appointment.status.replace(/_/g, ' ')}
                                     </span>
                                 </div>

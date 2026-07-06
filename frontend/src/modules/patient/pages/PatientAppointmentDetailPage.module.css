@@ -253,6 +253,10 @@
     background: #fff5f5;
     color: #fa5252;
 }
+.statusMissed {
+    background: #f1f3f5;
+    color: #495057;
+}
 .statusInConsultation {
     background: #e7f5ff;
     color: #1c7ed6;

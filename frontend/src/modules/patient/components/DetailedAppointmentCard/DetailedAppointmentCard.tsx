@@ -1,35 +1,13 @@
 import { Calendar, Clock, CreditCard, HandCoins } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
-import type { Appointment } from '../../types/patient.types'
+import { getAppointmentStatusClass } from '../../constants/patient.constants'
+import type { DetailedAppointmentCardProps } from '../../types/patient.types'
 
 import styles from './DetailedAppointmentCard.module.css'
 
-import { env } from '@/config/env'
 import { DATE_FORMAT, formatDate, getInitials } from '@/shared/utils/format'
-
-interface DetailedAppointmentCardProps {
-    appointment: Appointment
-    onRetryPayment: (appointment: Appointment) => void
-    onCancel: (appointmentId: string) => void
-}
-
-const getStatusClass = (status: string) => {
-    switch (status) {
-        case 'confirmed':
-            return styles.statusConfirmed
-        case 'pending_payment':
-            return styles.statusPending
-        case 'cancelled':
-            return styles.statusCancelled
-        case 'in_consultation':
-            return styles.inConsultation
-        case 'completed':
-            return styles.completed
-        default:
-            return ''
-    }
-}
+import { getFileUrl } from '@/utils/getFileUrl'
 
 const DetailedAppointmentCard = ({ appointment, onRetryPayment, onCancel }: DetailedAppointmentCardProps) => {
     const navigate = useNavigate()
@@ -51,7 +29,7 @@ const DetailedAppointmentCard = ({ appointment, onRetryPayment, onCancel }: Deta
                 <div className={styles.doctorDetails}>
                     {profileImage ? (
                         <img
-                            src={profileImage.startsWith('http') ? profileImage : `${env.AWS_BASE_URL}${profileImage}`}
+                            src={getFileUrl(profileImage)}
                             alt={doctorName}
                             className={styles.profilePic}
                         />
@@ -74,7 +52,7 @@ const DetailedAppointmentCard = ({ appointment, onRetryPayment, onCancel }: Deta
                     </div>
                 </div>
 
-                <span className={`${styles.statusText} ${getStatusClass(appointment.status)}`}>
+                <span className={`${styles.statusText} ${styles[getAppointmentStatusClass(appointment.status)]}`}>
                     {appointment.status.replace('_', ' ')}
                 </span>
             </div>
