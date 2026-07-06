@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import { useParams } from 'react-router-dom'
 
 import { addClinicalNote, getPatientMedicalRecord, updateMedicalRecord } from '../api/doctor.api'
+import { vitalNameFormat } from '../constants/doctor.constants'
 import type { ClinicalNote, MedicalRecordData } from '../types/doctor.types'
 
 import styles from './PatientMedicalRecordPage.module.css'
@@ -11,6 +12,7 @@ import styles from './PatientMedicalRecordPage.module.css'
 import { env } from '@/config/env'
 import MainWrapper from '@/shared/components/MainWrapper/MainWrapper'
 import { Section } from '@/shared/components/Section/Section'
+import { DATE_FORMAT, formatDate } from '@/shared/utils/format'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 
 const PatientMedicalRecordPage = () => {
@@ -97,32 +99,6 @@ const PatientMedicalRecordPage = () => {
         heart_rate: <Heart size={18} />,
         spo2: <Droplets size={18} />,
         blood_sugar: <Thermometer size={18} />,
-    }
-
-    const vitalNameFormat = (vital: string): string => {
-        if (vital === 'blood_pressure') return 'Blood Pressure'
-        if (vital === 'heart_rate') return 'Heart Rate'
-        if (vital === 'spo2') return 'SPO2'
-        if (vital === 'blood_sugar') return 'Blood Sugar'
-        return vital
-    }
-
-    const formatDate = (dateStr: string) => {
-        return new Date(dateStr).toLocaleDateString('en-IN', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-        })
-    }
-
-    const formatDateTime = (dateStr: string) => {
-        return new Date(dateStr).toLocaleString('en-IN', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-        })
     }
 
     const getStatusClass = (status: string) => {
@@ -276,7 +252,7 @@ const PatientMedicalRecordPage = () => {
                                         </span>
                                         <span className={styles.vitalUnit}>{vital.unit}</span>
                                     </div>
-                                    <div className={styles.vitalTime}>Recorded: {formatDateTime(vital.recordedAt)}</div>
+                                    <div className={styles.vitalTime}>Recorded: {formatDate(vital.recordedAt, DATE_FORMAT.DATE_TIME)}</div>
                                 </div>
                             ))}
                         </div>
@@ -315,7 +291,7 @@ const PatientMedicalRecordPage = () => {
                                                         {med.status.replace('_', ' ')}
                                                     </span>
                                                 </td>
-                                                <td>{formatDate(p.prescribedAt)}</td>
+                                                <td>{formatDate(p.prescribedAt, DATE_FORMAT.SHORT)}</td>
                                             </tr>
                                         )),
                                     )}
@@ -335,7 +311,7 @@ const PatientMedicalRecordPage = () => {
                                     <div key={note._id || i} className={styles.noteCard}>
                                         <div className={styles.noteHeader}>
                                             <span className={styles.noteDoctor}>{note.doctorName}</span>
-                                            <span className={styles.noteTime}>{formatDateTime(note.createdAt)}</span>
+                                            <span className={styles.noteTime}>{formatDate(note.createdAt, DATE_FORMAT.DATE_TIME)}</span>
                                         </div>
                                         <div className={styles.noteText}>{note.note}</div>
                                     </div>

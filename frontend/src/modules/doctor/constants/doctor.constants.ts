@@ -76,6 +76,14 @@ export const formatRiskLevel = (riskLevel: string): string => {
     return riskLevel
 }
 
+export const vitalNameFormat = (vital: string): string => {
+    if (vital === 'blood_pressure') return 'Blood Pressure'
+    if (vital === 'heart_rate') return 'Heart Rate'
+    if (vital === 'spo2') return 'SPO2'
+    if (vital === 'blood_sugar') return 'Blood Sugar'
+    return vital
+}
+
 export const DEFAULT_SETTINGS_FORM_VALUES = {
     name: '',
     email: '',
