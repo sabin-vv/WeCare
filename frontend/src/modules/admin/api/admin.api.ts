@@ -129,7 +129,7 @@ export const getAdminPayments = async (
 }
 
 export const getPendingCount = async (): Promise<{ count: number }> => {
-    const res = await api.get(`${ADMIN_API}/pending-count `)
+    const res = await api.get(`${ADMIN_API}/pending-count`)
     return res.data
 }
 
