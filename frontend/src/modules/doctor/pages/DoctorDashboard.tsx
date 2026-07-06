@@ -14,6 +14,7 @@ import { env } from '@/config/env'
 import { VerificationStatus } from '@/modules/auth/types/auth.types'
 import MainWrapper from '@/shared/components/MainWrapper/MainWrapper'
 import { useAuth } from '@/shared/context/AuthContext'
+import { getTimePeriod } from '@/shared/utils/time.utils'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 
 const DoctorDashboard = () => {
@@ -81,18 +82,13 @@ const DoctorDashboard = () => {
         loadDashboardState()
     }, [baseUrl, setAuth, user])
 
-    const hour = new Date().getHours()
-    let timePeriod = ''
-    if (hour >= 5 && hour < 12) timePeriod = 'Morning'
-    else if (hour >= 12 && hour < 17) timePeriod = 'Afternoon'
-    else if (hour >= 17 && hour < 21) timePeriod = 'Evening'
-    else timePeriod = 'Night'
+    const timePeriod = getTimePeriod()
 
     return (
         <MainWrapper title={`Good ${timePeriod},${user?.name}`}>
-            {!user?.isProfileComplete || user.verificationStatus === 'rejected' ? (
+            {!user?.isProfileComplete || user.verificationStatus === VerificationStatus.REJECTED ? (
                 <>
-                    {user?.verificationStatus === 'rejected' && (
+                    {user?.verificationStatus === VerificationStatus.REJECTED && (
                         <div className={styles.rejectBox}>
                             <div className={styles.rejectHeader}>
                                 <TriangleAlert size={20} color="#f59e00" />
