@@ -10,6 +10,8 @@ import PageHeader from '@/shared/components/PageHeader/PageHeader'
 import Pagination from '@/shared/components/Pagination/Pagination'
 import DataTable from '@/shared/components/Table/DataTable'
 import type { Column } from '@/shared/components/Table/dataTable.types'
+import { DEFAULT_PAGINATION } from '@/shared/constants/pagination.constants'
+import { DATE_FORMAT, formatDate } from '@/shared/utils/format'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { getFileUrl } from '@/utils/getFileUrl'
 
@@ -18,12 +20,7 @@ const UserManagementPage = () => {
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState('')
     const [activeRole, setActiveRole] = useState('all')
-    const [pagination, setPagination] = useState({
-        page: 1,
-        limit: 10,
-        totalCount: 0,
-        totalPages: 1,
-    })
+    const [pagination, setPagination] = useState(DEFAULT_PAGINATION)
 
     const fetchUsers = async (page = 1, role = 'all', searchQuery = '') => {
         setLoading(true)
@@ -63,14 +60,6 @@ const UserManagementPage = () => {
             .join('')
             .toUpperCase()
             .substring(0, 2)
-    }
-
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-        })
     }
 
     const columns: Column<UserProfile>[] = [
@@ -125,7 +114,7 @@ const UserManagementPage = () => {
         {
             header: 'Date Joined',
             key: 'createdAt',
-            render: (user) => formatDate(user.createdAt),
+            render: (user) => formatDate(user.createdAt, DATE_FORMAT.SHORT),
         },
         {
             header: 'Account Status',
