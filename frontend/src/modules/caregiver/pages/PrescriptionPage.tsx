@@ -5,12 +5,14 @@ import { useNavigate, useParams } from 'react-router-dom'
 
 import { getMyPatients, getPatientPrescriptions, getPatientVitalPlans, type PatientSummary } from '../api/caregiver.api'
 import ProfileCard from '../components/ProfileCard/ProfileCard'
+import { PRESCRIPTION_STATUS_MAP, VITAL_LABEL_MAP } from '../constants/caregiver.constants'
 import type { PrescriptionItem, VitalPlanItem } from '../types/caregiver.types'
 
 import styles from './PrescriptionPage.module.css'
 
 import MainWrapper from '@/shared/components/MainWrapper/MainWrapper'
 import { Section } from '@/shared/components/Section/Section'
+import { DATE_FORMAT, formatDate } from '@/shared/utils/format'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 
 const vitalIconMap: Record<string, typeof Activity> = {
@@ -18,21 +20,6 @@ const vitalIconMap: Record<string, typeof Activity> = {
     blood_sugar: Droplet,
     heart_rate: Activity,
     spo2: Wind,
-}
-
-const vitalLabelMap: Record<string, string> = {
-    blood_pressure: 'Blood Pressure',
-    blood_sugar: 'Blood Sugar',
-    heart_rate: 'Heart Rate',
-    spo2: 'SpO2',
-}
-
-const statusLabelMap: Record<string, { label: string; className: string }> = {
-    active: { label: 'Active', className: 'statusActive' },
-    on_hold: { label: 'On Hold', className: 'statusOnHold' },
-    discontinued: { label: 'Discontinued', className: 'statusDiscontinued' },
-    amended: { label: 'Amended', className: 'statusAmended' },
-    completed: { label: 'Completed', className: 'statusCompleted' },
 }
 
 const PrescriptionPage = () => {
@@ -66,9 +53,6 @@ const PrescriptionPage = () => {
     }, [patientId])
 
     const activePrescriptions = prescriptions.filter((p) => p.status === 'active')
-
-    const formatDate = (iso: string) =>
-        new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
 
     if (isLoading) {
         return (
@@ -109,7 +93,6 @@ const PrescriptionPage = () => {
                             <PrescriptionCard
                                 key={prescription._id}
                                 prescription={prescription}
-                                formatDate={formatDate}
                             />
                         ))}
                     </div>
@@ -123,7 +106,7 @@ const PrescriptionPage = () => {
                     <div className={styles.vitalGrid}>
                         {vitalPlans.map((plan, i) => {
                             const Icon = vitalIconMap[plan.type] || Activity
-                            const label = vitalLabelMap[plan.type] || plan.type
+                            const label = VITAL_LABEL_MAP[plan.type] || plan.type
                             return (
                                 <article key={`${plan.type}-${i}`} className={styles.vitalCard}>
                                     <div className={styles.vitalCardTop}>
@@ -154,11 +137,10 @@ const PrescriptionPage = () => {
 
 interface PrescriptionCardProps {
     prescription: PrescriptionItem
-    formatDate: (iso: string) => string
 }
 
-const PrescriptionCard = ({ prescription, formatDate }: PrescriptionCardProps) => {
-    const statusMeta = statusLabelMap[prescription.status] || statusLabelMap.active
+const PrescriptionCard = ({ prescription }: PrescriptionCardProps) => {
+    const statusMeta = PRESCRIPTION_STATUS_MAP[prescription.status] || PRESCRIPTION_STATUS_MAP.active
     return (
         <article className={styles.prescriptionCard}>
             <div className={styles.prescHeader}>
@@ -167,7 +149,7 @@ const PrescriptionCard = ({ prescription, formatDate }: PrescriptionCardProps) =
                     {prescription.endDate && (
                         <span className={styles.prescDate}>
                             <Clock size={14} />
-                            Ends {formatDate(prescription.endDate)}
+                            Ends {formatDate(prescription.endDate, DATE_FORMAT.SHORT)}
                         </span>
                     )}
                 </div>

@@ -101,6 +101,14 @@ export const DEFAULT_REMINDER_FORM: CreateReminderDTO = {
     priority: 'medium',
 }
 
+export const PRESCRIPTION_STATUS_MAP: Record<string, { label: string; className: string }> = {
+    active: { label: 'Active', className: 'statusActive' },
+    on_hold: { label: 'On Hold', className: 'statusOnHold' },
+    discontinued: { label: 'Discontinued', className: 'statusDiscontinued' },
+    amended: { label: 'Amended', className: 'statusAmended' },
+    completed: { label: 'Completed', className: 'statusCompleted' },
+}
+
 export const DEFAULT_CAREGIVER_DOCUMENTS: CaregiverDocuments = {
     govId: null,
     profileImage: null,
