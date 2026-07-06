@@ -1,5 +1,7 @@
 export const DEFAULT_LOCALE = 'en-IN'
 
+export const DEFAULT_CURRENCY = 'INR'
+
 export const DATE_FORMAT = {
     SHORT: {
         day: '2-digit',
