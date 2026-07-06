@@ -27,6 +27,12 @@ import MedicationLogModal from '../components/modals/MedicationLogModal'
 import SymptomLogModal from '../components/modals/SymptomLogModal'
 import VitalLogModal from '../components/modals/VitalLogModal'
 import ProfileCard from '../components/ProfileCard/ProfileCard'
+import {
+    MEDICATION_STATUS_META,
+    SYMPTOM_OPTIONS,
+    VITAL_LABEL_MAP,
+    VITAL_UNIT_MAP,
+} from '../constants/caregiver.constants'
 import type {
     AlertCard,
     MedicationLogFormState,
@@ -41,6 +47,7 @@ import styles from './CaregiverPatients.module.css'
 
 import MainWrapper from '@/shared/components/MainWrapper/MainWrapper'
 import { Section } from '@/shared/components/Section/Section'
+import { DATE_FORMAT, formatDate } from '@/shared/utils/format'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 
 const iconMap: Record<string, typeof Activity> = {
@@ -48,20 +55,6 @@ const iconMap: Record<string, typeof Activity> = {
     blood_sugar: Droplet,
     heart_rate: Activity,
     spo2: Wind,
-}
-
-const labelMap: Record<string, string> = {
-    blood_pressure: 'Blood Pressure',
-    blood_sugar: 'Blood Sugar',
-    heart_rate: 'Heart Rate',
-    spo2: 'SpO2',
-}
-
-const unitMap: Record<string, string> = {
-    blood_pressure: 'mmHg',
-    blood_sugar: 'mg/dL',
-    heart_rate: 'BPM',
-    spo2: '%',
 }
 
 const toneMeta = {
@@ -87,63 +80,6 @@ const toneMeta = {
         timelineClassName: styles.timelineSuccess,
     },
 } as const
-
-const symptomOptions = [
-    'Headache',
-    'Dizziness',
-    'Nausea',
-    'Fatigue',
-    'Shortness of breath',
-    'Chest pain',
-    'Fever',
-    'Cough',
-]
-
-const formatTime = (isoString: string) =>
-    new Date(isoString).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
-
-const formatDate = (isoString: string) =>
-    new Date(isoString).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-
-const getMedicationStatusMeta = (status: MedicationSchedule['status']) => {
-    switch (status) {
-        case 'administered':
-            return {
-                title: 'Medication Administered',
-                note: 'Administered',
-                tone: 'success' as const,
-                actionLabel: 'Administered',
-            }
-        case 'missed':
-            return {
-                title: 'Medication Deviation',
-                note: 'Missed dose',
-                tone: 'critical' as const,
-                actionLabel: 'Take Action',
-            }
-        case 'skipped':
-            return {
-                title: 'Medication Skipped',
-                note: 'Skipped',
-                tone: 'warning' as const,
-                actionLabel: 'Skipped',
-            }
-        case 'cancelled':
-            return {
-                title: 'Medication Cancelled',
-                note: 'Cancelled',
-                tone: 'warning' as const,
-                actionLabel: 'Cancelled',
-            }
-        default:
-            return {
-                title: 'Medication Scheduled',
-                note: 'Scheduled',
-                tone: 'warning' as const,
-                actionLabel: 'Take Action',
-            }
-    }
-}
 
 const CaregiverPatients = () => {
     const [patients, setPatients] = useState<PatientSummary[]>([])
@@ -216,7 +152,7 @@ const CaregiverPatients = () => {
         .filter((med) => med.status === 'missed' || (med.status === 'pending' && new Date(med.scheduleTime) < now))
         .map((med) => {
             const time = new Date(med.scheduleTime)
-            const timeStr = `${formatDate(med.scheduleTime)}, ${formatTime(med.scheduleTime)}`
+            const timeStr = `${formatDate(med.scheduleTime, { month: 'short', day: 'numeric' })}, ${formatDate(med.scheduleTime, { ...DATE_FORMAT.TIME, hour12: true })}`
             const isOverdue = med.status === 'missed' || time < new Date()
             return {
                 id: med._id,
@@ -232,10 +168,10 @@ const CaregiverPatients = () => {
     const timeline: TimelineItem[] = [...medications]
         .sort((a, b) => new Date(a.scheduleTime).getTime() - new Date(b.scheduleTime).getTime())
         .map((med) => {
-            const statusMeta = getMedicationStatusMeta(med.status)
+            const statusMeta = MEDICATION_STATUS_META[med.status]
             return {
                 id: med._id,
-                time: formatTime(med.scheduleTime),
+                time: formatDate(med.scheduleTime, { ...DATE_FORMAT.TIME, hour12: true }),
                 title: statusMeta.title,
                 medicine: `${med.medicineName} ${med.dosage}`,
                 note: statusMeta.note,
@@ -247,11 +183,7 @@ const CaregiverPatients = () => {
 
     const openMedicationModal = (medication: MedicationSchedule) => {
         const scheduledDate = new Date(medication.scheduleTime)
-        const defaultTime = scheduledDate.toLocaleTimeString('en-GB', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,
-        })
+        const defaultTime = formatDate(scheduledDate, DATE_FORMAT.TIME)
 
         setSelectedMedication(medication)
         setMedicationLogForm({
@@ -295,11 +227,7 @@ const CaregiverPatients = () => {
     const openVitalModal = (vitalType?: string, schedule?: VitalScheduleItem) => {
         const fallbackType = vitalType || vitalSchedules[0]?.vitalType || 'blood_pressure'
         const now = new Date()
-        const defaultTime = now.toLocaleTimeString('en-GB', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,
-        })
+        const defaultTime = formatDate(now, DATE_FORMAT.TIME)
 
         setVitalLogForm({
             selectedScheduleId: schedule?._id,
@@ -355,14 +283,10 @@ const CaregiverPatients = () => {
 
     const openSymptomModal = () => {
         const now = new Date()
-        const defaultTime = now.toLocaleTimeString('en-GB', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,
-        })
+        const defaultTime = formatDate(now, DATE_FORMAT.TIME)
 
         setSymptomLogForm({
-            symptom: symptomOptions[0],
+            symptom: SYMPTOM_OPTIONS[0],
             onsetTime: defaultTime,
             severity: 'mild',
             observations: '',
@@ -396,8 +320,8 @@ const CaregiverPatients = () => {
     }
 
     const isBloodPressure = vitalLogForm.vitalType === 'blood_pressure'
-    const selectedVitalLabel = labelMap[vitalLogForm.vitalType] || 'Vital'
-    const selectedVitalUnit = unitMap[vitalLogForm.vitalType] || ''
+    const selectedVitalLabel = VITAL_LABEL_MAP[vitalLogForm.vitalType] || 'Vital'
+    const selectedVitalUnit = VITAL_UNIT_MAP[vitalLogForm.vitalType] || ''
 
     if (isLoading) {
         return (
@@ -532,9 +456,9 @@ const CaregiverPatients = () => {
                                             {vitalSchedules.map((schedule) => {
                                                 const type = schedule.vitalType
                                                 const Icon = iconMap[type] || Activity
-                                                const label = labelMap[type] || type
-                                                const unit = unitMap[type] || ''
-                                                const scheduleTimeLabel = `${formatDate(schedule.scheduleTime)}, ${formatTime(schedule.scheduleTime)}`
+                                                const label = VITAL_LABEL_MAP[type] || type
+                                                const unit = VITAL_UNIT_MAP[type] || ''
+                                                const scheduleTimeLabel = `${formatDate(schedule.scheduleTime, DATE_FORMAT.SHORT)}, ${formatDate(schedule.scheduleTime, { ...DATE_FORMAT.TIME, hour12: true })}`
                                                 const statusLabel =
                                                     schedule.status === 'pending'
                                                         ? 'Pending'
@@ -582,8 +506,14 @@ const CaregiverPatients = () => {
                                                                         </span>
                                                                     </strong>
                                                                     <span className={styles.vitalDate}>
-                                                                        {formatDate(schedule.recordedAt!)}{' '}
-                                                                        {formatTime(schedule.recordedAt!)}
+                                                                        {formatDate(schedule.recordedAt!, {
+                                                                            month: 'short',
+                                                                            day: 'numeric',
+                                                                        })}{' '}
+                                                                        {formatDate(schedule.recordedAt!, {
+                                                                            ...DATE_FORMAT.TIME,
+                                                                            hour12: true,
+                                                                        })}
                                                                     </span>
                                                                 </div>
                                                             ) : (
@@ -726,7 +656,7 @@ const CaregiverPatients = () => {
                         setFormState={setSymptomLogForm}
                         onSave={handleSymptomLogSubmit}
                         isSaving={isSavingSymptom}
-                        symptomOptions={symptomOptions}
+                        symptomOptions={SYMPTOM_OPTIONS}
                     />
                 </>
             )}

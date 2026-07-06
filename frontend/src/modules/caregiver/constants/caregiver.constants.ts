@@ -1,4 +1,4 @@
-import type { CaregiverDocuments } from '../types/caregiver.types'
+import type { CaregiverDocuments, MedicationSchedule } from '../types/caregiver.types'
 
 export const ALERT_STATUS_OPTIONS = [
     { label: 'All Statuses', value: '' },
@@ -25,6 +25,67 @@ export const RISK_LABELS: Record<string, string> = {
     high_risk: 'Critical',
     severe: 'High',
     moderate: 'Moderate',
+}
+
+export const VITAL_LABEL_MAP: Record<string, string> = {
+    blood_pressure: 'Blood Pressure',
+    blood_sugar: 'Blood Sugar',
+    heart_rate: 'Heart Rate',
+    spo2: 'SpO2',
+}
+
+export const VITAL_UNIT_MAP: Record<string, string> = {
+    blood_pressure: 'mmHg',
+    blood_sugar: 'mg/dL',
+    heart_rate: 'BPM',
+    spo2: '%',
+}
+
+export const SYMPTOM_OPTIONS = [
+    'Headache',
+    'Dizziness',
+    'Nausea',
+    'Fatigue',
+    'Shortness of breath',
+    'Chest pain',
+    'Fever',
+    'Cough',
+]
+
+export const MEDICATION_STATUS_META: Record<
+    MedicationSchedule['status'],
+    { title: string; note: string; tone: 'success' | 'warning' | 'critical'; actionLabel: string }
+> = {
+    administered: {
+        title: 'Medication Administered',
+        note: 'Administered',
+        tone: 'success' as const,
+        actionLabel: 'Administered',
+    },
+    missed: {
+        title: 'Medication Deviation',
+        note: 'Missed dose',
+        tone: 'critical' as const,
+        actionLabel: 'Take Action',
+    },
+    skipped: {
+        title: 'Medication Skipped',
+        note: 'Skipped',
+        tone: 'warning' as const,
+        actionLabel: 'Skipped',
+    },
+    cancelled: {
+        title: 'Medication Cancelled',
+        note: 'Cancelled',
+        tone: 'warning' as const,
+        actionLabel: 'Cancelled',
+    },
+    pending: {
+        title: 'Medication Scheduled',
+        note: 'Scheduled',
+        tone: 'warning' as const,
+        actionLabel: 'Take Action',
+    },
 }
 
 export const DEFAULT_CAREGIVER_DOCUMENTS: CaregiverDocuments = {
