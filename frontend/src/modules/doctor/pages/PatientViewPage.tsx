@@ -19,6 +19,7 @@ import SearchConditionModal from '../components/modals/SearchConditionModal'
 import MedicationTable from '../components/viewPatient/MedicationTable'
 import ProfileCard from '../components/viewPatient/ProfileCard'
 import VitalCard from '../components/viewPatient/VitalCard'
+import { SEVERITY_OPTIONS, vitalNameFormat } from '../constants/doctor.constants'
 import type { CaregiverOption, PatientDetails, RiskLevel, PatientVitalPlan } from '../types/doctor.types'
 
 import styles from './PatientViewPage.module.css'
@@ -27,14 +28,8 @@ import { type ConditionResult, searchConditions } from '@/modules/doctor/api/con
 import MainWrapper from '@/shared/components/MainWrapper/MainWrapper'
 import { Section } from '@/shared/components/Section/Section'
 import { useSocket } from '@/shared/context/SocketContext'
+import { DATE_FORMAT, formatDate } from '@/shared/utils/format'
 import { getErrorMessage } from '@/utils/getErrorMessage'
-
-const SEVERITY_OPTIONS: Array<{ label: string; value: RiskLevel }> = [
-    { label: 'Mild', value: 'mild' },
-    { label: 'Moderate', value: 'moderate' },
-    { label: 'Severe', value: 'severe' },
-    { label: 'High Risk', value: 'high_risk' },
-]
 
 const PatientViewPage = () => {
     const { patientId } = useParams<{ patientId: string }>()
@@ -57,6 +52,7 @@ const PatientViewPage = () => {
     const [selectedCaregiver, setSelectedCaregiver] = useState<CaregiverOption | null>(null)
     const [isLoadingCaregivers, setIsLoadingCaregivers] = useState(false)
     const [isAssigningCaregiver, setIsAssigningCaregiver] = useState(false)
+
     const fetchPatient = useCallback(async () => {
         if (!patientId) return
         setIsLoading(true)
@@ -270,14 +266,6 @@ const PatientViewPage = () => {
         spo2: <Droplets />,
         blood_sugar: <Thermometer />,
     }
-    const vitalNameFormat = (vital: string): string => {
-        if (vital === 'blood_pressure') return 'Blood Pressure'
-        else if (vital === 'heart_rate') return 'Heart Rate'
-        else if (vital === 'spo2') return 'SPO2'
-        else if (vital === 'blood_sugar') return 'Bloood Sugar'
-        else return vital
-    }
-
     const formatFrequency = (value: number, unit: 'hours' | 'days' | 'weeks') => {
         const label = value === 1 ? unit.slice(0, -1) : unit
         return `Every ${value} ${label}`
@@ -398,11 +386,7 @@ const PatientViewPage = () => {
                                             <span className={styles.label}>Requested On</span>
 
                                             <span className={styles.value}>
-                                                {new Date(plan.createdAt).toLocaleDateString('en-IN', {
-                                                    day: '2-digit',
-                                                    month: 'short',
-                                                    year: 'numeric',
-                                                })}
+                                                {formatDate(plan.createdAt, DATE_FORMAT.SHORT)}
                                             </span>
                                         </div>
                                     </div>

@@ -1,3 +1,5 @@
+import type { RiskLevel } from '../types/doctor.types'
+
 export const CONSULTATION_STATUS_OPTIONS = [
     { label: 'All', value: 'all' },
     { label: 'Pending Consultation', value: 'confirmed' },
@@ -83,6 +85,13 @@ export const vitalNameFormat = (vital: string): string => {
     if (vital === 'blood_sugar') return 'Blood Sugar'
     return vital
 }
+
+export const SEVERITY_OPTIONS: Array<{ label: string; value: RiskLevel }> = [
+    { label: 'Mild', value: 'mild' },
+    { label: 'Moderate', value: 'moderate' },
+    { label: 'Severe', value: 'severe' },
+    { label: 'High Risk', value: 'high_risk' },
+]
 
 export const DEFAULT_SETTINGS_FORM_VALUES = {
     name: '',
