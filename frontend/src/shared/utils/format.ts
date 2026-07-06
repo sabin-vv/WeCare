@@ -13,3 +13,12 @@ export const formatCurrency = (amount: number) =>
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
     }).format(amount)
+
+export const getInitials = (name: string): string =>
+    name
+        .split(' ')
+        .filter(Boolean)
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)

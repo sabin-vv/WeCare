@@ -20,6 +20,7 @@ import styles from './Dashboard.module.css'
 import Button from '@/shared/components/Button/Button'
 import DateRangePicker from '@/shared/components/DateRangePicker/DateRangePicker'
 import { Section } from '@/shared/components/Section/Section'
+import { getInitials } from '@/shared/utils/format'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { getFileUrl } from '@/utils/getFileUrl'
 
@@ -43,13 +44,7 @@ const StatCard = ({ title, value }: { title: string; value: number }) => (
 const AppointmentRow = ({ appointment }: { appointment: DoctorAppointment }) => {
     const [imgError, setImgError] = useState(false)
     const imageUrl = appointment.profileImage ? getFileUrl(appointment.profileImage) : ''
-    const initials = appointment.name
-        .split(' ')
-        .filter(Boolean)
-        .map((n) => n[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2)
+    const initials = getInitials(appointment.name)
 
     return (
         <div className={styles.appointmentRow}>
