@@ -11,6 +11,7 @@ import {
     getPatientMedications,
     getPatientVitalSchedules,
 } from '../../api/caregiver.api'
+import { RISK_LABELS } from '../../constants/caregiver.constants'
 import type {
     AlertData,
     CaregiverActivityLogItem,
@@ -24,36 +25,12 @@ import styles from './Dashboard.module.css'
 import { AlertCard } from '@/modules/doctor/components/AlertCard'
 import Button from '@/shared/components/Button/Button'
 import { Section } from '@/shared/components/Section/Section'
+import { DATE_FORMAT, formatDate } from '@/shared/utils/format'
+import { calculateAge, isToday } from '@/shared/utils/time.utils'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { getFileUrl } from '@/utils/getFileUrl'
 
 const DASHBOARD_LIMIT = 4
-
-const isToday = (dateStr: string) => new Date(dateStr).toDateString() === new Date().toDateString()
-
-const getRiskLabel = (riskLevel: string): string => {
-    switch (riskLevel) {
-        case 'high_risk':
-            return 'Critical'
-        case 'severe':
-            return 'High'
-        case 'moderate':
-            return 'Moderate'
-        default:
-            return 'Mild'
-    }
-}
-
-const calculateAge = (dob: string): number => {
-    const birthDate = new Date(dob)
-    const today = new Date()
-    let age = today.getFullYear() - birthDate.getFullYear()
-    const monthDiff = today.getMonth() - birthDate.getMonth()
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-        age--
-    }
-    return age
-}
 
 const PatientRow = ({ patient }: { patient: PatientSummary }) => {
     const [imgError, setImgError] = useState(false)
@@ -96,8 +73,8 @@ const PatientRow = ({ patient }: { patient: PatientSummary }) => {
             <div className={styles.patientRowBody}>
                 <div className={styles.patientField}>
                     <span className={styles.fieldLabel}>Risk Level</span>
-                    <span className={`${styles.riskBadge} ${styles[`risk${getRiskLabel(patient.riskLevel)}`]}`}>
-                        {getRiskLabel(patient.riskLevel)}
+                    <span className={`${styles.riskBadge} ${styles[`risk${RISK_LABELS[patient.riskLevel] ?? 'Mild'}`]}`}>
+                        {RISK_LABELS[patient.riskLevel] ?? 'Mild'}
                     </span>
                 </div>
                 <div className={styles.patientField}>
@@ -195,10 +172,7 @@ const Dashboard = () => {
         }
     }
 
-    const formatTime = (iso: string) => {
-        const d = new Date(iso)
-        return d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
-    }
+    const formatTime = (iso: string) => formatDate(iso, DATE_FORMAT.TIME)
 
     if (isLoading) {
         return <div className={styles.loading}>Loading dashboard...</div>
@@ -219,7 +193,7 @@ const Dashboard = () => {
                                             {a.activityType.replace(/_/g, ' ')}
                                         </span>
                                         <span className={styles.activityTime}>
-                                            {new Date(a.createdAt).toLocaleString()}
+                                            {formatDate(a.createdAt, DATE_FORMAT.DATE_TIME)}
                                         </span>
                                     </div>
                                     <span className={styles.activityDescription}>
@@ -341,7 +315,7 @@ const Dashboard = () => {
                                         : 'Unknown'
                                 }
                                 message={alert.triggerReason}
-                                timestamp={new Date(alert.triggeredAt).toLocaleString()}
+                                timestamp={formatDate(alert.triggeredAt, DATE_FORMAT.DATE_TIME)}
                                 severity={alert.severity}
                                 status={alert.status}
                                 icon={<span className={styles.alertIcon}>!</span>}
