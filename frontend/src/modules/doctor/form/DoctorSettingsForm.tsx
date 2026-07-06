@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 
 import { getDoctorProfile, updateDoctorActiveStatus, updateDoctorProfile } from '../api/doctor.api'
+import { DEFAULT_SETTINGS_FORM_VALUES } from '../constants/doctor.constants'
 import type { DoctorProfile } from '../types/doctor.types'
 import type { SettingsFormValues } from '../types/doctor.types'
 import { settingsFormSchema } from '../validator/settingsForm.validator'
@@ -14,6 +15,7 @@ import DoctorRegistrationSection from './settings/DoctorRegistrationSection'
 import DoctorSecuritySection from './settings/DoctorSecuritySection'
 import DoctorSettingsProfileCard from './settings/DoctorSettingsProfileCard'
 
+import { env } from '@/config/env'
 import {
     changePassword,
     getCurrentUser,
@@ -31,13 +33,6 @@ import Modal from '@/shared/components/Modal/Modal'
 import { useAuth } from '@/shared/context/AuthContext'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 
-const defaultFormValues: SettingsFormValues = {
-    name: '',
-    email: '',
-    phoneNumber: '',
-    consultationFee: 0,
-}
-
 const DoctorSettingsForm = () => {
     const { user, setAuth } = useAuth()
     const {
@@ -49,7 +44,7 @@ const DoctorSettingsForm = () => {
         getValues,
     } = useForm<SettingsFormValues>({
         resolver: zodResolver(settingsFormSchema),
-        defaultValues: defaultFormValues,
+        defaultValues: DEFAULT_SETTINGS_FORM_VALUES,
         mode: 'onChange',
     })
 
@@ -110,7 +105,7 @@ const DoctorSettingsForm = () => {
         loadDoctorProfile()
     }, [])
 
-    const profileImageUrl = user?.profileImage ? `${import.meta.env.VITE_S3_BASE_URL}${user.profileImage}` : ''
+    const profileImageUrl = user?.profileImage ? `${env.AWS_BASE_URL}${user.profileImage}` : ''
 
     const handleToggleEditing = () => {
         if (isEditingPersonalInfo) {

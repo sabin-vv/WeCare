@@ -48,6 +48,13 @@ const DURATION_UNIT_MAP = {
     months: 'months',
 } as const
 
+export const DEFAULT_SETTINGS_FORM_VALUES = {
+    name: '',
+    email: '',
+    phoneNumber: '',
+    consultationFee: 0,
+}
+
 export const parseFrequency = (
     value: string,
 ): { frequencyValue: number; frequencyUnit: 'hours' | 'days' | 'weeks' } => {
