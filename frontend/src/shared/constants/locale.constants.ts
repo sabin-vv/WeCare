@@ -14,6 +14,12 @@ export const DATE_FORMAT = {
         month: 'short',
         year: 'numeric',
     },
+    WEEKDAY_LONG: {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+    },
     LONG: {
         day: 'numeric',
         month: 'long',

@@ -39,8 +39,9 @@ import styles from './PatientAppointmentDetailPage.module.css'
 import { env } from '@/config/env'
 import MainWrapper from '@/shared/components/MainWrapper/MainWrapper'
 import { Section } from '@/shared/components/Section/Section'
-import { getInitials } from '@/shared/utils/format'
+import { DATE_FORMAT, formatDate, getInitials } from '@/shared/utils/format'
 import { getErrorMessage } from '@/utils/getErrorMessage'
+import { getFileUrl } from '@/utils/getFileUrl'
 import { loadRazorpayScript } from '@/utils/loadRazorpay'
 
 const getStatusClass = (status: string) => {
@@ -76,15 +77,6 @@ const getPaymentStatusClass = (status: string) => {
             return ''
     }
 }
-
-const formatDate = (iso: string) =>
-    new Date(iso).toLocaleDateString('en-IN', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-    })
 
 const PatientAppointmentDetailPage = () => {
     const { appointmentId } = useParams<{ appointmentId: string }>()
@@ -307,15 +299,7 @@ const PatientAppointmentDetailPage = () => {
                     <Section title="Doctor Summary">
                         <div className={styles.doctorSection}>
                             {profileImage ? (
-                                <img
-                                    src={
-                                        profileImage.startsWith('http')
-                                            ? profileImage
-                                            : `${env.AWS_BASE_URL}${profileImage}`
-                                    }
-                                    alt={doctorName}
-                                    className={styles.doctorImage}
-                                />
+                                <img src={getFileUrl(profileImage)} alt={doctorName} className={styles.doctorImage} />
                             ) : (
                                 <div className={styles.doctorAvatarPlaceholder}>{getInitials(doctorName)}</div>
                             )}
@@ -364,12 +348,7 @@ const PatientAppointmentDetailPage = () => {
                                 <div className={styles.infoContent}>
                                     <span className={styles.infoLabel}>Date</span>
                                     <span className={styles.infoValue}>
-                                        {new Date(appointment.appointmentDate).toLocaleDateString('en-IN', {
-                                            weekday: 'long',
-                                            day: 'numeric',
-                                            month: 'long',
-                                            year: 'numeric',
-                                        })}
+                                        {formatDate(appointment.appointmentDate, DATE_FORMAT.WEEKDAY_LONG)}
                                     </span>
                                 </div>
                             </div>
@@ -441,11 +420,7 @@ const PatientAppointmentDetailPage = () => {
                                 <div className={styles.patientAvatar}>
                                     {patient.profileImage ? (
                                         <img
-                                            src={
-                                                patient.profileImage.startsWith('http')
-                                                    ? patient.profileImage
-                                                    : `${env.AWS_BASE_URL}${patient.profileImage}`
-                                            }
+                                            src={getFileUrl(patient.profileImage)}
                                             alt={patient.name}
                                             className={styles.patientAvatarImg}
                                         />
@@ -463,11 +438,7 @@ const PatientAppointmentDetailPage = () => {
                                     <p className={styles.patientDetail}>
                                         <Calendar size={14} />{' '}
                                         {patient.dateOfBirth
-                                            ? new Date(patient.dateOfBirth).toLocaleDateString('en-IN', {
-                                                  day: 'numeric',
-                                                  month: 'short',
-                                                  year: 'numeric',
-                                              })
+                                            ? formatDate(patient.dateOfBirth, DATE_FORMAT.SHORT)
                                             : 'N/A'}
                                     </p>
                                     <p className={styles.patientDetail}>
@@ -534,7 +505,9 @@ const PatientAppointmentDetailPage = () => {
                                     <div className={styles.timelineContent}>
                                         <span className={styles.timelineLabel}>{step.label}</span>
                                         {step.date && (
-                                            <span className={styles.timelineDate}>{formatDate(step.date)}</span>
+                                            <span className={styles.timelineDate}>
+                                                {formatDate(step.date, DATE_FORMAT.DATE_TIME)}
+                                            </span>
                                         )}
                                     </div>
                                 </div>
@@ -614,7 +587,7 @@ const PatientAppointmentDetailPage = () => {
                                 {appointment.cancelledAt && (
                                     <div className={styles.cancelRow}>
                                         <span className={styles.cancelLabel}>Cancelled At</span>
-                                        <span>{formatDate(appointment.cancelledAt)}</span>
+                                        <span>{formatDate(appointment.cancelledAt, DATE_FORMAT.DATE_TIME)}</span>
                                     </div>
                                 )}
                             </div>
