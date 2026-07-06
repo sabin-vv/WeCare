@@ -1,5 +1,5 @@
 import { Activity, Droplets, Heart, OctagonMinus, Pencil } from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import toast from 'react-hot-toast'
 
 import {
@@ -9,6 +9,15 @@ import {
     updatePrescriptionStatus,
 } from '../../api/doctor.api'
 import { getMedicineNames, getMedicineStrengths } from '../../api/medicine.api'
+import {
+    DEFAULT_VITALS_PREFERENCES,
+    DURATION_OPTIONS,
+    FREQUENCY_OPTIONS,
+    FREQUENCY_SLOT_MAP,
+    parseDuration,
+    parseFrequency,
+    type VitalPlanOptionId,
+} from '../../constants/doctor.constants'
 import type { MedicationProps, PatientPrescription, ScheduleTime, SelectedMedication } from '../../types/doctor.types'
 import PrescriptionModal from '../modals/PrescriptionModal'
 import VitalsCheckRequestModal from '../modals/VitalsCheckRequestModal'
@@ -20,20 +29,8 @@ import Pagination from '@/shared/components/Pagination/Pagination'
 import { Section } from '@/shared/components/Section/Section'
 import DataTable from '@/shared/components/Table/DataTable'
 import type { Column } from '@/shared/components/Table/dataTable.types'
+import { DEFAULT_PAGINATION } from '@/shared/constants/pagination.constants'
 import { getErrorMessage } from '@/utils/getErrorMessage'
-
-type VitalPlanOptionId = 'blood_pressure' | 'heart_rate' | 'spo2' | 'blood_sugar'
-
-const getFrequencySlotCount = (frequency: string) => {
-    const map: Record<string, number> = {
-        'Once daily': 1,
-        'Twice daily': 2,
-        'Three times daily': 3,
-        'Four times daily': 4,
-    }
-
-    return map[frequency] ?? 1
-}
 
 const createScheduleTime = (medicationId: string, index: number): ScheduleTime => ({
     id: `${medicationId}-schedule-${index}-${Date.now()}`,
@@ -45,7 +42,7 @@ const normalizeScheduleTimes = (
     frequency: string,
     scheduleTimes: ScheduleTime[],
 ): ScheduleTime[] => {
-    const requiredCount = getFrequencySlotCount(frequency)
+    const requiredCount = FREQUENCY_SLOT_MAP[frequency] ?? 1
     const normalizedTimes = scheduleTimes.slice(0, requiredCount)
 
     while (normalizedTimes.length < requiredCount) {
@@ -54,8 +51,6 @@ const normalizeScheduleTimes = (
 
     return normalizedTimes
 }
-
-const PAGE_LIMIT = 8
 
 const MedicationTable = ({ patientId, patientName, hasConditions, onSuccess, vitalPlan }: MedicationProps) => {
     const [prescriptions, setPrescriptions] = useState<PatientPrescription[]>([])
@@ -73,7 +68,7 @@ const MedicationTable = ({ patientId, patientName, hasConditions, onSuccess, vit
     const fetchPrescriptions = useCallback(async () => {
         setIsLoadingPrescriptions(true)
         try {
-            const response = await getPatientPrescriptions(patientId, page, PAGE_LIMIT)
+            const response = await getPatientPrescriptions(patientId, page, DEFAULT_PAGINATION.limit)
             setPrescriptions(response.data)
             setTotalPages(response.pagination.totalPages)
             setTotalCount(response.pagination.total)
@@ -215,16 +210,9 @@ const MedicationTable = ({ patientId, patientName, hasConditions, onSuccess, vit
     const [isSavingVitalPlan, setIsSavingVitalPlan] = useState(false)
     const [selectedVitals, setSelectedVitals] = useState<VitalPlanOptionId[]>([])
     const [vitalsInstructions, setVitalsInstructions] = useState('')
-    const [vitalsPreferences, setVitalsPreferences] = useState<
-        Record<VitalPlanOptionId, { frequency: string; duration: string }>
-    >({
-        blood_pressure: { frequency: 'Every 2 hours', duration: 'Next 24 hours' },
-        heart_rate: { frequency: 'Every 2 hours', duration: 'Next 24 hours' },
-        spo2: { frequency: 'Every 2 hours', duration: 'Next 24 hours' },
-        blood_sugar: { frequency: 'Every 2 hours', duration: 'Next 24 hours' },
-    })
+    const [vitalsPreferences, setVitalsPreferences] = useState(DEFAULT_VITALS_PREFERENCES)
 
-    const vitalOptions = [
+    const vitalOptions: Array<{ id: VitalPlanOptionId; label: string; icon: ReactNode; iconClassName: string }> = [
         {
             id: 'blood_pressure',
             label: 'Blood Pressure',
@@ -250,9 +238,6 @@ const MedicationTable = ({ patientId, patientName, hasConditions, onSuccess, vit
             iconClassName: styles.vitalOptionIconPurple,
         },
     ] as const
-
-    const frequencyOptions = ['Every 1 hour', 'Every 2 hours', 'Every 6 hours', 'Every 1 day', 'Every 1 week']
-    const durationOptions = ['Next 12 hours', 'Next 24 hours', 'Next 48 hours', 'For 7 days', 'For 4 weeks']
 
     const handleRemoveMedication = (id: string) => {
         setSelectedMedications(selectedMedications.filter((med) => med.id !== id))
@@ -487,12 +472,7 @@ const MedicationTable = ({ patientId, patientName, hasConditions, onSuccess, vit
         setShowVitalsModal(false)
         setSelectedVitals([])
         setVitalsInstructions('')
-        setVitalsPreferences({
-            blood_pressure: { frequency: 'Every 2 hours', duration: 'Next 24 hours' },
-            heart_rate: { frequency: 'Every 2 hours', duration: 'Next 24 hours' },
-            spo2: { frequency: 'Every 2 hours', duration: 'Next 24 hours' },
-            blood_sugar: { frequency: 'Every 2 hours', duration: 'Next 24 hours' },
-        })
+        setVitalsPreferences({ ...DEFAULT_VITALS_PREFERENCES })
     }
 
     const handleToggleVital = (vitalId: VitalPlanOptionId) => {
@@ -513,52 +493,6 @@ const MedicationTable = ({ patientId, patientName, hasConditions, onSuccess, vit
                 [field]: value,
             },
         }))
-    }
-
-    const parseFrequency = (value: string): { frequencyValue: number; frequencyUnit: 'hours' | 'days' | 'weeks' } => {
-        const match = value.match(/Every (\d+) (hour|hours|day|days|week|weeks)/i)
-        if (!match) {
-            return { frequencyValue: 2, frequencyUnit: 'hours' }
-        }
-
-        const unitMap = {
-            hour: 'hours',
-            hours: 'hours',
-            day: 'days',
-            days: 'days',
-            week: 'weeks',
-            weeks: 'weeks',
-        } as const
-
-        return {
-            frequencyValue: Number(match[1]),
-            frequencyUnit: unitMap[match[2].toLowerCase() as keyof typeof unitMap],
-        }
-    }
-
-    const parseDuration = (
-        value: string,
-    ): { durationValue: number; durationUnit: 'hours' | 'days' | 'weeks' | 'months' } => {
-        const match = value.match(/(?:Next|For) (\d+) (hour|hours|day|days|week|weeks|month|months)/i)
-        if (!match) {
-            return { durationValue: 24, durationUnit: 'hours' }
-        }
-
-        const unitMap = {
-            hour: 'hours',
-            hours: 'hours',
-            day: 'days',
-            days: 'days',
-            week: 'weeks',
-            weeks: 'weeks',
-            month: 'months',
-            months: 'months',
-        } as const
-
-        return {
-            durationValue: Number(match[1]),
-            durationUnit: unitMap[match[2].toLowerCase() as keyof typeof unitMap],
-        }
     }
 
     const handleConfirmVitalsRequest = async () => {
@@ -625,7 +559,7 @@ const MedicationTable = ({ patientId, patientName, hasConditions, onSuccess, vit
                                     currentPage={page}
                                     totalPages={totalPages}
                                     totalCount={totalCount}
-                                    limit={PAGE_LIMIT}
+                                    limit={DEFAULT_PAGINATION.limit}
                                     onPageChange={setPage}
                                 />
                             )}
@@ -664,14 +598,14 @@ const MedicationTable = ({ patientId, patientName, hasConditions, onSuccess, vit
                 isOpen={showVitalsModal}
                 onClose={handleCloseVitalsModal}
                 patientName={patientName}
-                vitalPlan={vitalPlan}
+                vitalPlan={vitalPlan ?? []}
                 selectedVitals={selectedVitals}
                 vitalsInstructions={vitalsInstructions}
                 setVitalsInstructions={setVitalsInstructions}
                 vitalsPreferences={vitalsPreferences}
                 isSavingVitalPlan={isSavingVitalPlan}
-                frequencyOptions={frequencyOptions}
-                durationOptions={durationOptions}
+                frequencyOptions={FREQUENCY_OPTIONS}
+                durationOptions={DURATION_OPTIONS}
                 vitalOptions={vitalOptions}
                 onToggleVital={handleToggleVital}
                 onUpdatePreference={handleUpdateVitalPreference}
