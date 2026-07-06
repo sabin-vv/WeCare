@@ -20,10 +20,9 @@ import SearchField from '@/shared/components/SearchField/SearchField'
 import SelectField from '@/shared/components/SelectField/SelectField'
 import DataTable from '@/shared/components/Table/DataTable'
 import type { Column } from '@/shared/components/Table/dataTable.types'
-import { DATE_FORMAT } from '@/shared/constants/date.constants'
 import { DEFAULT_PAGINATION } from '@/shared/constants/pagination.constants'
 import type { PaginationData } from '@/shared/types/pagination.types'
-import { formatDate } from '@/utils/formatDate'
+import { DATE_FORMAT, formatDate } from '@/shared/utils/format'
 
 const columns: Column<ActivityLogEntry>[] = [
     {
