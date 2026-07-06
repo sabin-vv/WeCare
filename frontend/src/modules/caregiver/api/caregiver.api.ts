@@ -36,7 +36,7 @@ export const getCaregiverProfile = async (): Promise<CaregiverProfileResponse> =
     return res.data
 }
 
-export const updateCaregiverProfile = async (data: CaregiverProfileUpdateData): Promise<CaregiverProfileResponse> => {
+export const updateCaregiverProfile = async (data: CaregiverProfileUpdateData | FormData): Promise<CaregiverProfileResponse> => {
     const res = await api.put(`${CAREGIVERS_API}/me`, data)
     return res.data
 }

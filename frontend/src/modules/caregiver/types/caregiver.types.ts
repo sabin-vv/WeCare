@@ -1,5 +1,3 @@
-import type { Dispatch } from 'react'
-
 import type { ApiInterface } from '@/modules/auth/api/auth.api.types'
 import type { VerificationStatus } from '@/modules/auth/types/auth.types'
 
@@ -10,15 +8,15 @@ export type CaregiverSettingsFormValues = {
 }
 
 export interface CaregiverDocuments {
-    govId: File | null
-    profileImage: File | null
+    govId: File | string | null
+    profileImage: File | string | null
     certificate: {
         number: string
-        document: File | null
+        document: File | string | null
     }
     license: {
         number: string
-        document: File | null
+        document: File | string | null
     }
 }
 
@@ -31,14 +29,6 @@ export interface CaregiverRegisterState {
         confirmPassword: string
     }
     documents: CaregiverDocuments
-}
-
-export interface CaregiverDetailsFormProps {
-    prevStep: () => void
-    nextStep: () => void
-    documents: CaregiverDocuments
-    registerData: CaregiverRegisterState
-    setRegisterData: Dispatch<React.SetStateAction<CaregiverRegisterState>>
 }
 
 export interface CaregiverProfileUpdateData {
@@ -287,15 +277,6 @@ export interface VitalPlanItem {
     durationUnit: 'hours' | 'days' | 'weeks' | 'months'
 }
 
-export interface CaregiverDocumentsDisplay {
-    govId: File | string | null
-    profileImage: File | string | null
-    certificate: {
-        number: string
-        document: File | string | null
-    }
-    license: {
-        number: string
-        document: File | string | null
-    }
+export interface CaregiverDetailsFormProps {
+    documents?: CaregiverDocuments
 }

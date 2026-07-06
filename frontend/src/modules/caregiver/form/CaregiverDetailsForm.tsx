@@ -3,6 +3,8 @@ import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 
 import { createCaregiverProfile, updateCaregiverProfile } from '../api/caregiver.api'
+import { DEFAULT_CAREGIVER_DOCUMENTS } from '../constants/caregiver.constants'
+import type { CaregiverDetailsFormProps, CaregiverDocuments } from '../types/caregiver.types'
 
 import styles from './CaregiverDetailsForm.module.css'
 
@@ -18,38 +20,10 @@ import InputField from '@/shared/components/InputField/InputField'
 import { useAuth } from '@/shared/context/AuthContext'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 
-interface CaregiverDocuments {
-    govId: File | string | null
-    profileImage: File | string | null
-    certificate: {
-        number: string
-        document: File | string | null
-    }
-    license: {
-        number: string
-        document: File | string | null
-    }
-}
-
-interface CaregiverDetailsFormProps {
-    documents?: CaregiverDocuments
-}
-
 const CaregiverDetailsForm = ({ documents: initialDocuments }: CaregiverDetailsFormProps) => {
     const { user, setAuth } = useAuth()
     const navigate = useNavigate()
-    const [documents, setDocuments] = useState<CaregiverDocuments>({
-        govId: null,
-        profileImage: null,
-        certificate: {
-            number: '',
-            document: null,
-        },
-        license: {
-            number: '',
-            document: null,
-        },
-    })
+    const [documents, setDocuments] = useState<CaregiverDocuments>(DEFAULT_CAREGIVER_DOCUMENTS)
     const [imageCrop, setImageCrop] = useState<string | null>(null)
     const [isUploading, setIsUploading] = useState(false)
 

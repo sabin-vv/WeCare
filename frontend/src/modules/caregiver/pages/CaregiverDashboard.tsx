@@ -5,8 +5,9 @@ import toast from 'react-hot-toast'
 import { getCurrentUser } from '../../auth/api/auth.api'
 import { getCaregiverProfile } from '../api/caregiver.api'
 import Dashboard from '../components/Dashboard/Dashboard'
+import { DEFAULT_CAREGIVER_DOCUMENTS } from '../constants/caregiver.constants'
 import CaregiverDetailsForm from '../form/CaregiverDetailsForm'
-import type { CaregiverDocumentsDisplay } from '../types/caregiver.types'
+import type { CaregiverDocuments } from '../types/caregiver.types'
 
 import styles from './CaregiverDashboard.module.css'
 
@@ -19,18 +20,7 @@ import { getErrorMessage } from '@/utils/getErrorMessage'
 
 const CaregiverDashboard = () => {
     const { user, setAuth } = useAuth()
-    const [documents, setDocuments] = useState<CaregiverDocumentsDisplay>({
-        govId: null,
-        profileImage: null,
-        certificate: {
-            number: '',
-            document: null,
-        },
-        license: {
-            number: '',
-            document: null,
-        },
-    })
+    const [documents, setDocuments] = useState<CaregiverDocuments>(DEFAULT_CAREGIVER_DOCUMENTS)
     const [rejectReason, setRejectReason] = useState<string>()
 
     const baseUrl = env.AWS_BASE_URL
