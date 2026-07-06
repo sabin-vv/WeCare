@@ -175,6 +175,14 @@ export interface AdminAppointmentFilters {
     endDate: string
 }
 
+export interface AdminPaymentFilters {
+    search: string
+    status: string
+    paymentType: string
+    startDate: string
+    endDate: string
+}
+
 export interface AdminAppointmentsResponse {
     appointments: AdminAppointment[]
     pagination: Pagination

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import { getAdminPayments } from '../api/admin.api'
+import { INITIAL_PAYMENT_FILTERS, PAYMENT_STATUS_OPTIONS, PAYMENT_TYPE_OPTIONS } from '../constants/admin.constants'
 import type { AdminPayment } from '../types/admin.types'
 
 import styles from './AdminPaymentsPage.module.css'
@@ -14,22 +15,9 @@ import SearchField from '@/shared/components/SearchField/SearchField'
 import SelectField from '@/shared/components/SelectField/SelectField'
 import DataTable from '@/shared/components/Table/DataTable'
 import type { Column } from '@/shared/components/Table/dataTable.types'
+import { DEFAULT_PAGINATION } from '@/shared/constants/pagination.constants'
+import { DATE_FORMAT, formatCurrency, formatDate } from '@/shared/utils/format'
 import { getErrorMessage } from '@/utils/getErrorMessage'
-
-const STATUS_OPTIONS = [
-    { value: 'all', label: 'All Statuses' },
-    { value: 'pending', label: 'Pending' },
-    { value: 'success', label: 'Success' },
-    { value: 'failed', label: 'Failed' },
-    { value: 'refund_pending', label: 'Refund Pending' },
-    { value: 'refunded', label: 'Refunded' },
-]
-
-const TYPE_OPTIONS = [
-    { value: 'all', label: 'All Types' },
-    { value: 'consultation', label: 'Consultation' },
-    { value: 'subscription', label: 'Subscription' },
-]
 
 const PAYMENT_STATUS_BADGE: Record<string, string> = {
     pending: styles.badgePending,
@@ -38,14 +26,6 @@ const PAYMENT_STATUS_BADGE: Record<string, string> = {
     refund_pending: styles.badgeRefundPending,
     refunded: styles.badgeRefunded,
 }
-
-const formatDate = (iso?: string) => {
-    if (!iso) return '—'
-    const d = new Date(iso)
-    return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
-}
-
-const formatCurrency = (amount: number) => `₹${amount.toLocaleString('en-IN')}`
 
 const Avatar = ({ name, image }: { name: string; image?: string }) => {
     const [hasError, setHasError] = useState(false)
@@ -112,22 +92,14 @@ const columns: Column<AdminPayment>[] = [
     {
         header: 'Date',
         key: 'createdAt',
-        render: (item) => <span className={styles.dateCell}>{formatDate(item.createdAt)}</span>,
+        render: (item) => <span className={styles.dateCell}>{formatDate(item.createdAt, DATE_FORMAT.SHORT)}</span>,
     },
 ]
 
-const initialFilters = {
-    search: '',
-    status: 'all',
-    paymentType: 'all',
-    startDate: '',
-    endDate: '',
-}
-
 const AdminPaymentsPage = () => {
     const [payments, setPayments] = useState<AdminPayment[]>([])
-    const [pagination, setPagination] = useState({ page: 1, limit: 8, totalCount: 0, totalPages: 1 })
-    const [filters, setFilters] = useState(initialFilters)
+    const [pagination, setPagination] = useState(DEFAULT_PAGINATION)
+    const [filters, setFilters] = useState(INITIAL_PAYMENT_FILTERS)
     const [loading, setLoading] = useState(true)
 
     const fetchPayments = useCallback(
@@ -164,7 +136,7 @@ const AdminPaymentsPage = () => {
     }
 
     const clearFilters = () => {
-        setFilters(initialFilters)
+        setFilters(INITIAL_PAYMENT_FILTERS)
     }
 
     const hasActiveFilters = Object.values(filters).some((v) => v !== '' && v !== 'all')
@@ -190,14 +162,14 @@ const AdminPaymentsPage = () => {
                 <div className={styles.filterRow}>
                     <div className={styles.filterItem}>
                         <SelectField
-                            options={STATUS_OPTIONS}
+                            options={PAYMENT_STATUS_OPTIONS}
                             value={filters.status}
                             onChange={(e) => updateFilter('status', e.target.value)}
                         />
                     </div>
                     <div className={styles.filterItem}>
                         <SelectField
-                            options={TYPE_OPTIONS}
+                            options={PAYMENT_TYPE_OPTIONS}
                             value={filters.paymentType}
                             onChange={(e) => updateFilter('paymentType', e.target.value)}
                         />
