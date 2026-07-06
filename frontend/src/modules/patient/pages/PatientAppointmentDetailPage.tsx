@@ -30,9 +30,9 @@ import {
     retryPayment,
     verifyPayment,
 } from '../api/patient.api'
-import { getAppointmentStatusClass } from '../constants/patient.constants'
 import CancelAppointmentModal from '../components/modals/CancelAppointmentModal'
 import PaymentMethodModal from '../components/modals/PaymentMethodModal'
+import { getAppointmentStatusClass, getPaymentStatusClass } from '../constants/patient.constants'
 import type { Appointment, PatientProfileData, Prescription, VitalSchedule } from '../types/patient.types'
 
 import styles from './PatientAppointmentDetailPage.module.css'
@@ -44,23 +44,6 @@ import { DATE_FORMAT, formatDate, getInitials } from '@/shared/utils/format'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { getFileUrl } from '@/utils/getFileUrl'
 import { loadRazorpayScript } from '@/utils/loadRazorpay'
-
-const getPaymentStatusClass = (status: string) => {
-    switch (status) {
-        case 'paid':
-            return 'paymentPaid'
-        case 'pending':
-            return 'paymentPending'
-        case 'failed':
-            return 'paymentFailed'
-        case 'refunded':
-            return 'paymentRefunded'
-        case 'refund_pending':
-            return 'paymentRefundPending'
-        default:
-            return ''
-    }
-}
 
 const PatientAppointmentDetailPage = () => {
     const { appointmentId } = useParams<{ appointmentId: string }>()
@@ -365,7 +348,9 @@ const PatientAppointmentDetailPage = () => {
                                 </div>
                                 <div className={styles.infoContent}>
                                     <span className={styles.infoLabel}>Status</span>
-                                    <span className={`${styles.badge} ${styles[getAppointmentStatusClass(appointment.status)]}`}>
+                                    <span
+                                        className={`${styles.badge} ${styles[getAppointmentStatusClass(appointment.status)]}`}
+                                    >
                                         {appointment.status.replace(/_/g, ' ')}
                                     </span>
                                 </div>
