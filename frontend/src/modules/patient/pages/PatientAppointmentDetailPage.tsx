@@ -39,16 +39,9 @@ import styles from './PatientAppointmentDetailPage.module.css'
 import { env } from '@/config/env'
 import MainWrapper from '@/shared/components/MainWrapper/MainWrapper'
 import { Section } from '@/shared/components/Section/Section'
+import { getInitials } from '@/shared/utils/format'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { loadRazorpayScript } from '@/utils/loadRazorpay'
-
-const getInitials = (name: string) =>
-    name
-        .split(' ')
-        .map((p) => p[0])
-        .join('')
-        .slice(0, 2)
-        .toUpperCase()
 
 const getStatusClass = (status: string) => {
     switch (status) {

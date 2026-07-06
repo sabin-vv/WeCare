@@ -6,6 +6,7 @@ import type { Appointment } from '../../types/patient.types'
 import styles from './DetailedAppointmentCard.module.css'
 
 import { env } from '@/config/env'
+import { DATE_FORMAT, formatDate, getInitials } from '@/shared/utils/format'
 
 interface DetailedAppointmentCardProps {
     appointment: Appointment
@@ -29,14 +30,6 @@ const getStatusClass = (status: string) => {
             return ''
     }
 }
-
-const getInitials = (name: string) =>
-    name
-        .split(' ')
-        .map((p) => p[0])
-        .join('')
-        .slice(0, 2)
-        .toUpperCase()
 
 const DetailedAppointmentCard = ({ appointment, onRetryPayment, onCancel }: DetailedAppointmentCardProps) => {
     const navigate = useNavigate()
@@ -91,12 +84,7 @@ const DetailedAppointmentCard = ({ appointment, onRetryPayment, onCancel }: Deta
                     <span className={styles.detailValue}>
                         <Calendar size={18} /> Date
                     </span>
-                    {new Date(appointment.appointmentDate).toLocaleDateString('en-IN', {
-                        month: 'short',
-                        year: 'numeric',
-                        day: 'numeric',
-                        weekday: 'short',
-                    })}
+                    {formatDate(appointment.appointmentDate, DATE_FORMAT.WEEKDAY_SHORT)}
                 </div>
                 <span className={styles.detailsSeparator}>|</span>
                 <div className={styles.detailItem}>

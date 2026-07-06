@@ -8,6 +8,12 @@ export const DATE_FORMAT = {
         month: 'short',
         year: 'numeric',
     },
+    WEEKDAY_SHORT: {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+    },
     LONG: {
         day: 'numeric',
         month: 'long',
