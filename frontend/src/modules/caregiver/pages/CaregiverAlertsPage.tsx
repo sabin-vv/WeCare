@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import { getCaregiverAlerts } from '../api/caregiver.api'
-import type { AlertData, PaginationData } from '../types/caregiver.types'
+import { ALERT_SEVERITY_OPTIONS, ALERT_STATUS_OPTIONS, ALERT_TYPE_OPTIONS } from '../constants/caregiver.constants'
+import type { AlertData } from '../types/caregiver.types'
 
 import styles from './CaregiverAlertsPage.module.css'
 
@@ -12,6 +13,7 @@ import MainWrapper from '@/shared/components/MainWrapper/MainWrapper'
 import Pagination from '@/shared/components/Pagination/Pagination'
 import { Section } from '@/shared/components/Section/Section'
 import SelectField from '@/shared/components/SelectField/SelectField'
+import { DEFAULT_PAGINATION } from '@/shared/constants/pagination.constants'
 import { useSocket } from '@/shared/context/SocketContext'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 
@@ -22,37 +24,9 @@ const ALERT_ICONS: Record<string, React.ReactNode> = {
     critical_symptom: <AlertTriangle size={24} color="#ef4444" />,
 }
 
-const PAGE_LIMIT = 8
-
-const STATUS_OPTIONS = [
-    { label: 'All Statuses', value: '' },
-    { label: 'Open', value: 'open' },
-    { label: 'Acknowledged', value: 'acknowledged' },
-]
-
-const TYPE_OPTIONS = [
-    { label: 'All Types', value: '' },
-    { label: 'Missed Medication', value: 'missed_medication' },
-    { label: 'Critical Vital', value: 'critical_vital' },
-    { label: 'Critical Symptom', value: 'critical_symptom' },
-    { label: 'Missed Vital', value: 'missed_vital' },
-]
-
-const SEVERITY_OPTIONS = [
-    { label: 'All Severities', value: '' },
-    { label: 'Medium', value: 'medium' },
-    { label: 'High', value: 'high' },
-    { label: 'Critical', value: 'critical' },
-]
-
 const CaregiverAlertsPage = () => {
     const [alerts, setAlerts] = useState<AlertData[]>([])
-    const [pagination, setPagination] = useState<PaginationData>({
-        page: 1,
-        limit: PAGE_LIMIT,
-        totalCount: 0,
-        totalPages: 0,
-    })
+    const [pagination, setPagination] = useState(DEFAULT_PAGINATION)
     const [statusFilter, setStatusFilter] = useState('')
     const [typeFilter, setTypeFilter] = useState('')
     const [severityFilter, setSeverityFilter] = useState('')
@@ -64,7 +38,7 @@ const CaregiverAlertsPage = () => {
         try {
             const data = await getCaregiverAlerts({
                 page,
-                limit: PAGE_LIMIT,
+                limit: pagination.limit,
                 status: statusFilter || undefined,
                 type: typeFilter || undefined,
                 severity: severityFilter || undefined,
@@ -127,19 +101,19 @@ const CaregiverAlertsPage = () => {
                     <div className={styles.filterFields}>
                         <SelectField
                             label="Status"
-                            options={STATUS_OPTIONS}
+                            options={ALERT_STATUS_OPTIONS}
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
                         />
                         <SelectField
                             label="Type"
-                            options={TYPE_OPTIONS}
+                            options={ALERT_TYPE_OPTIONS}
                             value={typeFilter}
                             onChange={(e) => setTypeFilter(e.target.value)}
                         />
                         <SelectField
                             label="Severity"
-                            options={SEVERITY_OPTIONS}
+                            options={ALERT_SEVERITY_OPTIONS}
                             value={severityFilter}
                             onChange={(e) => setSeverityFilter(e.target.value)}
                         />
