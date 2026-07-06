@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unescaped-entities */
 import { useState } from 'react'
 
-import styles from '../../pages/DoctorVerification.module.css'
+import styles from '../../pages/Verification.module.css'
 
 import Modal from '@/shared/components/Modal/Modal'
 

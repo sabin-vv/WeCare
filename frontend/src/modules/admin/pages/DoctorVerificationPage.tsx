@@ -6,7 +6,7 @@ import DoctorDocumentViewer from '../components/modals/DoctorDocumentViewer'
 import RejectionReasonModal from '../components/modals/RejectionReasonModal'
 import type { PendingDoctor } from '../types/admin.types'
 
-import styles from './DoctorVerification.module.css'
+import styles from './Verification.module.css'
 
 import PageHeader from '@/shared/components/PageHeader/PageHeader'
 import Pagination from '@/shared/components/Pagination/Pagination'

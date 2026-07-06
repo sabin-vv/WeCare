@@ -6,14 +6,16 @@ import CaregiverDocumentViewer from '../components/modals/CaregiverDocumentViewe
 import RejectionReasonModal from '../components/modals/RejectionReasonModal'
 import type { PendingCaregiver, RecentCaregiver } from '../types/admin.types'
 
-import styles from './DoctorVerification.module.css'
+import styles from './Verification.module.css'
 
 import PageHeader from '@/shared/components/PageHeader/PageHeader'
 import Pagination from '@/shared/components/Pagination/Pagination'
 import SearchField from '@/shared/components/SearchField/SearchField'
 import { Section } from '@/shared/components/Section/Section'
 import DataTable from '@/shared/components/Table/DataTable'
+import { DEFAULT_PAGINATION } from '@/shared/constants/pagination.constants'
 import { usePendingCount } from '@/shared/context/PendingCountContext'
+import { DATE_FORMAT, formatDate } from '@/shared/utils/format'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { getFileUrl } from '@/utils/getFileUrl'
 
@@ -55,17 +57,8 @@ const pendingCaregiverColumns = [
         key: 'createdAt' as keyof PendingCaregiver,
         render: (caregiver: PendingCaregiver) => (
             <div className={styles.date}>
-                {new Date(caregiver.createdAt).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric',
-                })}
-                <span className={styles.time}>
-                    {new Date(caregiver.createdAt).toLocaleTimeString('en-US', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                    })}
-                </span>
+                {formatDate(caregiver.createdAt, DATE_FORMAT.SHORT)}
+                <span className={styles.time}>{formatDate(caregiver.createdAt, DATE_FORMAT.TIME)}</span>
             </div>
         ),
     },
@@ -107,11 +100,7 @@ const recentCaregiverColumns = [
         header: 'Verified/Rejected On',
         key: 'updatedAt' as keyof RecentCaregiver,
         render: (caregiver: RecentCaregiver) =>
-            new Date(caregiver.updatedAt || caregiver.createdAt).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-            }),
+            formatDate(caregiver.updatedAt || caregiver.createdAt, DATE_FORMAT.SHORT),
     },
 ]
 
@@ -119,7 +108,7 @@ const CaregiverVerificationPage = () => {
     const [caregivers, setCaregivers] = useState<PendingCaregiver[]>([])
     const [search, setSearch] = useState('')
     const [loading, setLoading] = useState(true)
-    const [pagination, setPagination] = useState({ page: 1, limit: 10, totalCount: 0, totalPages: 1 })
+    const [pagination, setPagination] = useState(DEFAULT_PAGINATION)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [selectedCaregiver, setSelectedCaregiver] = useState<PendingCaregiver | null>(null)
     const [recentCaregivers, setRecentCaregivers] = useState<RecentCaregiver[]>([])
@@ -130,7 +119,7 @@ const CaregiverVerificationPage = () => {
     const fetchCaregivers = async (page = 1, searchQuery = '') => {
         setLoading(true)
         try {
-            const data = await getPendingCaregivers(page, 10, searchQuery)
+            const data = await getPendingCaregivers(page, pagination.limit, searchQuery)
             setCaregivers(data.caregivers)
             setPagination(data.pagination)
         } catch (error) {
