@@ -168,6 +168,13 @@ export interface AdminAppointment {
     createdAt: string
 }
 
+export interface AdminAppointmentFilters {
+    search: string
+    status: string
+    startDate: string
+    endDate: string
+}
+
 export interface AdminAppointmentsResponse {
     appointments: AdminAppointment[]
     pagination: Pagination

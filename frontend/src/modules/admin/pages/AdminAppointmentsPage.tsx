@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import { getAdminAppointments } from '../api/admin.api'
+import { INITIAL_APPOINTMENT_FILTERS, STATUS_OPTIONS } from '../constants/admin.constants'
 import type { AdminAppointment } from '../types/admin.types'
 
 import styles from './AdminAppointmentsPage.module.css'
@@ -14,17 +15,10 @@ import SearchField from '@/shared/components/SearchField/SearchField'
 import SelectField from '@/shared/components/SelectField/SelectField'
 import DataTable from '@/shared/components/Table/DataTable'
 import type { Column } from '@/shared/components/Table/dataTable.types'
+import { DATE_FORMAT } from '@/shared/constants/date.constants'
+import { DEFAULT_PAGINATION } from '@/shared/constants/pagination.constants'
+import { formatDate } from '@/utils/formatDate'
 import { getErrorMessage } from '@/utils/getErrorMessage'
-
-const STATUS_OPTIONS = [
-    { value: 'all', label: 'All Statuses' },
-    { value: 'pending_payment', label: 'Pending Payment' },
-    { value: 'confirmed', label: 'Confirmed' },
-    { value: 'in_consultation', label: 'In Consultation' },
-    { value: 'completed', label: 'Completed' },
-    { value: 'cancelled', label: 'Cancelled' },
-    { value: 'missed', label: 'Missed' },
-]
 
 const STATUS_BADGE: Record<string, string> = {
     pending_payment: styles.badgePending,
@@ -33,11 +27,6 @@ const STATUS_BADGE: Record<string, string> = {
     completed: styles.badgeCompleted,
     cancelled: styles.badgeCancelled,
     missed: styles.badgeMissed,
-}
-
-const formatDate = (iso: string) => {
-    const d = new Date(iso)
-    return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
 const statusLabel = (status: AdminAppointment['status']) =>
@@ -105,7 +94,9 @@ const columns: Column<AdminAppointment>[] = [
     {
         header: 'Date',
         key: 'appointmentDate',
-        render: (item) => <span className={styles.dateCell}>{formatDate(item.appointmentDate)}</span>,
+        render: (item) => (
+            <span className={styles.dateCell}>{formatDate(item.appointmentDate, DATE_FORMAT.SHORT)}</span>
+        ),
     },
     {
         header: 'Time',
@@ -132,17 +123,10 @@ const columns: Column<AdminAppointment>[] = [
     },
 ]
 
-const initialFilters = {
-    search: '',
-    status: 'all',
-    startDate: '',
-    endDate: '',
-}
-
 const AdminAppointmentsPage = () => {
     const [appointments, setAppointments] = useState<AdminAppointment[]>([])
-    const [pagination, setPagination] = useState({ page: 1, limit: 8, totalCount: 0, totalPages: 1 })
-    const [filters, setFilters] = useState(initialFilters)
+    const [pagination, setPagination] = useState(DEFAULT_PAGINATION)
+    const [filters, setFilters] = useState(INITIAL_APPOINTMENT_FILTERS)
     const [loading, setLoading] = useState(true)
 
     const fetchAppointments = useCallback(
@@ -178,7 +162,7 @@ const AdminAppointmentsPage = () => {
     }
 
     const clearFilters = () => {
-        setFilters(initialFilters)
+        setFilters(INITIAL_APPOINTMENT_FILTERS)
     }
 
     const hasActiveFilters = Object.values(filters).some((v) => v !== '' && v !== 'all')
