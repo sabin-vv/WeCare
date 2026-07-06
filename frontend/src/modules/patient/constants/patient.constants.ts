@@ -20,3 +20,11 @@ export const PAYMENT_STATUS_CLASS_MAP: Record<string, string> = {
 
 export const getPaymentStatusClass = (status: string): string =>
     PAYMENT_STATUS_CLASS_MAP[status] ?? ''
+
+export const DEFAULT_PATIENT_SETTINGS_FORM_VALUES = {
+    name: '',
+    email: '',
+    mobile: '',
+    dateOfBirth: '',
+    gender: '',
+}

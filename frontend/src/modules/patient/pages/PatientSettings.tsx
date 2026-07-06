@@ -18,6 +18,7 @@ import { OtpPurpose } from '@/modules/auth/types/auth.types'
 import DoctorSecuritySection from '@/modules/doctor/form/settings/DoctorSecuritySection'
 import { getPatientProfile, updatePatientProfile } from '@/modules/patient/api/patient.api'
 import EmailOtpModal from '@/modules/patient/components/modals/EmailOtpModal'
+import { DEFAULT_PATIENT_SETTINGS_FORM_VALUES } from '@/modules/patient/constants/patient.constants'
 import type { PatientProfileData, PatientSettingsFormValues } from '@/modules/patient/types/patient.types'
 import { patientSettingsFormSchema } from '@/modules/patient/validator/settingsForm.validator'
 import ChangePasswordForm from '@/shared/components/ChangePasswordForm'
@@ -28,14 +29,7 @@ import PhoneInput from '@/shared/components/PhoneInput/PhoneInput'
 import { Section } from '@/shared/components/Section/Section'
 import { useAuth } from '@/shared/context/AuthContext'
 import { getErrorMessage } from '@/utils/getErrorMessage'
-
-const defaultFormValues: PatientSettingsFormValues = {
-    name: '',
-    email: '',
-    mobile: '',
-    dateOfBirth: '',
-    gender: '',
-}
+import { getFileUrl } from '@/utils/getFileUrl'
 
 const PatientSettings = () => {
     const { user, setAuth } = useAuth()
@@ -49,7 +43,7 @@ const PatientSettings = () => {
         getValues,
     } = useForm<PatientSettingsFormValues>({
         resolver: zodResolver(patientSettingsFormSchema),
-        defaultValues: defaultFormValues,
+        defaultValues: DEFAULT_PATIENT_SETTINGS_FORM_VALUES,
         mode: 'onChange',
     })
 
@@ -260,10 +254,7 @@ const PatientSettings = () => {
     }
 
     const profileImageSrc = patientProfile?.profileImage || user?.profileImage
-    const resolvedProfileImage =
-        profileImageSrc && !profileImageSrc.startsWith('http')
-            ? `${import.meta.env.VITE_S3_BASE_URL}${profileImageSrc}`
-            : profileImageSrc
+    const resolvedProfileImage = getFileUrl(profileImageSrc)
 
     const nameValue = getValues('name')
 
