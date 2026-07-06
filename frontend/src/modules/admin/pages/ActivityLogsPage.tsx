@@ -2,6 +2,12 @@ import { X } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 
 import { getActivityLogs } from '../api/admin.api'
+import {
+    CATEGORY_OPTIONS,
+    INITIAL_ACTIVITY_LOG_FILTERS,
+    ROLE_OPTIONS,
+    TARGET_TYPE_OPTIONS,
+} from '../constants/admin.constants'
 import type { ActivityLogFilters } from '../types/admin.types'
 import type { ActivityLogEntry } from '../types/admin.types'
 
@@ -14,60 +20,16 @@ import SearchField from '@/shared/components/SearchField/SearchField'
 import SelectField from '@/shared/components/SelectField/SelectField'
 import DataTable from '@/shared/components/Table/DataTable'
 import type { Column } from '@/shared/components/Table/dataTable.types'
-
-const ROLE_OPTIONS = [
-    { value: '', label: 'All Roles' },
-    { value: 'admin', label: 'Admin' },
-    { value: 'doctor', label: 'Doctor' },
-    { value: 'caregiver', label: 'Caregiver' },
-    { value: 'patient', label: 'Patient' },
-]
-
-const CATEGORY_OPTIONS = [
-    { value: '', label: 'All Categories' },
-    { value: 'user_management', label: 'User Management' },
-    { value: 'verification', label: 'Verification' },
-    { value: 'appointment', label: 'Appointment' },
-    { value: 'payment', label: 'Payment' },
-    { value: 'platform_settings', label: 'Platform Settings' },
-    { value: 'prescription', label: 'Prescription' },
-    { value: 'feedback', label: 'Feedback' },
-    { value: 'alert', label: 'Alert' },
-    { value: 'subscription', label: 'Subscription' },
-    { value: 'system', label: 'System' },
-]
-
-const TARGET_TYPE_OPTIONS = [
-    { value: '', label: 'All Targets' },
-    { value: 'user', label: 'User' },
-    { value: 'doctor', label: 'Doctor' },
-    { value: 'caregiver', label: 'Caregiver' },
-    { value: 'patient', label: 'Patient' },
-    { value: 'appointment', label: 'Appointment' },
-    { value: 'payment', label: 'Payment' },
-    { value: 'prescription', label: 'Prescription' },
-    { value: 'platform_setting', label: 'Platform Setting' },
-    { value: 'alert', label: 'Alert' },
-    { value: 'feedback', label: 'Feedback' },
-    { value: 'subscription', label: 'Subscription' },
-]
-
-const formatTimestamp = (iso: string) => {
-    const d = new Date(iso)
-    return d.toLocaleString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-    })
-}
+import { DATE_FORMAT } from '@/shared/constants/date.constants'
+import { DEFAULT_PAGINATION } from '@/shared/constants/pagination.constants'
+import type { PaginationData } from '@/shared/types/pagination.types'
+import { formatDate } from '@/utils/formatDate'
 
 const columns: Column<ActivityLogEntry>[] = [
     {
         header: 'Date & Time',
         key: 'createdAt',
-        render: (item) => <span className={styles.timestamp}>{formatTimestamp(item.createdAt)}</span>,
+        render: (item) => <span className={styles.timestamp}>{formatDate(item.createdAt, DATE_FORMAT.DATE_TIME)}</span>,
     },
     {
         header: 'Performed By',
@@ -92,19 +54,10 @@ const columns: Column<ActivityLogEntry>[] = [
     },
 ]
 
-const initialFilters: ActivityLogFilters = {
-    category: '',
-    performedByRole: '',
-    targetType: '',
-    search: '',
-    startDate: '',
-    endDate: '',
-}
-
 const ActivityLogsPage = () => {
     const [logs, setLogs] = useState<ActivityLogEntry[]>([])
-    const [pagination, setPagination] = useState({ page: 1, limit: 20, totalCount: 0, totalPages: 1 })
-    const [filters, setFilters] = useState<ActivityLogFilters>(initialFilters)
+    const [pagination, setPagination] = useState<PaginationData>(DEFAULT_PAGINATION)
+    const [filters, setFilters] = useState(INITIAL_ACTIVITY_LOG_FILTERS)
     const [loading, setLoading] = useState(true)
 
     const fetchLogs = useCallback(
@@ -136,7 +89,7 @@ const ActivityLogsPage = () => {
     }
 
     const clearFilters = () => {
-        setFilters(initialFilters)
+        setFilters(INITIAL_ACTIVITY_LOG_FILTERS)
     }
 
     const hasActiveFilters = Object.values(filters).some((v) => v !== '')
