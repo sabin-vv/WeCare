@@ -17,10 +17,11 @@ import InputField from '@/shared/components/InputField/InputField'
 import PasswordField from '@/shared/components/PasswordField/PasswordField'
 import { useAuth } from '@/shared/context/AuthContext'
 import { usePlatform } from '@/shared/context/PlatformContext'
+import { emailSchema } from '@/shared/validators/common.schema'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 
 const adminLoginSchema = z.object({
-    email: z.string().email('Invalid email address'),
+    email: emailSchema,
     password: z.string().min(8, 'Password must be at least 8 characters'),
 })
 
