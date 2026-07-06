@@ -13,7 +13,9 @@ import Pagination from '@/shared/components/Pagination/Pagination'
 import SearchField from '@/shared/components/SearchField/SearchField'
 import { Section } from '@/shared/components/Section/Section'
 import DataTable from '@/shared/components/Table/DataTable'
+import { DEFAULT_PAGINATION } from '@/shared/constants/pagination.constants'
 import { usePendingCount } from '@/shared/context/PendingCountContext'
+import { DATE_FORMAT, formatDate } from '@/shared/utils/format'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { getFileUrl } from '@/utils/getFileUrl'
 
@@ -21,7 +23,7 @@ const DoctorVerificationPage = () => {
     const [doctors, setDoctors] = useState<PendingDoctor[]>([])
     const [search, setSearch] = useState('')
     const [loading, setLoading] = useState(true)
-    const [pagination, setPagination] = useState({ page: 1, limit: 10, totalCount: 0, totalPages: 1 })
+    const [pagination, setPagination] = useState(DEFAULT_PAGINATION)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [selectedDoctor, setSelectedDoctor] = useState<PendingDoctor | null>(null)
     const [recentDoctors, setRecentDoctors] = useState<PendingDoctor[]>([])
@@ -32,7 +34,7 @@ const DoctorVerificationPage = () => {
     const fetchDoctors = async (page = 1, searchQuery = '') => {
         setLoading(true)
         try {
-            const data = await getPendingDoctors(page, 10, searchQuery)
+            const data = await getPendingDoctors(page, pagination.limit, searchQuery)
             setDoctors(data.doctors)
             setPagination(data.pagination)
         } catch (error) {
@@ -143,17 +145,8 @@ const DoctorVerificationPage = () => {
             key: 'createdAt' as keyof PendingDoctor,
             render: (doctor: PendingDoctor) => (
                 <div className={styles.date}>
-                    {new Date(doctor.createdAt).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric',
-                    })}
-                    <span className={styles.time}>
-                        {new Date(doctor.createdAt).toLocaleTimeString('en-US', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                        })}
-                    </span>
+                    {formatDate(doctor.createdAt, DATE_FORMAT.SHORT)}
+                    <span className={styles.time}>{formatDate(doctor.createdAt, DATE_FORMAT.TIME)}</span>
                 </div>
             ),
         },
@@ -242,11 +235,7 @@ const DoctorVerificationPage = () => {
             header: 'Verified/Rejected On',
             key: 'updatedAt' as keyof PendingDoctor,
             render: (doctor: PendingDoctor) =>
-                new Date(doctor.updatedAt || doctor.createdAt).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric',
-                }),
+                formatDate(doctor.updatedAt || doctor.createdAt, DATE_FORMAT.SHORT),
         },
         {
             header: 'Documents',
