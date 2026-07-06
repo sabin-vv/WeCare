@@ -3,17 +3,15 @@ import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import { getCaregiverActivityLogs } from '../api/caregiver.api'
-import type {
-    CaregiverActivityLogItem,
-    CaregiverActivityLogPagination,
-    CaregiverActivityType,
-} from '../types/caregiver.types'
+import type { CaregiverActivityLogItem, CaregiverActivityType } from '../types/caregiver.types'
 
 import styles from './CaregiverActivityLog.module.css'
 
 import MainWrapper from '@/shared/components/MainWrapper/MainWrapper'
 import Pagination from '@/shared/components/Pagination/Pagination'
 import { Section } from '@/shared/components/Section/Section'
+import { DEFAULT_PAGINATION } from '@/shared/constants/pagination.constants'
+import { formatDate, DATE_FORMAT } from '@/shared/utils/format'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 
 const activityMeta: Record<
@@ -51,20 +49,6 @@ const activityMeta: Record<
     },
 }
 
-const formatTime = (isoString: string) =>
-    new Date(isoString).toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true,
-    })
-
-const formatDate = (isoString: string) =>
-    new Date(isoString).toLocaleDateString('en-US', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-    })
-
 const splitDescription = (description?: string) => {
     if (!description) return { title: 'Clinical activity', details: '' }
 
@@ -81,12 +65,7 @@ const splitDescription = (description?: string) => {
 
 const CaregiverActivityLog = () => {
     const [activities, setActivities] = useState<CaregiverActivityLogItem[]>([])
-    const [pagination, setPagination] = useState<CaregiverActivityLogPagination>({
-        page: 1,
-        limit: 8,
-        totalCount: 0,
-        totalPages: 1,
-    })
+    const [pagination, setPagination] = useState(DEFAULT_PAGINATION)
     const [page, setPage] = useState(1)
     const [isLoading, setIsLoading] = useState(true)
 
@@ -136,8 +115,8 @@ const CaregiverActivityLog = () => {
                                 <article key={activity.id} className={styles.activityCard}>
                                     <div className={styles.activityHeader}>
                                         <div className={styles.timeBlock}>
-                                            <strong>{formatTime(activity.createdAt)}</strong>
-                                            <span>{formatDate(activity.createdAt)}</span>
+                                            <strong>{formatDate(activity.createdAt, DATE_FORMAT.SHORT)}</strong>
+                                            <span>{formatDate(activity.createdAt, DATE_FORMAT.TIME)}</span>
                                         </div>
                                         <div className={styles.activityType}>
                                             <div className={`${styles.iconWrap} ${styles[meta.badge]}`}>
