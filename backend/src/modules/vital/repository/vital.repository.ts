@@ -25,7 +25,7 @@ export class VitalRepository implements IVitalRepository {
     }
 
     async updateVitalPlan(planId: string, data: Partial<VitalPlanDocument>): Promise<VitalPlanDocument | null> {
-        return await vitalPlanModel.findByIdAndUpdate(planId, data, { new: true })
+        return await vitalPlanModel.findByIdAndUpdate(planId, data, { returnDocument: 'after' })
     }
 
     async findActiveVitalPlans(): Promise<VitalPlanDocument[]> {
@@ -80,7 +80,7 @@ export class VitalRepository implements IVitalRepository {
     ): Promise<VitalScheduleDocument | null> {
         return vitalScheduleModel
             .findByIdAndUpdate(scheduleId, data, {
-                new: true,
+                returnDocument: 'after',
             })
             .lean() as unknown as VitalScheduleDocument | null
     }

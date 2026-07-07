@@ -29,7 +29,7 @@ export class ChatRepository implements IChatRepository {
         conversationId: Types.ObjectId,
         data: Partial<ConversationDocument>,
     ): Promise<ConversationDocument | null> {
-        return ConversationModel.findByIdAndUpdate(conversationId, { $set: data }, { new: true })
+        return ConversationModel.findByIdAndUpdate(conversationId, { $set: data }, { returnDocument: 'after' })
     }
 
     async updateUnreadCount(

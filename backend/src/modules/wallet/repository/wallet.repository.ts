@@ -19,6 +19,6 @@ export class WalletRepository extends BaseRepository<WalletDocument> implements 
     }
 
     async update(id: string, data: UpdateQuery<WalletDocument>): Promise<WalletDocument | null> {
-        return await WalletModel.findByIdAndUpdate(id, data, { new: true })
+        return await WalletModel.findByIdAndUpdate(id, data, { returnDocument: 'after' })
     }
 }

@@ -19,7 +19,7 @@ export class MedicalRecordRepository extends BaseRepository<MedicalRecordDocumen
         return this.model.findOneAndUpdate(
             { patientId },
             { $set: data },
-            { upsert: true, returnDocument: 'after', new: true },
+            { upsert: true, returnDocument: 'after' },
         )
     }
 
@@ -27,7 +27,7 @@ export class MedicalRecordRepository extends BaseRepository<MedicalRecordDocumen
         return this.model.findOneAndUpdate(
             { patientId },
             { $push: { clinicalNotes: note } },
-            { upsert: true, returnDocument: 'after', new: true },
+            { upsert: true, returnDocument: 'after' },
         )
     }
 }

@@ -85,7 +85,7 @@ export class MedicationRepository implements IMedicationRepository {
         data: Partial<MedicationScheduleModel>,
     ): Promise<MedicationScheduleModel | null> {
         return SystemGeneratedScheduleModel.findByIdAndUpdate(scheduleId, data, {
-            new: true,
+            returnDocument: 'after',
         }).lean() as unknown as MedicationScheduleModel | null
     }
     async cancelMedicationSchedulesByPatient(patientId: string, reason: string): Promise<void> {
