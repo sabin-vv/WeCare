@@ -1,14 +1,15 @@
+import { lazy } from 'react'
 import type { RouteObject } from 'react-router-dom'
 
-import DoctorAvailabilityPage from '../../public/pages/DoctorAvailabilityPage'
-import CareTeamPage from '../pages/CareTeamPage'
-import PatientAppointmentDetailPage from '../pages/PatientAppointmentDetailPage'
-import PatientAppointmentsPage from '../pages/PatientAppointmentsPage'
-import PatientDashboardPage from '../pages/PatientDashboardPage'
-import PatientSettings from '../pages/PatientSettings'
-import WalletPage from '../pages/WalletPage'
+const DoctorAvailabilityPage = lazy(() => import('../../public/pages/DoctorAvailabilityPage'))
+const CareTeamPage = lazy(() => import('../pages/CareTeamPage'))
+const PatientAppointmentDetailPage = lazy(() => import('../pages/PatientAppointmentDetailPage'))
+const PatientAppointmentsPage = lazy(() => import('../pages/PatientAppointmentsPage'))
+const PatientDashboardPage = lazy(() => import('../pages/PatientDashboardPage'))
+const PatientSettings = lazy(() => import('../pages/PatientSettings'))
+const WalletPage = lazy(() => import('../pages/WalletPage'))
+const PatientLayout = lazy(() => import('@/layout/PatientLayout'))
 
-import PatientLayout from '@/layout/PatientLayout'
 import { Role } from '@/modules/auth/types/auth.types'
 import ProtectedRoute from '@/shared/components/ProtectedRoute/ProtectedRoute'
 
