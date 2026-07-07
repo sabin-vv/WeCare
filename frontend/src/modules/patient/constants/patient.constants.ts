@@ -7,8 +7,7 @@ export const APPOINTMENT_STATUS_CLASS_MAP: Record<string, string> = {
     completed: 'completed',
 }
 
-export const getAppointmentStatusClass = (status: string): string =>
-    APPOINTMENT_STATUS_CLASS_MAP[status] ?? ''
+export const getAppointmentStatusClass = (status: string): string => APPOINTMENT_STATUS_CLASS_MAP[status] ?? ''
 
 export const PAYMENT_STATUS_CLASS_MAP: Record<string, string> = {
     paid: 'paymentPaid',
@@ -18,8 +17,7 @@ export const PAYMENT_STATUS_CLASS_MAP: Record<string, string> = {
     refund_pending: 'paymentRefundPending',
 }
 
-export const getPaymentStatusClass = (status: string): string =>
-    PAYMENT_STATUS_CLASS_MAP[status] ?? ''
+export const getPaymentStatusClass = (status: string): string => PAYMENT_STATUS_CLASS_MAP[status] ?? ''
 
 export const DEFAULT_PATIENT_SETTINGS_FORM_VALUES = {
     name: '',
@@ -28,3 +26,5 @@ export const DEFAULT_PATIENT_SETTINGS_FORM_VALUES = {
     dateOfBirth: '',
     gender: '',
 }
+
+export const SUGGESTED_AMOUNTS = [500, 1000, 2000, 5000]
