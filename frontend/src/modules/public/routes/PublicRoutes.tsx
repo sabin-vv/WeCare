@@ -1,10 +1,10 @@
+import { lazy } from 'react'
 import type { RouteObject } from 'react-router-dom'
 
-import DoctorAvailabilityPage from '../pages/DoctorAvailabilityPage'
-import DoctorBookingPage from '../pages/DoctorBookingPage'
-import LandingPage from '../pages/LandingPage'
-
-import PublicLayout from '@/layout/PublicLayout'
+const DoctorAvailabilityPage = lazy(() => import('../pages/DoctorAvailabilityPage'))
+const DoctorBookingPage = lazy(() => import('../pages/DoctorBookingPage'))
+const LandingPage = lazy(() => import('../pages/LandingPage'))
+const PublicLayout = lazy(() => import('@/layout/PublicLayout'))
 
 export const PublicRoutes: RouteObject[] = [
     {
