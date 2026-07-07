@@ -3,10 +3,11 @@ import ErrorField from '../ErrorField/ErrorField'
 import styles from './InputField.module.css'
 import type { InputFieldProps } from './InputField.types'
 
-const InputField = ({ label, errors, icon, prefix, ...props }: InputFieldProps) => {
+const InputField = ({ label, errors, icon, prefix, suffix, ...props }: InputFieldProps) => {
     const hasIcon = !!icon
     const hasPrefix = !!prefix
-    const inputClass = `${styles.input} ${hasIcon ? styles.withLeft : ''} ${hasPrefix ? styles.withPrefix : ''}`
+    const hasSuffix = !!suffix
+    const inputClass = `${styles.input} ${hasIcon ? styles.withLeft : ''} ${hasPrefix ? styles.withPrefix : ''} ${hasSuffix ? styles.withSuffix : ''}`
     return (
         <div className={styles.formFields}>
             <label htmlFor={props.id}>{label}</label>
@@ -20,6 +21,11 @@ const InputField = ({ label, errors, icon, prefix, ...props }: InputFieldProps) 
                 )}
 
                 <input {...props} className={inputClass} />
+                {suffix && (
+                    <div className={styles.rightContent}>
+                        <span className={styles.suffix}>{suffix}</span>
+                    </div>
+                )}
             </div>
 
             <ErrorField error={errors} />

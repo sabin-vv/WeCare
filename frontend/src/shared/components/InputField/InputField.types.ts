@@ -5,4 +5,5 @@ export interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
     errors?: string
     icon?: ReactNode
     prefix?: string
+    suffix?: string
 }
