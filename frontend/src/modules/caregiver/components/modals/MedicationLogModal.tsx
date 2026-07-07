@@ -1,9 +1,13 @@
 import { CheckCircle2, CircleX, Clock4 } from 'lucide-react'
 
+import { ROUTE_OPTIONS } from '../../constants/caregiver.constants'
 import styles from '../../pages/CaregiverPatients.module.css'
 import type { MedicationLogFormState, MedicationSchedule } from '../../types/caregiver.types'
 
+import InputField from '@/shared/components/InputField/InputField'
 import Modal from '@/shared/components/Modal/Modal'
+import SelectField from '@/shared/components/SelectField/SelectField'
+import TimePicker from '@/shared/components/TimePicker/TimePicker'
 
 interface MedicationLogModalProps {
     isOpen: boolean
@@ -28,7 +32,7 @@ const MedicationLogModal = ({
         isOpen={isOpen}
         onClose={onClose}
         title="Log Medication"
-        size="md"
+        size="sm"
         footer={
             <div className={styles.modalFooter}>
                 <button type="button" className={styles.modalCancelBtn} onClick={onClose}>
@@ -48,14 +52,8 @@ const MedicationLogModal = ({
         {medication && (
             <div className={styles.medicationModalBody}>
                 <div className={styles.modalFieldGrid}>
-                    <label className={styles.modalField}>
-                        <span className={styles.modalLabel}>Medication Selection</span>
-                        <input className={styles.modalInput} value={medication.medicineName} readOnly />
-                    </label>
-                    <label className={styles.modalField}>
-                        <span className={styles.modalLabel}>Dosage Amount</span>
-                        <input className={styles.modalInput} value={medication.dosage} readOnly />
-                    </label>
+                    <InputField label="Medicine Name" value={medication.medicineName} readOnly />
+                    <InputField label="Dosage Amount" value={medication.dosage} readOnly />
                 </div>
 
                 <div className={styles.statusSection}>
@@ -89,28 +87,17 @@ const MedicationLogModal = ({
                 </div>
 
                 <div className={styles.modalFieldGrid}>
-                    <label className={styles.modalField}>
-                        <span className={styles.modalLabel}>Taken Time</span>
-                        <input
-                            type="time"
-                            className={styles.modalInput}
-                            value={formState.takenTime}
-                            onChange={(e) => setFormState((current) => ({ ...current, takenTime: e.target.value }))}
-                        />
-                    </label>
-                    <label className={styles.modalField}>
-                        <span className={styles.modalLabel}>Route</span>
-                        <select
-                            className={styles.modalSelect}
-                            value={formState.route}
-                            onChange={(e) => setFormState((current) => ({ ...current, route: e.target.value }))}
-                        >
-                            <option value="oral">Oral</option>
-                            <option value="injection">Injection</option>
-                            <option value="IV">IV</option>
-                            <option value="inhalation">Inhalation</option>
-                        </select>
-                    </label>
+                    <TimePicker
+                        label="Taken Time"
+                        value={formState.takenTime}
+                        onChange={(value) => setFormState((current) => ({ ...current, takenTime: value }))}
+                    />
+
+                    <SelectField
+                        label="Route"
+                        options={ROUTE_OPTIONS}
+                        onChange={(e) => setFormState((current) => ({ ...current, route: e.target.value }))}
+                    />
                 </div>
 
                 <label className={styles.modalField}>

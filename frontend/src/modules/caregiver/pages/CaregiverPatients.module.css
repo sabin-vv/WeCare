@@ -301,27 +301,27 @@
     font-weight: 600;
 }
 
-.vitalStatus[data-status="pending"] {
+.vitalStatus[data-status='pending'] {
     background: #fef3c7;
     color: #92400e;
 }
 
-.vitalStatus[data-status="recorded"] {
+.vitalStatus[data-status='recorded'] {
     background: #bbf7d0;
     color: #166534;
 }
 
-.vitalStatus[data-status="missed"] {
+.vitalStatus[data-status='missed'] {
     background: #fecaca;
     color: #991b1b;
 }
 
-.vitalStatus[data-status="skipped"] {
+.vitalStatus[data-status='skipped'] {
     background: #e2e8f0;
     color: #475569;
 }
 
-.vitalStatus[data-status="cancelled"] {
+.vitalStatus[data-status='cancelled'] {
     background: #e2e8f0;
     color: #475569;
 }
@@ -630,7 +630,7 @@
 .medicationModalBody {
     display: flex;
     flex-direction: column;
-    gap: 22px;
+    gap: 10px;
 }
 
 .modalFieldGrid {
@@ -672,7 +672,7 @@
 }
 
 .modalTextarea {
-    min-height: 120px;
+    min-height: 80px;
     padding: 14px;
     resize: vertical;
 }
@@ -701,22 +701,22 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
     padding: 6px;
-    border-radius: 16px;
+    border-radius: 8px;
     background: #f4f7fb;
 }
 
 .statusPill {
-    min-height: 50px;
-    border: 1px solid transparent;
-    border-radius: 12px;
+    min-height: 30px;
+    border: none;
+    border-radius: 8px;
     background: transparent;
     color: #647a93;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    font-size: 14px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 600;
     cursor: pointer;
     transition:
         transform 0.2s ease,
@@ -727,6 +727,7 @@
 
 .statusPill:hover {
     transform: translateY(-1px);
+    border: 1px solid #ffd4d6;
 }
 
 .statusPillActive {

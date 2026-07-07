@@ -21,6 +21,13 @@ export const ALERT_SEVERITY_OPTIONS = [
     { label: 'Critical', value: 'critical' },
 ]
 
+export const ROUTE_OPTIONS = [
+    { label: 'Oral', value: 'oral' },
+    { label: 'Injection', value: 'injection' },
+    { label: 'IV', value: 'IV' },
+    { label: 'Inhalation', value: 'inhalation' },
+]
+
 export const RISK_LABELS: Record<string, string> = {
     high_risk: 'Critical',
     severe: 'High',
