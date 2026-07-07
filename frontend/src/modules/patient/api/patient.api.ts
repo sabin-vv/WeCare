@@ -101,6 +101,26 @@ export const getWallet = async (): Promise<GetWalletResponse> => {
     return response.data
 }
 
+export const createWalletTopupOrder = async (
+    amount: number,
+): Promise<{ success: boolean; data: { orderId: string; amount: number; currency: string; keyId: string } }> => {
+    const response = await api.post(`${PAYMENTS_API}/wallet-topup/order`, { amount })
+    return response.data
+}
+
+export type VerifyWalletTopupPayload = {
+    razorpayOrderId: string
+    razorpayPaymentId: string
+    razorpaySignature: string
+}
+
+export const verifyWalletTopup = async (
+    dto: VerifyWalletTopupPayload,
+): Promise<{ success: boolean; message: string; data: { balance: number } }> => {
+    const response = await api.post(`${PAYMENTS_API}/wallet-topup/verify`, dto)
+    return response.data
+}
+
 export const cancelAppointment = async (id: string, reason: string): Promise<ApiInterface> => {
     const response = await api.patch(`${APPOINTMENT_API}/${id}/cancel`, { reason })
     return response.data
