@@ -208,3 +208,138 @@
     text-align: center;
     color: #6b7280;
 }
+
+.addMoneyForm {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.amountLabel {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.amountInputWrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    height: 48px;
+    padding: 0 14px;
+    border: 1.5px solid #dbe0e6;
+    border-radius: 12px;
+    background: #f9fafb;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.amountInputWrapper:focus-within {
+    border-color: #2563eb;
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+}
+
+.currencyPrefix {
+    color: #1f2937;
+    font-size: 18px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.amountInput {
+    width: 100%;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #111827;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.amountInput::placeholder {
+    color: #9ca3af;
+}
+
+.suggestedSection {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.suggestedLabel {
+    font-size: 13px;
+    font-weight: 600;
+    color: #6b7280;
+}
+
+.suggestedGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.suggestedBtn {
+    min-width: 0;
+    padding: 11px 14px;
+    border: 1.5px solid #dbeafe;
+    border-radius: 12px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.suggestedBtn:hover:not(:disabled),
+.selectedSuggestedBtn {
+    border-color: #2563eb;
+    background: #2563eb;
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+.suggestedBtn:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.proceedBtn {
+    margin-top: 4px;
+    border-radius: 12px !important;
+}
+
+@media (max-width: 640px) {
+    .walletCard {
+        padding: 24px;
+    }
+
+    .walletBottom {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .addMoneyBtn {
+        width: 100%;
+    }
+
+    .transactionCard {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .suggestedGrid {
+        grid-template-columns: 1fr;
+    }
+}
