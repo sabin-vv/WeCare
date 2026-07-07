@@ -7,7 +7,7 @@ export interface PaymentDocument extends Document {
     appointmentId?: Types.ObjectId
     subscriptionId?: Types.ObjectId
 
-    paymentType: 'consultation' | 'subscription'
+    paymentType: 'consultation' | 'subscription' | 'wallet_topup' | 'refund'
     paymentMethod: 'razorpay' | 'wallet'
 
     consultationFee?: number
@@ -32,7 +32,7 @@ export interface CreatePaymentDTO {
     appointmentId?: string
     subscriptionId?: string
 
-    paymentType: 'consultation' | 'subscription'
+    paymentType: 'consultation' | 'subscription' | 'wallet_topup'
 
     amount: number
     platformFee: number

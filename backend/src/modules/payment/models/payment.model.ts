@@ -23,7 +23,7 @@ const paymentSchema = new Schema<PaymentDocument>(
         },
         paymentType: {
             type: String,
-            enum: ['consultation', 'subscription'],
+            enum: ['consultation', 'subscription', 'wallet_topup', 'refund'],
             required: true,
         },
         paymentMethod: {
