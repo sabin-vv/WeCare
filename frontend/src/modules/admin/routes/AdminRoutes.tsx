@@ -1,15 +1,16 @@
+import { lazy } from 'react'
 import type { RouteObject } from 'react-router-dom'
 
-import AdminLayout from '../../../layout/AdminLayout'
-import ActivityLogsPage from '../pages/ActivityLogsPage'
-import AdminAppointmentsPage from '../pages/AdminAppointmentsPage'
-import AdminDashboard from '../pages/AdminDashboard'
-import AdminLoginPage from '../pages/AdminLoginPage'
-import AdminPaymentsPage from '../pages/AdminPaymentsPage'
-import AdminSettings from '../pages/AdminSettings'
-import CaregiverVerificationPage from '../pages/CaregiverVerificationPage'
-import DoctorVerificationPage from '../pages/DoctorVerificationPage'
-import UserManagementPage from '../pages/UserManagementPage'
+const AdminLayout = lazy(() => import('../../../layout/AdminLayout'))
+const ActivityLogsPage = lazy(() => import('../pages/ActivityLogsPage'))
+const AdminAppointmentsPage = lazy(() => import('../pages/AdminAppointmentsPage'))
+const AdminDashboard = lazy(() => import('../pages/AdminDashboard'))
+const AdminLoginPage = lazy(() => import('../pages/AdminLoginPage'))
+const AdminPaymentsPage = lazy(() => import('../pages/AdminPaymentsPage'))
+const AdminSettings = lazy(() => import('../pages/AdminSettings'))
+const CaregiverVerificationPage = lazy(() => import('../pages/CaregiverVerificationPage'))
+const DoctorVerificationPage = lazy(() => import('../pages/DoctorVerificationPage'))
+const UserManagementPage = lazy(() => import('../pages/UserManagementPage'))
 
 import { Role } from '@/modules/auth/types/auth.types'
 import ProtectedRoute from '@/shared/components/ProtectedRoute/ProtectedRoute'
