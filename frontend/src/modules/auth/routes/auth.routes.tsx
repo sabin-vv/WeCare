@@ -1,12 +1,13 @@
+import { lazy } from 'react'
 import type { RouteObject } from 'react-router-dom'
 
-import CaregiverRegisterPage from '../pages/CaregiverRegisterPage'
-import DoctorRegisterPage from '../pages/DoctorRegisterPage'
-import ForgotPasswordNewPasswordPage from '../pages/ForgotPasswordNewPasswordPage'
-import ForgotPasswordOtpPage from '../pages/ForgotPasswordOtpPage'
-import ForgotPasswordPage from '../pages/ForgotPasswordPage'
-import LoginPage from '../pages/LoginPage'
-import PatientRegisterPage from '../pages/PatientRegisterPage'
+const CaregiverRegisterPage = lazy(() => import('../pages/CaregiverRegisterPage'))
+const DoctorRegisterPage = lazy(() => import('../pages/DoctorRegisterPage'))
+const ForgotPasswordNewPasswordPage = lazy(() => import('../pages/ForgotPasswordNewPasswordPage'))
+const ForgotPasswordOtpPage = lazy(() => import('../pages/ForgotPasswordOtpPage'))
+const ForgotPasswordPage = lazy(() => import('../pages/ForgotPasswordPage'))
+const LoginPage = lazy(() => import('../pages/LoginPage'))
+const PatientRegisterPage = lazy(() => import('../pages/PatientRegisterPage'))
 
 export const AuthRoutes: RouteObject[] = [
     {
