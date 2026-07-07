@@ -2,6 +2,8 @@ import styles from '../../pages/CaregiverPatients.module.css'
 import type { SymptomLogFormState, SymptomSeverity } from '../../types/caregiver.types'
 
 import Modal from '@/shared/components/Modal/Modal'
+import SelectField from '@/shared/components/SelectField/SelectField'
+import TimePicker from '@/shared/components/TimePicker/TimePicker'
 
 interface SymptomLogModalProps {
     isOpen: boolean
@@ -44,42 +46,17 @@ const SymptomLogModal = ({
         }
     >
         <div className={styles.symptomModalBody}>
-            <div className={styles.modalFieldGrid}>
-                <label className={styles.modalField}>
-                    <span className={styles.modalLabel}>Select Symptom</span>
-                    <select
-                        className={styles.modalSelect}
-                        value={formState.symptom}
-                        onChange={(e) =>
-                            setFormState((current) => ({
-                                ...current,
-                                symptom: e.target.value,
-                            }))
-                        }
-                    >
-                        {symptomOptions.map((symptom) => (
-                            <option key={symptom} value={symptom}>
-                                {symptom}
-                            </option>
-                        ))}
-                    </select>
-                </label>
-
-                <label className={styles.modalField}>
-                    <span className={styles.modalLabel}>Onset Time</span>
-                    <input
-                        type="time"
-                        className={styles.modalInput}
-                        value={formState.onsetTime}
-                        onChange={(e) =>
-                            setFormState((current) => ({
-                                ...current,
-                                onsetTime: e.target.value,
-                            }))
-                        }
-                    />
-                </label>
-            </div>
+            <SelectField
+                label="Select Symptom"
+                options={symptomOptions.map((symptom) => ({ label: symptom, value: symptom }))}
+                value={formState.symptom}
+                onChange={(e) => setFormState((current) => ({ ...current, symptom: e.target.value }))}
+            />
+            <TimePicker
+                label="Onset Time"
+                value={formState.onsetTime}
+                onChange={(value) => setFormState((current) => ({ ...current, onsetTime: value }))}
+            />
 
             <div className={styles.severitySection}>
                 <span className={styles.modalLabel}>Severity Level</span>
