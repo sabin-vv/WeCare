@@ -1,3 +1,5 @@
+import { Loader } from 'lucide-react'
+import { Suspense } from 'react'
 import { createBrowserRouter, Outlet } from 'react-router-dom'
 
 import { AdminRoutes } from './modules/admin/routes/AdminRoutes'
@@ -15,7 +17,15 @@ import ScrollToTop from './shared/components/ScrollToTop/ScrollToTop'
 const RootLayout = () => (
     <>
         <ScrollToTop />
-        <Outlet />
+        <Suspense
+            fallback={
+                <div className="suspense-loader">
+                    <Loader /> Loading...
+                </div>
+            }
+        >
+            <Outlet />
+        </Suspense>
     </>
 )
 

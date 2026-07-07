@@ -1,18 +1,20 @@
+import { lazy } from 'react'
 import type { RouteObject } from 'react-router-dom'
 
 import RequireDoctorProfile from '../components/RequireDoctorProfile/RequireDoctorProfile'
-import AlertPage from '../pages/AlertPage'
-import AvailabilityPage from '../pages/AvailabilityPage'
-import DoctorAppointmentsPage from '../pages/DoctorAppointmentsPage'
-import DoctorDashboard from '../pages/DoctorDashboard'
-import DoctorSettings from '../pages/DoctorSettings'
-import PatientList from '../pages/PatientList'
-import PatientMedicalRecordPage from '../pages/PatientMedicalRecordPage'
-import PatientViewPage from '../pages/PatientViewPage'
 
-import DoctorLayout from '@/layout/DoctorLayout'
+const AlertPage = lazy(() => import('../pages/AlertPage'))
+const AvailabilityPage = lazy(() => import('../pages/AvailabilityPage'))
+const DoctorAppointmentsPage = lazy(() => import('../pages/DoctorAppointmentsPage'))
+const DoctorDashboard = lazy(() => import('../pages/DoctorDashboard'))
+const DoctorSettings = lazy(() => import('../pages/DoctorSettings'))
+const PatientList = lazy(() => import('../pages/PatientList'))
+const PatientMedicalRecordPage = lazy(() => import('../pages/PatientMedicalRecordPage'))
+const PatientViewPage = lazy(() => import('../pages/PatientViewPage'))
+const DoctorLayout = lazy(() => import('@/layout/DoctorLayout'))
+const DoctorChatPage = lazy(() => import('@/modules/chat/pages/DoctorChatPage'))
+
 import { Role } from '@/modules/auth/types/auth.types'
-import DoctorChatPage from '@/modules/chat/pages/DoctorChatPage'
 import ProtectedRoute from '@/shared/components/ProtectedRoute/ProtectedRoute'
 
 export const DoctorRoutes: RouteObject[] = [

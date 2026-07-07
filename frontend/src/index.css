@@ -22,3 +22,12 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: #94a3b8;
 }
+
+.suspense-loader {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+}
