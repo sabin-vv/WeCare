@@ -1,5 +1,6 @@
 import crypto from 'crypto'
 import { Types } from 'mongoose'
+import Razorpay from 'razorpay'
 import { inject, injectable } from 'tsyringe'
 
 import { TOKENS } from '../../../container/tokens'
@@ -12,14 +13,17 @@ import { IDoctorRepository } from '../../doctor/interfaces/doctor.repository.int
 import { INotificationService } from '../../notification/interfaces/notification.service.interface'
 import { CreateNotificationPayload } from '../../notification/types/notification.types'
 import { IPatientRepository } from '../../patient/interfaces/patient.repository.interface'
+import { IWalletService } from '../../wallet/interfaces/wallet.service.interface'
 import { MSG } from '../constants/messages'
 import { IPaymentRepository } from '../interfaces/payment.repository.interface'
-import { IPaymentService } from '../interfaces/payment.service.interface'
+import { IPaymentService, WalletTopupOrderResult } from '../interfaces/payment.service.interface'
 import { PaymentDocument } from '../types/payment.types'
-import { VerifyPaymentDTO } from '../validator/payment.schema'
+import { CreateWalletTopupDTO, VerifyPaymentDTO, VerifyWalletTopupDTO } from '../validator/payment.schema'
 
 @injectable()
 export class PaymentService implements IPaymentService {
+    private razorpay: Razorpay
+
     constructor(
         @inject(TOKENS.IAppointmentRepository) private _appointmentRepo: IAppointmentRepository,
         @inject(TOKENS.IPaymentRepository) private _paymentRepo: IPaymentRepository,
@@ -27,7 +31,13 @@ export class PaymentService implements IPaymentService {
         @inject(TOKENS.IDoctorRepository) private _doctorRepo: IDoctorRepository,
         @inject(TOKENS.INotificationService) private _notificationService: INotificationService,
         @inject(TOKENS.IActivityLogService) private _activityLogService: IActivityLogService,
-    ) {}
+        @inject(TOKENS.IWalletService) private _walletService: IWalletService,
+    ) {
+        this.razorpay = new Razorpay({
+            key_id: env.RAZORPAY_KEY_ID,
+            key_secret: env.RAZORPAY_KEY_SECRET,
+        })
+    }
     async verifyPayment(dto: VerifyPaymentDTO): Promise<PaymentDocument> {
         const secret = env.RAZORPAY_KEY_SECRET
         const body = dto.razorpayOrderId + '|' + dto.razorpayPaymentId
@@ -133,5 +143,75 @@ export class PaymentService implements IPaymentService {
         }
 
         return updatedPayment
+    }
+
+    async createWalletTopupOrder(userId: string, dto: CreateWalletTopupDTO): Promise<WalletTopupOrderResult> {
+        const patient = await this._patientRepo.findByUserId(new Types.ObjectId(userId))
+        if (!patient) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, 'Patient not found')
+        }
+
+        const receipt = `top_${patient._id.toString().slice(-20)}_${Date.now()}`
+        const razorpayOrder = await this.razorpay.orders.create({
+            amount: dto.amount * 100,
+            currency: 'INR',
+            receipt,
+        })
+
+        const payment = await this._paymentRepo.create({
+            patientId: patient._id,
+            paymentType: 'wallet_topup',
+            paymentMethod: 'razorpay',
+            totalAmount: dto.amount,
+            razorpayOrderId: razorpayOrder.id,
+            status: 'pending',
+        })
+
+        if (!payment) {
+            throw new AppError(HTTP_STATUS.INTERNAL_SERVER_ERROR, 'Failed to create payment record')
+        }
+
+        return {
+            orderId: razorpayOrder.id,
+            amount: razorpayOrder.amount,
+            currency: razorpayOrder.currency,
+            keyId: env.RAZORPAY_KEY_ID,
+        }
+    }
+
+    async verifyWalletTopup(userId: string, dto: VerifyWalletTopupDTO): Promise<{ balance: number }> {
+        const secret = env.RAZORPAY_KEY_SECRET
+        const body = dto.razorpayOrderId + '|' + dto.razorpayPaymentId
+        const expectedSignature = crypto.createHmac('sha256', secret).update(body.toString()).digest('hex')
+
+        if (expectedSignature !== dto.razorpaySignature) {
+            throw new AppError(HTTP_STATUS.BAD_REQUEST, MSG.INVALID_SIGNATURE)
+        }
+
+        const payment = await this._paymentRepo.findByOrderId(dto.razorpayOrderId)
+        if (!payment) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, MSG.NOT_FOUND)
+        }
+
+        if (payment.status === 'success') {
+            const wallet = await this._walletService.getWallet(userId)
+            return { balance: wallet?.balance ?? 0 }
+        }
+
+        const wallet = await this._walletService.credit(
+            userId,
+            payment.totalAmount,
+            'Wallet top-up via Razorpay',
+            payment._id.toString(),
+        )
+
+        await this._paymentRepo.updateById(payment._id.toString(), {
+            status: 'success',
+            razorpayPaymentId: dto.razorpayPaymentId,
+            razorpaySignature: dto.razorpaySignature,
+            paidAt: new Date(),
+        })
+
+        return { balance: wallet.balance }
     }
 }
