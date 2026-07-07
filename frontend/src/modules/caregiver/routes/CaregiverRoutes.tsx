@@ -1,17 +1,19 @@
+import { lazy } from 'react'
 import type { RouteObject } from 'react-router-dom'
 
-import RequireCaregiverProfile from '../components/RequireCaregiverProfile/RequireCaregiverProfile'
-import CaregiverActivityLog from '../pages/CaregiverActivityLog'
-import CaregiverAlertsPage from '../pages/CaregiverAlertsPage'
-import CaregiverDashboard from '../pages/CaregiverDashboard'
-import CaregiverPatients from '../pages/CaregiverPatients'
-import CaregiverReminders from '../pages/CaregiverReminders'
-import CaregiverSettings from '../pages/CaregiverSettings'
-import PrescriptionPage from '../pages/PrescriptionPage'
+const CaregiverActivityLog = lazy(() => import('../pages/CaregiverActivityLog'))
+const CaregiverAlertsPage = lazy(() => import('../pages/CaregiverAlertsPage'))
+const CaregiverDashboard = lazy(() => import('../pages/CaregiverDashboard'))
+const CaregiverPatients = lazy(() => import('../pages/CaregiverPatients'))
+const CaregiverReminders = lazy(() => import('../pages/CaregiverReminders'))
+const CaregiverSettings = lazy(() => import('../pages/CaregiverSettings'))
+const PrescriptionPage = lazy(() => import('../pages/PrescriptionPage'))
+const CaregiverChatPage = lazy(() => import('@/modules/chat/pages/CaregiverChatPage'))
+const CaregiverLayout = lazy(() => import('@/layout/CaregiverLayout'))
 
-import CaregiverLayout from '@/layout/CaregiverLayout'
+import RequireCaregiverProfile from '../components/RequireCaregiverProfile/RequireCaregiverProfile'
+
 import { Role } from '@/modules/auth/types/auth.types'
-import CaregiverChatPage from '@/modules/chat/pages/CaregiverChatPage'
 import ProtectedRoute from '@/shared/components/ProtectedRoute/ProtectedRoute'
 
 export const CaregiverRoutes: RouteObject[] = [
