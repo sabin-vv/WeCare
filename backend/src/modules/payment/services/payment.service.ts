@@ -173,7 +173,7 @@ export class PaymentService implements IPaymentService {
 
         return {
             orderId: razorpayOrder.id,
-            amount: razorpayOrder.amount,
+            amount: Number(razorpayOrder.amount),
             currency: razorpayOrder.currency,
             keyId: env.RAZORPAY_KEY_ID,
         }
