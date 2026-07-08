@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 
 import { getPlatformSettings } from '@/modules/admin/api/admin.api'
-import type { PlatformSettings } from '@/modules/admin/interfaces/admin.interface'
+import type { PlatformSettings } from '@/modules/admin/types/admin.types'
 
 interface PlatformContextType {
     settings: PlatformSettings | null
