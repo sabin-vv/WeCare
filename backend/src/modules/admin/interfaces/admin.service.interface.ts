@@ -33,18 +33,20 @@ export interface IAdminService {
     ): Promise<AdminPaymentsResponseDTO>
     getPendingDoctors(page: number, limit: number, search: string): Promise<PendingDoctorsResponse>
     getRecentDoctorVerifications(limit: number): Promise<RecentDoctorsResponse>
-    verifyDoctor(doctorId: string, status: AdminVerificationStatus, adminId: string, reason?: string): Promise<{ message: string }>
-    verifySpecialization(
+    verifyDoctor(
         doctorId: string,
-        specIndex: number,
-        verified: boolean,
+        status: AdminVerificationStatus,
+        adminId: string,
+        reason?: string,
     ): Promise<{ message: string }>
+    verifySpecialization(doctorId: string, specIndex: number, verified: boolean): Promise<{ message: string }>
     getPendingCaregivers(page: number, limit: number, search: string): Promise<PendingCaregiversResponse>
     getRecentCaregiverVerifications(limit: number): Promise<RecentCaregiversResponse>
     verifyCaregiver(
         caregiverId: string,
         status: AdminVerificationStatus,
         adminId: string,
+        reason?: string,
     ): Promise<{ message: string }>
     getPendingCount(): Promise<PendingCountResponse>
     getPendingDoctorsCount(): Promise<{ count: number }>
@@ -54,4 +56,3 @@ export interface IAdminService {
     getPlatformSettings(): Promise<PlatformSettings>
     updatePlatformSettings(settings: Partial<PlatformSettings>): Promise<PlatformSettings>
 }
-
