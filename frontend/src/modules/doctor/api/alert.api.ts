@@ -1,11 +1,15 @@
-import type { AlertData, AlertsResponse, AcknowledgeResponse, Pagination } from '../types/doctor.types'
+import type { AlertData, AlertsResponse, AcknowledgeResponse, PaginationData } from '../types/doctor.types'
 
 import { api } from '@/services/api'
 import { ALERTS_API } from '@/shared/constants/api.constants'
 
-export const getAlerts = async (
-    filters?: { type?: string; severity?: string; status?: string; limit?: number; page?: number },
-): Promise<{ alerts: AlertData[]; pagination: Pagination }> => {
+export const getAlerts = async (filters?: {
+    type?: string
+    severity?: string
+    status?: string
+    limit?: number
+    page?: number
+}): Promise<{ alerts: AlertData[]; pagination: PaginationData }> => {
     const res = await api.get<AlertsResponse>(ALERTS_API, { params: filters })
     return res.data.data
 }
