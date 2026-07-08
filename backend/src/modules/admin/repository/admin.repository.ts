@@ -172,11 +172,7 @@ export class AdminRepository implements IAdminRepository {
         }
     }
 
-    async verifySpecialization(
-        doctorId: string,
-        specIndex: number,
-        verified: boolean,
-    ): Promise<{ message: string }> {
+    async verifySpecialization(doctorId: string, specIndex: number, verified: boolean): Promise<{ message: string }> {
         const doctor = await DoctorModel.findById(doctorId)
         if (!doctor) {
             throw new AppError(HTTP_STATUS.NOT_FOUND, 'Doctor not found')
@@ -327,8 +323,8 @@ export class AdminRepository implements IAdminRepository {
 
     async getPendingCount(): Promise<PendingCountResponse> {
         const [pendingDoctors, pendingCaregivers] = await Promise.all([
-            DoctorModel.countDocuments({ verificationStatus: 'pending' }),
-            CaregiverModel.countDocuments({ verificationStatus: 'pending' }),
+            DoctorModel.countDocuments({ verificationStatus: VerificationStatus.pending }),
+            CaregiverModel.countDocuments({ verificationStatus: VerificationStatus.pending }),
         ])
 
         return { count: pendingDoctors + pendingCaregivers }
@@ -339,7 +335,7 @@ export class AdminRepository implements IAdminRepository {
     }
 
     async getPendingCaregiversCount(): Promise<number> {
-        return CaregiverModel.countDocuments({ verificationStatus: 'pending' })
+        return CaregiverModel.countDocuments({ verificationStatus: VerificationStatus.pending })
     }
 
     async getUsers(role: string, search: string, page: number, limit: number): Promise<UsersResponse> {
@@ -391,12 +387,12 @@ export class AdminRepository implements IAdminRepository {
                             },
                         },
                         {
-                $lookup: {
-                    from: PatientModel.collection.name,
-                    localField: 'patientId',
-                    foreignField: '_id',
-                    as: 'patientProfile',
-                },
+                            $lookup: {
+                                from: PatientModel.collection.name,
+                                localField: 'patientId',
+                                foreignField: '_id',
+                                as: 'patientProfile',
+                            },
                         },
                         {
                             $addFields: {
@@ -528,87 +524,96 @@ export class AdminRepository implements IAdminRepository {
         const periodStart = startDate
             ? new Date(startDate + 'T00:00:00')
             : new Date(now.getFullYear(), now.getMonth(), 1)
-        const periodEnd = endDate
-            ? new Date(endDate + 'T23:59:59')
-            : new Date(todayEnd)
+        const periodEnd = endDate ? new Date(endDate + 'T23:59:59') : new Date(todayEnd)
 
         const pendingLimit = 5
 
-        const [appointmentAgg, revenueAgg, dailyAppointmentAgg, dailyRevenueAgg, paymentMethodAgg, recentUsersAgg, pendingDocsAgg, pendingCaregiversAgg, totalDoctors, totalCaregivers, totalPatients] =
-            await Promise.all([
-                AppointmentModel.aggregate([
-                    { $match: { appointmentDate: { $gte: periodStart, $lt: periodEnd } } },
-                    { $group: { _id: '$status', count: { $sum: 1 } } },
-                ]),
-                PaymentModel.aggregate([
-                    { $match: { status: 'success', paidAt: { $gte: periodStart, $lt: periodEnd } } },
-                    {
-                        $group: {
-                            _id: null,
-                            totalRevenue: { $sum: '$totalAmount' },
-                            platformFees: { $sum: '$platformFee' },
-                            consultationFees: { $sum: '$consultationFee' },
+        const [
+            appointmentAgg,
+            revenueAgg,
+            dailyAppointmentAgg,
+            dailyRevenueAgg,
+            paymentMethodAgg,
+            recentUsersAgg,
+            pendingDocsAgg,
+            pendingCaregiversAgg,
+            totalDoctors,
+            totalCaregivers,
+            totalPatients,
+        ] = await Promise.all([
+            AppointmentModel.aggregate([
+                { $match: { appointmentDate: { $gte: periodStart, $lt: periodEnd } } },
+                { $group: { _id: '$status', count: { $sum: 1 } } },
+            ]),
+            PaymentModel.aggregate([
+                { $match: { status: 'success', paidAt: { $gte: periodStart, $lt: periodEnd } } },
+                {
+                    $group: {
+                        _id: null,
+                        totalRevenue: { $sum: '$totalAmount' },
+                        platformFees: { $sum: '$platformFee' },
+                        consultationFees: { $sum: '$consultationFee' },
+                    },
+                },
+            ]),
+            AppointmentModel.aggregate([
+                { $match: { appointmentDate: { $gte: periodStart, $lt: periodEnd } } },
+                {
+                    $group: {
+                        _id: {
+                            $dateToString: { format: '%Y-%m-%d', date: '$appointmentDate' },
+                        },
+                        confirmed: {
+                            $sum: { $cond: [{ $eq: ['$status', 'confirmed'] }, 1, 0] },
+                        },
+                        completed: {
+                            $sum: { $cond: [{ $eq: ['$status', 'completed'] }, 1, 0] },
+                        },
+                        cancelled: {
+                            $sum: { $cond: [{ $eq: ['$status', 'cancelled'] }, 1, 0] },
+                        },
+                        missed: {
+                            $sum: { $cond: [{ $eq: ['$status', 'missed'] }, 1, 0] },
                         },
                     },
-                ]),
-                AppointmentModel.aggregate([
-                    { $match: { appointmentDate: { $gte: periodStart, $lt: periodEnd } } },
-                    {
-                        $group: {
-                            _id: {
-                                $dateToString: { format: '%Y-%m-%d', date: '$appointmentDate' },
-                            },
-                            confirmed: {
-                                $sum: { $cond: [{ $eq: ['$status', 'confirmed'] }, 1, 0] },
-                            },
-                            completed: {
-                                $sum: { $cond: [{ $eq: ['$status', 'completed'] }, 1, 0] },
-                            },
-                            cancelled: {
-                                $sum: { $cond: [{ $eq: ['$status', 'cancelled'] }, 1, 0] },
-                            },
-                            missed: {
-                                $sum: { $cond: [{ $eq: ['$status', 'missed'] }, 1, 0] },
-                            },
+                },
+                { $sort: { _id: 1 } },
+            ]),
+            PaymentModel.aggregate([
+                { $match: { status: 'success', paidAt: { $gte: periodStart, $lt: periodEnd } } },
+                {
+                    $group: {
+                        _id: {
+                            $dateToString: { format: '%Y-%m-%d', date: '$paidAt' },
                         },
+                        amount: { $sum: '$platformFee' },
                     },
-                    { $sort: { _id: 1 } },
-                ]),
-                PaymentModel.aggregate([
-                    { $match: { status: 'success', paidAt: { $gte: periodStart, $lt: periodEnd } } },
-                    {
-                        $group: {
-                            _id: {
-                                $dateToString: { format: '%Y-%m-%d', date: '$paidAt' },
-                            },
-                            amount: { $sum: '$platformFee' },
-                        },
-                    },
-                    { $sort: { _id: 1 } },
-                ]),
-                PaymentModel.aggregate([
-                    { $match: { status: 'success', paidAt: { $gte: periodStart, $lt: periodEnd } } },
-                    { $group: { _id: '$paymentMethod', count: { $sum: 1 } } },
-                ]),
-                UserModel.find({ role: { $in: ['doctor', 'caregiver', 'patient'] } })
-                    .sort({ createdAt: -1 })
-                    .limit(limit)
-                    .select('name email role createdAt')
-                    .lean(),
-                DoctorModel.find({ verificationStatus: 'pending' })
-                    .populate({ path: 'userId', select: 'name email profileImage' })
-                    .sort({ createdAt: -1 })
-                    .limit(pendingLimit)
-                    .lean(),
-                CaregiverModel.find({ verificationStatus: 'pending' })
-                    .populate({ path: 'userId', select: 'name email profileImage' })
-                    .sort({ createdAt: -1 })
-                    .limit(pendingLimit)
-                    .lean(),
-                UserModel.countDocuments({ role: 'doctor' }),
-                UserModel.countDocuments({ role: 'caregiver' }),
-                UserModel.countDocuments({ role: 'patient' }),
-            ])
+                },
+                { $sort: { _id: 1 } },
+            ]),
+            PaymentModel.aggregate([
+                { $match: { status: 'success', paidAt: { $gte: periodStart, $lt: periodEnd } } },
+                { $group: { _id: '$paymentMethod', count: { $sum: 1 } } },
+            ]),
+            UserModel.find({ role: { $in: [UserRole.DOCTOR, UserRole.CAREGIVER, UserRole.PATIENT] } })
+                .sort({ createdAt: -1 })
+                .limit(limit)
+                .select('name email role createdAt')
+                .lean(),
+            DoctorModel.find({ verificationStatus: 'pending' })
+                .populate({ path: 'userId', select: 'name email profileImage' })
+                .sort({ createdAt: -1 })
+                .limit(pendingLimit)
+                .lean(),
+            CaregiverModel.find({ verificationStatus: VerificationStatus.pending })
+                .populate({ path: 'userId', select: 'name email profileImage' })
+                .sort({ createdAt: -1 })
+                .limit(pendingLimit)
+                .lean(),
+            UserModel.countDocuments({ role: UserRole.DOCTOR }),
+            UserModel.countDocuments({ role: UserRole.CAREGIVER }),
+            UserModel.countDocuments({ role: UserRole.PATIENT }),
+        ])
 
         const todayAppointments = await AppointmentModel.aggregate([
             { $match: { appointmentDate: { $gte: todayStart, $lt: todayEnd } } },
@@ -702,7 +707,9 @@ export class AdminRepository implements IAdminRepository {
             paymentMethods: paymentMethods as RevenueStats['paymentMethods'],
         }
 
-        const pendingDocs: PendingVerificationUser[] = (pendingDocsAgg as unknown as Array<Record<string, unknown>>).map((d) => {
+        const pendingDocs: PendingVerificationUser[] = (
+            pendingDocsAgg as unknown as Array<Record<string, unknown>>
+        ).map((d) => {
             const userId = d.userId as Record<string, unknown> | undefined
             return {
                 _id: String(d._id),
@@ -710,11 +717,18 @@ export class AdminRepository implements IAdminRepository {
                 email: (userId?.email as string) || '',
                 profileImage: (userId?.profileImage as string) || undefined,
                 role: 'doctor' as const,
-                createdAt: typeof d.createdAt === 'string' ? d.createdAt : d.createdAt instanceof Date ? d.createdAt.toISOString() : String(d.createdAt),
+                createdAt:
+                    typeof d.createdAt === 'string'
+                        ? d.createdAt
+                        : d.createdAt instanceof Date
+                          ? d.createdAt.toISOString()
+                          : String(d.createdAt),
             }
         })
 
-        const pendingCaregivers: PendingVerificationUser[] = (pendingCaregiversAgg as unknown as Array<Record<string, unknown>>).map((c) => {
+        const pendingCaregivers: PendingVerificationUser[] = (
+            pendingCaregiversAgg as unknown as Array<Record<string, unknown>>
+        ).map((c) => {
             const userId = c.userId as Record<string, unknown> | undefined
             return {
                 _id: String(c._id),
@@ -722,7 +736,12 @@ export class AdminRepository implements IAdminRepository {
                 email: (userId?.email as string) || '',
                 profileImage: (userId?.profileImage as string) || undefined,
                 role: 'caregiver' as const,
-                createdAt: typeof c.createdAt === 'string' ? c.createdAt : c.createdAt instanceof Date ? c.createdAt.toISOString() : String(c.createdAt),
+                createdAt:
+                    typeof c.createdAt === 'string'
+                        ? c.createdAt
+                        : c.createdAt instanceof Date
+                          ? c.createdAt.toISOString()
+                          : String(c.createdAt),
             }
         })
 
@@ -730,7 +749,15 @@ export class AdminRepository implements IAdminRepository {
             .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
             .slice(0, pendingLimit)
 
-        return { appointmentStats, revenueStats, recentUsers, pendingVerifications: mergedPending, totalDoctors, totalCaregivers, totalPatients }
+        return {
+            appointmentStats,
+            revenueStats,
+            recentUsers,
+            pendingVerifications: mergedPending,
+            totalDoctors,
+            totalCaregivers,
+            totalPatients,
+        }
     }
 
     async getAdminAppointments(
