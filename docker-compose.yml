@@ -1,0 +1,26 @@
+services:
+    backend:
+        build:
+            context: ./backend
+        ports:
+            - '5000:5000'
+        env_file:
+            - ./backend/.env
+        depends_on:
+            - redis
+        restart: unless-stopped
+
+        healthcheck:
+            test: ['CMD', 'wget', '--spider', '-q', 'http://localhost:5000/health']
+            interval: 30s
+            timeout: 10s
+            retries: 3
+
+    redis:
+        image: redis:7-alpine
+        restart: unless-stopped
+        volumes:
+            - redis-data:/data
+
+volumes:
+    redis-data:
