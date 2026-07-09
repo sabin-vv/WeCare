@@ -91,6 +91,12 @@ app.use('/api/video-call', createVideoCallRoutes())
 
 app.use('/api/chat', createChatRoutes())
 
+app.get('/health', (_, res) => {
+    res.status(200).json({
+        status: 'OK',
+    })
+})
+
 app.use(errorMiddleware)
 
 export default app
