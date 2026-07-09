@@ -33,7 +33,7 @@ const app = express()
 
 app.use(
     cors({
-        origin: ['http://localhost:5173', 'https://wecarehealth.online'],
+        origin: ['http://localhost:5173', 'https://wecarehealth.online', 'https://www.wecarehealth.online'],
         credentials: true,
     }),
 )
