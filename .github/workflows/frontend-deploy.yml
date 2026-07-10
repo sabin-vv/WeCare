@@ -6,6 +6,9 @@ on:
             - main
         paths:
             - 'frontend/**'
+concurrency:
+    group: frontend-deploy
+    cancel-in-progress: true
 
 jobs:
     deploy:
@@ -29,16 +32,16 @@ jobs:
             - name: Install Dependencies
               run: npm ci
 
-            - name: Create .env
-              working-directory: frontend
-              run: |
-                  echo "VITE_API_URL=${{secrets.VITE_API_URL}}" > .env
-
             - name: Build React App
               working-directory: frontend
               run: npm run build
               env:
                   VITE_API_URL: ${{secrets.VITE_API_URL}}
+                  VITE_S3_BASE_URL: ${{secrets.VITE_S3_BASE_URL}}
+                  VITE_RAZORPAY_KEY_ID: ${{secrets.VITE_RAZORPAY_KEY_ID}}
+                  VITE_CONDITIONS_API_URL: ${{secrets.VITE_CONDITIONS_API_URL}}
+                  VITE_MEDICINE_API_URL: ${{secrets.VITE_MEDICINE_API_URL}}
+                  VITE_LIVEKIT_URL: ${{secrets.VITE_LIVEKIT_URL}}
 
             - name: Configure AWS Credentials
               uses: aws-actions/configure-aws-credentials@v4
