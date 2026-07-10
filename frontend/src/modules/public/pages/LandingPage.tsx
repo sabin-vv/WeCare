@@ -7,6 +7,7 @@ import Button from '@/shared/components/Button/Button'
 const LandingPage = () => {
     const navigate = useNavigate()
 
+    console.log('CI CD test')
     return (
         <div className={styles.landingContainer}>
             <section className={styles.heroSection}>
