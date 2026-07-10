@@ -9,10 +9,14 @@ interface CustomInternalAxiosRequestConfig extends InternalAxiosRequestConfig {
     _retry?: boolean
 }
 
+console.log('VITE_API_URL =', import.meta.env.VITE_API_URL)
+
 export const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL,
     withCredentials: true,
 })
+
+console.log('Axios baseURL =', api.defaults.baseURL)
 
 interface FailedRequest {
     resolve: () => void
