@@ -7,6 +7,8 @@ import Button from '@/shared/components/Button/Button'
 const LandingPage = () => {
     const navigate = useNavigate()
 
+    console.log('TEST DEPLOY')
+
     return (
         <div className={styles.landingContainer}>
             <section className={styles.heroSection}>
