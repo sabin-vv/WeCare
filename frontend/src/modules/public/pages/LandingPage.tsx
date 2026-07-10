@@ -9,6 +9,7 @@ const LandingPage = () => {
 
     return (
         <div className={styles.landingContainer}>
+            <h1>TeSt Deploy</h1>
             <section className={styles.heroSection}>
                 <div className={styles.heroInner}>
                     <h1 className={styles.heroTitle}>
