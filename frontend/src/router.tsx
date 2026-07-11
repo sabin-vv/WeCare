@@ -3,7 +3,7 @@ import { Suspense } from 'react'
 import { createBrowserRouter, Outlet } from 'react-router-dom'
 
 import { AdminRoutes } from './modules/admin/routes/AdminRoutes'
-import { AuthRoutes } from './modules/auth/routes/auth.routes'
+import { AuthRoutes } from './modules/auth/routes/authRoutes'
 import { Role } from './modules/auth/types/auth.types'
 import { CaregiverRoutes } from './modules/caregiver/routes/CaregiverRoutes'
 import { DoctorRoutes } from './modules/doctor/routes/DoctorRoutes'

@@ -28,7 +28,7 @@ import Button from '@/shared/components/Button/Button'
 import Pagination from '@/shared/components/Pagination/Pagination'
 import { Section } from '@/shared/components/Section/Section'
 import DataTable from '@/shared/components/Table/DataTable'
-import type { Column } from '@/shared/components/Table/dataTable.types'
+import type { Column } from '@/shared/components/Table/DataTable.types'
 import { DEFAULT_PAGINATION } from '@/shared/constants/pagination.constants'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 

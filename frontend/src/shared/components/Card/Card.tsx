@@ -1,5 +1,5 @@
 import styles from './Card.module.css'
-import type { CardProps } from './Card.type'
+import type { CardProps } from './Card.types'
 
 const Card = ({ title, description, children, required }: CardProps) => {
     return (

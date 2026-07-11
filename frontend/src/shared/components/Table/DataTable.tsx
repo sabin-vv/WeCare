@@ -2,7 +2,7 @@ import { memo } from 'react'
 import type { ReactNode } from 'react'
 
 import styles from './DataTable.module.css'
-import type { TableProps } from './dataTable.types'
+import type { TableProps } from './DataTable.types'
 
 const DataTable = <T,>({ data, columns, keyExtractor, isLoading, children }: TableProps<T>) => {
     return (

@@ -5,7 +5,7 @@ import toast from 'react-hot-toast'
 import { getCurrentUser } from '../../auth/api/auth.api'
 import { getDoctorProfile } from '../api/doctor.api'
 import Dashboard from '../components/Dashboard/Dashboard'
-import DoctorDetailsForm from '../form/DoctorDetailesForm'
+import DoctorDetailsForm from '../form/DoctorDetailsForm'
 import type { DoctorDocuments, Specialization } from '../types/doctor.types'
 
 import styles from './DoctorDashboard.module.css'

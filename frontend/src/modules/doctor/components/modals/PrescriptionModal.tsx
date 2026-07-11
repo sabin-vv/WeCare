@@ -1,4 +1,4 @@
-import { ADMINISTRATION_ROUTE, DURATION, FREQUENCY, MEDICAL_PRIORITY } from '../../constants/prescriptions.Constants'
+import { ADMINISTRATION_ROUTE, DURATION, FREQUENCY, MEDICAL_PRIORITY } from '../../constants/prescriptions.constants'
 import type { SelectedMedication } from '../../types/doctor.types'
 import styles from '../viewPatient/MedicationTable.module.css'
 
@@ -72,7 +72,12 @@ const PrescriptionModal = ({
                 <button
                     className={styles.addPrescriptionBtn}
                     onClick={onSave}
-                    disabled={selectedMedications.length === 0 || isSaving || !hasValidScheduleTimes || (isEditMode && !hasChanges)}
+                    disabled={
+                        selectedMedications.length === 0 ||
+                        isSaving ||
+                        !hasValidScheduleTimes ||
+                        (isEditMode && !hasChanges)
+                    }
                     type="button"
                 >
                     {isSaving ? 'Saving...' : isEditMode ? 'Update Prescription' : 'Add Prescription'}
@@ -170,7 +175,9 @@ const PrescriptionModal = ({
                                         <SelectField
                                             options={DURATION}
                                             value={medication.durationUnit}
-                                            onChange={(e) => onUpdateField(medication.id, 'durationUnit', e.target.value)}
+                                            onChange={(e) =>
+                                                onUpdateField(medication.id, 'durationUnit', e.target.value)
+                                            }
                                         />
                                     </div>
                                 </div>
@@ -200,7 +207,9 @@ const PrescriptionModal = ({
                                         <div key={time.id}>
                                             <TimePicker
                                                 value={time.time}
-                                                onChange={(newValue) => onUpdateScheduleTime(medication.id, time.id, newValue)}
+                                                onChange={(newValue) =>
+                                                    onUpdateScheduleTime(medication.id, time.id, newValue)
+                                                }
                                             />
                                         </div>
                                     ))}
