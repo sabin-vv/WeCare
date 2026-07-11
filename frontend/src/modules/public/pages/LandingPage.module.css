@@ -1,33 +1,33 @@
 .landingContainer {
     font-family: 'Inter', sans-serif;
     color: #1a202c;
-    background-color: #f7f9fc;
     min-height: 100vh;
 }
 
+.landingWrapper {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
 .heroSection {
-    padding: 2rem 2rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #f7f9fc;
+    padding: 2rem 0 3rem;
 }
 
 .heroInner {
-    border-radius: 4px;
-    padding: 3rem 2rem;
     max-width: 1000px;
-    width: 100%;
+    margin: 0 auto;
     text-align: center;
 }
 
 .heroTitle {
     font-family: 'Playfair Display', serif;
-    font-size: 2.8rem;
+    font-size: clamp(2.8rem, 5vw, 4.2rem);
     font-weight: 700;
+    line-height: 1.15;
+    color: #1f2937;
     margin-bottom: 1rem;
-    color: #1a202c;
-    line-height: 1.2;
+    letter-spacing: -0.03em;
 }
 
 .highlightText {
@@ -35,134 +35,259 @@
 }
 
 .heroSubtitle {
-    font-size: 1rem;
-    color: #4a5568;
-    max-width: 580px;
-    margin: 0 auto 2.5rem;
-    line-height: 1.6;
+    max-width: 680px;
+    margin: 0 auto 2rem;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #64748b;
 }
 
 .buttonGroup {
-    display: flex;
-
     justify-content: center;
-
     margin-bottom: 3.5rem;
+    display: flex;
 }
+
 .buttonGroup button {
-    width: fit-content;
-    padding: 0 40px;
+    padding: 0 36px;
 }
 
-.heroCards {
+.roleCards {
+    max-width: 820px;
+    margin: 0 auto;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
-    text-align: left;
 }
 
-.heroCard {
-    background: white;
-    border-radius: 12px;
-    padding: 1.75rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease;
+.roleCard {
+    background: #fff;
+    border: 1px solid #e7eef5;
+    border-radius: 20px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
 }
 
-.heroCard:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-}
-
-.cardIcon {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-}
-
-.heroCard h3 {
-    font-size: 1.1rem;
+.roleCardHeader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
     margin-bottom: 0.75rem;
-    color: #1a202c;
-    font-weight: 600;
 }
 
-.heroCard p {
-    font-size: 0.9rem;
-    color: #718096;
-    line-height: 1.5;
+.roleCard:hover {
+    transform: translateY(-6px);
+    border-color: #2e9b76;
+    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
 }
 
-.worksSection {
-    background-color: #f7f9fc;
-    padding: 2rem 2rem;
+.roleIcon {
+    width: 54px;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    background: rgba(46, 155, 118, 0.1);
+    color: #2e9b76;
+    flex-shrink: 0;
+}
+
+.roleCard h3 {
+    font-size: 1.15rem;
+    color: #1f2937;
+    font-weight: 700;
+    margin: 0;
+}
+
+.roleCard p {
+    color: #64748b;
+    line-height: 1.7;
+    font-size: 0.88rem;
+    margin: 0;
+}
+
+.ecgLine {
+    display: block;
+    width: 100%;
+    max-width: 300px;
+    height: 28px;
+    margin: 0 auto 1.5rem;
+}
+
+.sectionTitle {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    color: #1f2937;
+    text-align: center;
+    margin-bottom: 0.75rem;
+}
+
+.sectionSubtitle {
+    max-width: 620px;
+    margin: 0 auto 3.5rem;
+    text-align: center;
+    color: #64748b;
+    font-size: 1.05rem;
+    line-height: 1.8;
+}
+
+.featuresSection {
+    padding: 3rem 0;
     text-align: center;
 }
 
-.worksTitle {
-    font-family: 'Playfair Display', serif;
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: #1a202c;
-    margin-bottom: 4rem;
+.featuresGrid {
+    max-width: 960px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.featureCard {
+    background: #fff;
+    border: 1px solid #e8edf5;
+    border-radius: 20px;
+    padding: 2rem;
+    transition: all 0.3s ease;
+}
+
+.featureCardHeader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.featureCard:hover {
+    transform: translateY(-8px);
+    border-color: #2e9b76;
+    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
+}
+
+.featureIconBox {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    background: rgba(46, 155, 118, 0.1);
+    color: #2e9b76;
+    flex-shrink: 0;
+}
+
+.featureCard h3 {
+    font-size: 1.1rem;
+    color: #1f2937;
+    font-weight: 600;
+    margin: 0;
+}
+
+.featureCard p {
+    color: #64748b;
+    line-height: 1.7;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.worksSection {
+    padding: 3rem 0;
+    text-align: center;
 }
 
 .worksGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1.5rem;
-    max-width: 1100px;
+    max-width: 1200px;
     margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
 }
 
 .worksCard {
-    background: white;
-    border-radius: 12px;
-    padding: 2.5rem 1.5rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-    transition: transform 0.2s ease;
+    position: relative;
+    background: #fff;
+    border: 1px solid #e8edf5;
+    border-radius: 20px;
+    padding: 2.25rem 1.75rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    overflow: hidden;
 }
 
 .worksCard:hover {
-    transform: translateY(-4px);
+    transform: translateY(-8px);
+    border-color: #2e9b76;
+    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
 }
 
 .worksNumber {
-    font-size: 1.5rem;
-    font-weight: 500;
+    position: absolute;
+    top: 12px;
+    right: 18px;
+    font-size: 4rem;
+    font-weight: 800;
+    color: rgba(46, 155, 118, 0.08);
+    line-height: 1;
+    user-select: none;
+}
+
+.worksIcon {
+    width: 68px;
+    height: 68px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    border-radius: 50%;
+    background: rgba(46, 155, 118, 0.1);
     color: #2e9b76;
-    margin-bottom: 1.5rem;
 }
 
 .worksCard h4 {
-    font-size: 1.05rem;
-    color: #1a202c;
-    margin-bottom: 1rem;
-    font-weight: 600;
+    margin-bottom: 0.75rem;
+    font-size: 1.1rem;
+    color: #1f2937;
+    font-weight: 700;
 }
 
 .worksCard p {
-    font-size: 0.85rem;
-    color: #718096;
-    line-height: 1.5;
+    color: #64748b;
+    line-height: 1.7;
+    font-size: 0.9rem;
+    margin: 0;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
+    .roleCards,
+    .featuresGrid,
+    .worksGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .heroSection,
+    .featuresSection,
+    .worksSection {
+        padding: 2rem 0;
+    }
+
+    .roleCards,
+    .featuresGrid,
+    .worksGrid {
+        grid-template-columns: 1fr;
+    }
+
     .heroTitle {
-        font-size: 2.2rem;
+        font-size: 2.4rem;
     }
 
-    .heroInner {
-        padding: 2rem 1rem;
-    }
-
-    .buttonGroup {
-        flex-direction: column;
-        width: 100%;
-    }
-
-    .btnPrimary {
-        width: 100%;
+    .heroSubtitle {
+        font-size: 1rem;
     }
 }
