@@ -7,13 +7,16 @@ import type {
     PresignUploadParams,
     PresignUploadResponse,
 } from './auth.api.types'
+import { AUTH_ENDPOINTS } from './auth.endpoints'
 
+import { CAREGIVER_ENDPOINTS } from '@/modules/caregiver/api/caregiver.endpoints'
+import { PATIENT_ENDPOINTS } from '@/modules/patient/api/patient.endpoints'
 import { api } from '@/services/api'
-import { AUTH_API, CAREGIVERS_API, PATIENTS_API, UPLOADS_API } from '@/shared/constants/api.constants'
+import { UPLOADS_API } from '@/shared/constants/api.constants'
 import type { PatientRegister } from '@/shared/types/model.types'
 
 export const sendOtp = async (email: string, purpose: string): Promise<ApiInterface> => {
-    const res = await api.post(`${AUTH_API}/send-otp`, {
+    const res = await api.post(AUTH_ENDPOINTS.SEND_OTP, {
         email,
         purpose,
     })
@@ -22,7 +25,7 @@ export const sendOtp = async (email: string, purpose: string): Promise<ApiInterf
 }
 
 export const verifyOtp = async (email: string, otp: string): Promise<ApiInterface> => {
-    const res = await api.post(`${AUTH_API}/verify-otp`, {
+    const res = await api.post(AUTH_ENDPOINTS.VERIFY_OTP, {
         email,
         otp,
     })
@@ -30,26 +33,26 @@ export const verifyOtp = async (email: string, otp: string): Promise<ApiInterfac
 }
 
 export const register = async (data: RegisterFormData, role: Role): Promise<ApiInterface> => {
-    const res = await api.post(`${AUTH_API}/register`, { ...data, role })
+    const res = await api.post(AUTH_ENDPOINTS.REGISTER, { ...data, role })
     return res.data
 }
 export const patientRegister = async (data: PatientRegister): Promise<ApiInterface> => {
-    const res = await api.post(`${PATIENTS_API}/register`, data)
+    const res = await api.post(PATIENT_ENDPOINTS.REGISTER, data)
     return res.data
 }
 
 export const caregiverRegister = async (formData: FormData): Promise<ApiInterface> => {
-    const res = await api.post(`${CAREGIVERS_API}/register`, formData)
+    const res = await api.post(CAREGIVER_ENDPOINTS.REGISTER, formData)
     return res.data
 }
 
 export const loginUser = async (email: string, password: string, role: string): Promise<LoginUser> => {
-    const res = await api.post(`${AUTH_API}/login`, { email, password, role })
+    const res = await api.post(AUTH_ENDPOINTS.LOGIN, { email, password, role })
     return res.data
 }
 
 export const logout = async (): Promise<ApiInterface> => {
-    const res = await api.post(`${AUTH_API}/logout`)
+    const res = await api.post(AUTH_ENDPOINTS.LOGOUT)
     return res.data
 }
 
@@ -73,7 +76,7 @@ export const uploadToS3 = async (uploadUrl: string, file: File): Promise<void> =
 }
 
 export const resetPassword = async (email: string, newPassword: string): Promise<ApiInterface> => {
-    const res = await api.post(`${AUTH_API}/reset-password`, {
+    const res = await api.post(AUTH_ENDPOINTS.RESET_PASSWORD, {
         email,
         newPassword,
     })
@@ -81,17 +84,17 @@ export const resetPassword = async (email: string, newPassword: string): Promise
 }
 
 export const refreshToken = async (): Promise<ApiInterface> => {
-    const res = await api.post(`${AUTH_API}/refresh-token`)
+    const res = await api.post(AUTH_ENDPOINTS.REFRESH_TOKEN)
     return res.data
 }
 
 export const getCurrentUser = async (): Promise<GetCurrentUser> => {
-    const res = await api.get(`${AUTH_API}/me`)
+    const res = await api.get(AUTH_ENDPOINTS.ME)
     return res.data
 }
 
 export const changePassword = async (currentPassword: string, newPassword: string): Promise<ApiInterface> => {
-    const res = await api.post(`${AUTH_API}/change-password`, {
+    const res = await api.post(AUTH_ENDPOINTS.CHANGE_PASSWORD, {
         currentPassword,
         newPassword,
     })

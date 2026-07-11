@@ -1,5 +1,6 @@
+import { VIDEO_CALL_ENDPOINTS } from './videoCall.endpoints'
+
 import { api } from '@/services/api'
-import { VIDEO_CALL_API } from '@/shared/constants/api.constants'
 
 export interface CreateRoomResponse {
     roomName: string
@@ -12,28 +13,28 @@ export interface TokenResponse {
 }
 
 export const createRoom = async (appointmentId: string): Promise<CreateRoomResponse> => {
-    const res = await api.post<{ success: boolean; data: CreateRoomResponse }>(`${VIDEO_CALL_API}/room`, {
+    const res = await api.post<{ success: boolean; data: CreateRoomResponse }>(VIDEO_CALL_ENDPOINTS.ROOM, {
         appointmentId,
     })
     return res.data.data
 }
 
 export const getToken = async (roomName: string): Promise<TokenResponse> => {
-    const res = await api.get<{ success: boolean; data: TokenResponse }>(`${VIDEO_CALL_API}/token/${roomName}`)
+    const res = await api.get<{ success: boolean; data: TokenResponse }>(VIDEO_CALL_ENDPOINTS.TOKEN(roomName))
     return res.data.data
 }
 
 export const getRoomByAppointment = async (appointmentId: string): Promise<CreateRoomResponse> => {
     const res = await api.get<{ success: boolean; data: CreateRoomResponse }>(
-        `${VIDEO_CALL_API}/room/appointment/${appointmentId}`,
+        VIDEO_CALL_ENDPOINTS.ROOM_BY_APPOINTMENT(appointmentId),
     )
     return res.data.data
 }
 
 export const endRoom = async (roomName: string): Promise<void> => {
-    await api.post(`${VIDEO_CALL_API}/room/${roomName}/end`)
+    await api.post(VIDEO_CALL_ENDPOINTS.ROOM_END(roomName))
 }
 
 export const completeRoom = async (roomName: string): Promise<void> => {
-    await api.post(`${VIDEO_CALL_API}/room/${roomName}/complete`)
+    await api.post(VIDEO_CALL_ENDPOINTS.ROOM_COMPLETE(roomName))
 }

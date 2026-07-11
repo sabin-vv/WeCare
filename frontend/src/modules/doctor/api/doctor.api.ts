@@ -22,40 +22,40 @@ import type {
     MedicalRecordData,
 } from '../types/doctor.types'
 
+import {
+    DOCTOR_ENDPOINTS,
+    DOCTOR_PATIENT_ENDPOINTS,
+    DOCTOR_PRESCRIPTION_ENDPOINTS,
+    DOCTOR_VITAL_ENDPOINTS,
+    DOCTOR_CAREGIVER_ENDPOINTS,
+    DOCTOR_MEDICAL_RECORD_ENDPOINTS,
+} from './doctor.endpoints'
+
 import type { ApiInterface } from '@/modules/auth/api/auth.api.types'
 import { api } from '@/services/api'
-import {
-    APPOINTMENT_API,
-    DOCTORS_API,
-    PATIENTS_API,
-    PRESCRIPTIONS_API,
-    VITALS_API,
-    CAREGIVERS_API,
-    MEDICAL_RECORDS_API,
-} from '@/shared/constants/api.constants'
 
 export const updateProfile = async (data: FormData, hasExistingProfile = false): Promise<ApiInterface> => {
     const res = hasExistingProfile
-        ? await api.put(`${DOCTORS_API}/me`, data)
-        : await api.post(`${DOCTORS_API}/profile`, data)
+        ? await api.put(DOCTOR_ENDPOINTS.PROFILE, data)
+        : await api.post(DOCTOR_ENDPOINTS.PROFILE_CREATE, data)
 
     return res.data
 }
 
 export const getDoctorProfile = async (): Promise<DoctorProfile> => {
-    const res = await api.get<DoctorProfileResponse>(`${DOCTORS_API}/me`)
+    const res = await api.get<DoctorProfileResponse>(DOCTOR_ENDPOINTS.PROFILE)
 
     return res.data.data
 }
 
 export const updateDoctorProfile = async (data: UpdateDoctorProfileData): Promise<DoctorProfile> => {
-    const res = await api.put<DoctorProfileResponse>(`${DOCTORS_API}/me`, data)
+    const res = await api.put<DoctorProfileResponse>(DOCTOR_ENDPOINTS.PROFILE, data)
 
     return res.data.data
 }
 
 export const updateDoctorActiveStatus = async (isActive: boolean): Promise<DoctorProfile> => {
-    const res = await api.patch<DoctorProfileResponse>(`${DOCTORS_API}/active-status`, { isActive })
+    const res = await api.patch<DoctorProfileResponse>(DOCTOR_ENDPOINTS.ACTIVE_STATUS, { isActive })
 
     return res.data.data
 }
@@ -65,12 +65,12 @@ const unwrapDoctorAvailability = (payload: DoctorAvailability | DoctorAvailabili
 }
 
 export const getDoctorAvailability = async (): Promise<DoctorAvailability> => {
-    const res = await api.get<DoctorAvailability | DoctorAvailabilityResponse>(`${DOCTORS_API}/availability`)
+    const res = await api.get<DoctorAvailability | DoctorAvailabilityResponse>(DOCTOR_ENDPOINTS.AVAILABILITY)
     return unwrapDoctorAvailability(res.data)
 }
 
 export const updateDoctorAvailability = async (data: DoctorAvailability): Promise<DoctorAvailabilityUpdateResult> => {
-    const res = await api.put<DoctorAvailabilityUpdateResponse>(`${DOCTORS_API}/availability`, data)
+    const res = await api.put<DoctorAvailabilityUpdateResponse>(DOCTOR_ENDPOINTS.AVAILABILITY, data)
     return res.data.data
 }
 
@@ -81,7 +81,7 @@ export const listPatients = async (
     page: number,
     limit: number,
 ): Promise<ListPatientsResponse> => {
-    const res = await api.get(`${PATIENTS_API}/`, {
+    const res = await api.get(DOCTOR_PATIENT_ENDPOINTS.LIST, {
         params: {
             search,
             clinicalStatus,
@@ -100,7 +100,7 @@ export const getDoctorAppointments = async (
     limit: number,
     date?: string,
 ): Promise<DoctorAppointmentsResponse> => {
-    const res = await api.get<{ data: DoctorAppointmentsResponse }>(`${APPOINTMENT_API}/doctor`, {
+    const res = await api.get<{ data: DoctorAppointmentsResponse }>(DOCTOR_ENDPOINTS.APPOINTMENTS, {
         params: {
             search,
             page,
@@ -113,31 +113,31 @@ export const getDoctorAppointments = async (
 }
 
 export const getPatientById = async (patientId: string): Promise<PatientDetails> => {
-    const res = await api.get<PatientDetailsResponse>(`${PATIENTS_API}/${patientId}`)
+    const res = await api.get<PatientDetailsResponse>(DOCTOR_PATIENT_ENDPOINTS.BY_ID(patientId))
 
     return res.data.data
 }
 
 export const getDashboardStats = async (): Promise<DashboardStats> => {
-    const res = await api.get<DashboardStatsResponse>(`${DOCTORS_API}/dashboard`)
+    const res = await api.get<DashboardStatsResponse>(DOCTOR_ENDPOINTS.DASHBOARD)
     return res.data.data
 }
 
 export const getAppointmentStats = async (startDate: string, endDate: string): Promise<AppointmentStats> => {
-    const res = await api.get<{ success: boolean; data: AppointmentStats }>(`${DOCTORS_API}/appointment-stats`, {
+    const res = await api.get<{ success: boolean; data: AppointmentStats }>(DOCTOR_ENDPOINTS.APPOINTMENT_STATS, {
         params: { startDate, endDate },
     })
     return res.data.data
 }
 
 export const startConsultation = async (patientId: string): Promise<{ appointmentId: string }> => {
-    const res = await api.put(`${DOCTORS_API}${PATIENTS_API}/${patientId}/start-consultation`)
+    const res = await api.put(DOCTOR_PATIENT_ENDPOINTS.START_CONSULTATION(patientId))
 
     return res.data.data
 }
 
 export const completeConsultation = async (patientId: string): Promise<ApiInterface> => {
-    const res = await api.put(`${DOCTORS_API}${PATIENTS_API}/${patientId}/complete-consultation`)
+    const res = await api.put(DOCTOR_PATIENT_ENDPOINTS.COMPLETE_CONSULTATION(patientId))
 
     return res.data
 }
@@ -146,7 +146,7 @@ export const updatePatientCondition = async (
     patientId: string,
     data: UpdatePatientConditionPayload,
 ): Promise<PatientDetails> => {
-    const res = await api.patch<PatientDetailsResponse>(`${PATIENTS_API}/${patientId}/condition`, data)
+    const res = await api.patch<PatientDetailsResponse>(DOCTOR_PATIENT_ENDPOINTS.CONDITION(patientId), data)
 
     return res.data.data
 }
@@ -155,7 +155,7 @@ export const addPrescription = async (
     patientId: string,
     data: AddPrescriptionPayload,
 ): Promise<PatientPrescription> => {
-    const res = await api.post(`${PRESCRIPTIONS_API}`, {
+    const res = await api.post(DOCTOR_PRESCRIPTION_ENDPOINTS.CREATE, {
         ...data,
         patientId,
     })
@@ -164,7 +164,7 @@ export const addPrescription = async (
 }
 
 export const updatePrescriptionStatus = async (prescriptionId: string, status: string): Promise<void> => {
-    await api.patch(`${PRESCRIPTIONS_API}/${prescriptionId}/status`, { status })
+    await api.patch(DOCTOR_PRESCRIPTION_ENDPOINTS.STATUS(prescriptionId), { status })
 }
 
 export const getPatientPrescriptions = async (
@@ -172,7 +172,7 @@ export const getPatientPrescriptions = async (
     page: number,
     limit: number,
 ): Promise<PaginatedPrescriptionsResponse> => {
-    const res = await api.get<PaginatedPrescriptionsResponse>(`${PRESCRIPTIONS_API}/patient/${patientId}`, {
+    const res = await api.get<PaginatedPrescriptionsResponse>(DOCTOR_PRESCRIPTION_ENDPOINTS.BY_PATIENT(patientId), {
         params: { page, limit },
     })
 
@@ -180,14 +180,14 @@ export const getPatientPrescriptions = async (
 }
 
 export const createVitalPlan = async (patientId: string, data: AddVitalPlanPayload): Promise<void> => {
-    await api.post(`${VITALS_API}/plans`, {
+    await api.post(DOCTOR_VITAL_ENDPOINTS.PLANS, {
         ...data,
         patientId,
     })
 }
 
 export const getPatientVitalPlans = async (patientId: string, status = 'active'): Promise<PatientVitalPlan[]> => {
-    const res = await api.get<{ data: PatientVitalPlan[] }>(`${VITALS_API}/plans/patient/${patientId}`, {
+    const res = await api.get<{ data: PatientVitalPlan[] }>(DOCTOR_VITAL_ENDPOINTS.PLANS_BY_PATIENT(patientId), {
         params: { status },
     })
 
@@ -195,17 +195,17 @@ export const getPatientVitalPlans = async (patientId: string, status = 'active')
 }
 
 export const cancelPatientVitalPlan = async (planId: string): Promise<void> => {
-    await api.patch(`${VITALS_API}/plans/${planId}/cancel`)
+    await api.patch(DOCTOR_VITAL_ENDPOINTS.PLAN_CANCEL(planId))
 }
 
 export const assignCaregiver = async (patientId: string, caregiverId: string): Promise<PatientDetails> => {
-    const res = await api.patch<PatientDetailsResponse>(`${PATIENTS_API}/${patientId}/caregiver`, { caregiverId })
+    const res = await api.patch<PatientDetailsResponse>(DOCTOR_PATIENT_ENDPOINTS.CAREGIVER(patientId), { caregiverId })
 
     return res.data.data
 }
 
 export const listCaregivers = async (search?: string) => {
-    const res = await api.get(`${CAREGIVERS_API}/`, {
+    const res = await api.get(DOCTOR_CAREGIVER_ENDPOINTS.LIST, {
         params: { search },
     })
 
@@ -222,7 +222,7 @@ export const updateClinicalStatus = async (
     patientId: string,
     clinicalStatus: string,
 ): Promise<PatientDetailsResponse> => {
-    const res = await api.patch(`${PATIENTS_API}/${patientId}/clinical-status`, {
+    const res = await api.patch(DOCTOR_PATIENT_ENDPOINTS.CLINICAL_STATUS(patientId), {
         clinicalStatus,
     })
     return res.data
@@ -230,7 +230,7 @@ export const updateClinicalStatus = async (
 
 export const getPatientMedicalRecord = async (patientId: string): Promise<MedicalRecordData> => {
     const res = await api.get<{ success: boolean; data: MedicalRecordData }>(
-        `${MEDICAL_RECORDS_API}/${patientId}`,
+        DOCTOR_MEDICAL_RECORD_ENDPOINTS.BY_PATIENT(patientId),
     )
     return res.data.data
 }
@@ -240,7 +240,7 @@ export const updateMedicalRecord = async (
     data: { allergies?: string[]; pastSurgeries?: string },
 ): Promise<MedicalRecordData> => {
     const res = await api.patch<{ success: boolean; data: MedicalRecordData }>(
-        `${MEDICAL_RECORDS_API}/${patientId}`,
+        DOCTOR_MEDICAL_RECORD_ENDPOINTS.BY_PATIENT(patientId),
         data,
     )
     return res.data.data
@@ -248,7 +248,7 @@ export const updateMedicalRecord = async (
 
 export const addClinicalNote = async (patientId: string, note: string): Promise<MedicalRecordData> => {
     const res = await api.post<{ success: boolean; data: MedicalRecordData }>(
-        `${MEDICAL_RECORDS_API}/${patientId}/notes`,
+        DOCTOR_MEDICAL_RECORD_ENDPOINTS.NOTES(patientId),
         { note },
     )
     return res.data.data

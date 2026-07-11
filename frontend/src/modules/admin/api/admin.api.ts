@@ -11,22 +11,23 @@ import type {
 } from '../types/admin.types'
 import type { ActivityLogFilters } from '../types/admin.types'
 
+import { ADMIN_ENDPOINTS, ADMIN_UPLOAD_ENDPOINTS } from './admin.endpoints'
+
 import { api } from '@/services/api'
-import { ADMIN_API, UPLOADS_API } from '@/shared/constants/api.constants'
 
 export const getPendingDoctors = async (
     page: number,
     limit: number,
     search: string,
 ): Promise<PendingDoctorsResponse> => {
-    const res = await api.get(`${ADMIN_API}/pending-doctors`, {
+    const res = await api.get(ADMIN_ENDPOINTS.PENDING_DOCTORS, {
         params: { page, limit, search },
     })
     return res.data
 }
 
 export const getRecentDoctorVerifications = async (limit: number = 5): Promise<PendingDoctorsResponse> => {
-    const res = await api.get(`${ADMIN_API}/recent-doctor-verifications`, {
+    const res = await api.get(ADMIN_ENDPOINTS.RECENT_DOCTOR_VERIFICATIONS, {
         params: { limit },
     })
     return res.data
@@ -37,7 +38,7 @@ export const verifyDoctor = async (
     status: 'verified' | 'rejected',
     reason?: string,
 ): Promise<{ message: string }> => {
-    const res = await api.patch(`${ADMIN_API}/verify-doctor/${doctorId}`, { status, reason })
+    const res = await api.patch(ADMIN_ENDPOINTS.VERIFY_DOCTOR(doctorId), { status, reason })
     return res.data
 }
 
@@ -46,7 +47,7 @@ export const verifySpecialization = async (
     specIndex: number,
     verified: boolean,
 ): Promise<{ message: string }> => {
-    const res = await api.patch(`${ADMIN_API}/verify-specialization/${doctorId}/${specIndex}`, {
+    const res = await api.patch(ADMIN_ENDPOINTS.VERIFY_SPECIALIZATION(doctorId, specIndex), {
         verified,
     })
     return res.data
@@ -57,14 +58,14 @@ export const getPendingCaregivers = async (
     limit: number,
     search: string,
 ): Promise<PendingCaregiversResponse> => {
-    const res = await api.get(`${ADMIN_API}/pending-caregivers`, {
+    const res = await api.get(ADMIN_ENDPOINTS.PENDING_CAREGIVERS, {
         params: { page, limit, search },
     })
     return res.data
 }
 
 export const getRecentCaregiverVerifications = async (limit: number = 5): Promise<RecentCaregiversResponse> => {
-    const res = await api.get(`${ADMIN_API}/recent-caregiver-verifications`, {
+    const res = await api.get(ADMIN_ENDPOINTS.RECENT_CAREGIVER_VERIFICATIONS, {
         params: { limit },
     })
     return res.data
@@ -75,7 +76,7 @@ export const verifyCaregiver = async (
     status: 'verified' | 'rejected',
     reason?: string,
 ): Promise<{ message: string }> => {
-    const res = await api.patch(`${ADMIN_API}/verify-caregiver/${caregiverId}`, { status, reason })
+    const res = await api.patch(ADMIN_ENDPOINTS.VERIFY_CAREGIVER(caregiverId), { status, reason })
     return res.data
 }
 
@@ -88,7 +89,7 @@ export const getDashboardChartData = async (
     if (limit) params.limit = limit
     if (startDate) params.startDate = startDate
     if (endDate) params.endDate = endDate
-    const res = await api.get(`${ADMIN_API}/dashboard-charts`, { params })
+    const res = await api.get(ADMIN_ENDPOINTS.DASHBOARD_CHARTS, { params })
     return res.data.data
 }
 
@@ -105,7 +106,7 @@ export const getAdminAppointments = async (
     if (status && status !== 'all') params.status = status
     if (startDate) params.startDate = startDate
     if (endDate) params.endDate = endDate
-    const res = await api.get(`${ADMIN_API}/appointments`, { params })
+    const res = await api.get(ADMIN_ENDPOINTS.APPOINTMENTS, { params })
     return res.data
 }
 
@@ -124,27 +125,27 @@ export const getAdminPayments = async (
     if (paymentType && paymentType !== 'all') params.paymentType = paymentType
     if (startDate) params.startDate = startDate
     if (endDate) params.endDate = endDate
-    const res = await api.get(`${ADMIN_API}/payments`, { params })
+    const res = await api.get(ADMIN_ENDPOINTS.PAYMENTS, { params })
     return res.data
 }
 
 export const getPendingCount = async (): Promise<{ count: number }> => {
-    const res = await api.get(`${ADMIN_API}/pending-count`)
+    const res = await api.get(ADMIN_ENDPOINTS.PENDING_COUNT)
     return res.data
 }
 
 export const getPendingDoctorsCount = async (): Promise<{ count: number }> => {
-    const res = await api.get(`${ADMIN_API}/pending-doctors-count`)
+    const res = await api.get(ADMIN_ENDPOINTS.PENDING_DOCTORS_COUNT)
     return res.data
 }
 
 export const getPendingCaregiversCount = async (): Promise<{ count: number }> => {
-    const res = await api.get(`${ADMIN_API}/pending-caregivers-count`)
+    const res = await api.get(ADMIN_ENDPOINTS.PENDING_CAREGIVERS_COUNT)
     return res.data
 }
 
 export const getUsers = async (role: string, search: string, page: number, limit: number) => {
-    const res = await api.get(`${ADMIN_API}/users`, {
+    const res = await api.get(ADMIN_ENDPOINTS.USERS, {
         params: { role, search, page, limit },
     })
     return res.data
@@ -163,29 +164,29 @@ export const getActivityLogs = async (
     if (filters.startDate) params.startDate = filters.startDate
     if (filters.endDate) params.endDate = filters.endDate
 
-    const res = await api.get('/activity-logs', { params })
+    const res = await api.get(ADMIN_ENDPOINTS.ACTIVITY_LOGS, { params })
     return res.data
 }
 
 export const toggleUserStatus = async (userId: string, isActive: boolean): Promise<{ message: string }> => {
-    const res = await api.patch(`${ADMIN_API}/toggle-status/${userId}`, {
+    const res = await api.patch(ADMIN_ENDPOINTS.TOGGLE_STATUS(userId), {
         isActive,
     })
     return res.data
 }
 
 export const getPlatformSettings = async (): Promise<PlatformSettings> => {
-    const res = await api.get(`${ADMIN_API}/platform-settings`)
+    const res = await api.get(ADMIN_ENDPOINTS.PLATFORM_SETTINGS)
     return res.data
 }
 
 export const updatePlatformSettings = async (settings: Partial<PlatformSettings>): Promise<PlatformSettings> => {
-    const res = await api.put(`${ADMIN_API}/platform-settings`, settings)
+    const res = await api.put(ADMIN_ENDPOINTS.PLATFORM_SETTINGS, settings)
     return res.data
 }
 
 export const presignUpload = async (params: PresignUploadParams): Promise<PresignUploadResponse> => {
-    const res = await api.post(`${UPLOADS_API}/presign`, params)
+    const res = await api.post(ADMIN_UPLOAD_ENDPOINTS.PRESIGN, params)
     return res.data
 }
 
