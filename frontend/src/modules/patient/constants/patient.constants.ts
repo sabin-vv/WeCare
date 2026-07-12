@@ -3,7 +3,7 @@ export const APPOINTMENT_STATUS_CLASS_MAP: Record<string, string> = {
     pending_payment: 'statusPending',
     cancelled: 'statusCancelled',
     missed: 'statusMissed',
-    in_consultation: 'inConsultation',
+    in_consultation: 'statusInConsultation',
     completed: 'completed',
 }
 
