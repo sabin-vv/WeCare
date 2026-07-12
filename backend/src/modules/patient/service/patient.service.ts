@@ -145,15 +145,23 @@ export class PatientService implements IPatientService {
         await this._prescriptionRepo.pausePrescription(patientId)
     }
 
-    private async completePatientMonitoring(patientId: string, reason: string) {
+    private async completePatientMonitoring(patientId: string, reason: string, caregiverUserId?: Types.ObjectId) {
         await this._vitalRepo.completeVitalPlanByPatientId(patientId)
         await this._vitalRepo.cancelPendingSchedulesByPatient(patientId, reason)
         await this._prescriptionRepo.completePrescription(patientId)
         await this._medicationRepo.cancelMedicationSchedulesByPatient(patientId, reason)
+        if (caregiverUserId) {
+            await this._caregiverRepo.updateByUserId(caregiverUserId, { isAvailable: true })
+        }
         await this._patientRepo.removeCaregiver(patientId)
     }
 
-    private async cancelPatientWorkFlow(patientId: string, discontinuedBy: string, reason: string) {
+    private async cancelPatientWorkFlow(
+        patientId: string,
+        discontinuedBy: string,
+        reason: string,
+        caregiverUserId?: Types.ObjectId,
+    ) {
         const result = await this._patientRepo.updateById(patientId, { accountStatus: 'archived' })
         if (!result) {
             throw new AppError(HTTP_STATUS.NOT_FOUND, MSG.UPDATE_ACCOUNT_STATUS_FAILED)
@@ -162,6 +170,9 @@ export class PatientService implements IPatientService {
         await this._medicationRepo.cancelMedicationSchedulesByPatient(patientId, reason)
         await this._vitalRepo.completeVitalPlanByPatientId(patientId)
         await this._vitalRepo.cancelPendingSchedulesByPatient(patientId, reason)
+        if (caregiverUserId) {
+            await this._caregiverRepo.updateByUserId(caregiverUserId, { isAvailable: true })
+        }
         await this._patientRepo.removeCaregiver(patientId)
     }
 
@@ -454,7 +465,7 @@ export class PatientService implements IPatientService {
     }
 
     async assignCaregiver(doctorId: string, patientId: string, caregiverId: string): Promise<PatientDetailsDTO> {
-        const { doctor } = await this.resolveDoctorPatientContext(doctorId, patientId)
+        const { doctor, patient } = await this.resolveDoctorPatientContext(doctorId, patientId)
 
         const caregiver = await this._caregiverRepo.findByUserId(new Types.ObjectId(caregiverId))
         if (!caregiver) {
@@ -465,13 +476,24 @@ export class PatientService implements IPatientService {
             throw new AppError(HTTP_STATUS.BAD_REQUEST, MSG.CAREGIVER_NOT_ACTIVE)
         }
 
-        const patient = await this._patientRepo.updateById(patientId, {
+        const patientUser = await this._userRepo.findById(patient.userId.toString())
+        const patientName = patientUser?.name ?? 'A patient'
+
+        let oldCaregiverUserId: string | undefined
+
+        if (patient.caregiverId) {
+            const oldCaregiver = await this._caregiverRepo.findById(patient.caregiverId.toString())
+            if (oldCaregiver) {
+                oldCaregiverUserId = oldCaregiver.userId.toString()
+                await this._caregiverRepo.updateByUserId(oldCaregiver.userId, { isAvailable: true })
+            }
+        }
+
+        await this._caregiverRepo.updateByUserId(new Types.ObjectId(caregiverId), { isAvailable: false })
+
+        await this._patientRepo.updateById(patientId, {
             caregiverId: new Types.ObjectId(caregiver._id),
         })
-
-        if (!patient) {
-            throw new AppError(HTTP_STATUS.NOT_FOUND, MSG.PATIENT_NOT_FOUND)
-        }
 
         const caregiverUser = await this._userRepo.findById(caregiver.userId.toString())
         const caregiverName = caregiverUser?.name ?? 'A caregiver'
@@ -486,8 +508,17 @@ export class PatientService implements IPatientService {
         }
         await this._notificationService.createNotification(payload).catch(() => null)
 
-        const patientUser = await this._userRepo.findById(patient.userId.toString())
-        const patientName = patientUser?.name ?? 'A patient'
+        if (oldCaregiverUserId) {
+            const unassignPayload: CreateNotificationPayload = {
+                recipientId: oldCaregiverUserId,
+                recipientRole: 'caregiver',
+                type: 'patient_assigned',
+                title: 'Patient Unassigned',
+                message: `You are no longer assigned to ${patientName}.`,
+                metadata: { patientId: patient._id.toString() },
+            }
+            await this._notificationService.createNotification(unassignPayload).catch(() => null)
+        }
 
         const caregiverPayload: CreateNotificationPayload = {
             recipientId: caregiver.userId.toString(),
@@ -533,25 +564,28 @@ export class PatientService implements IPatientService {
         if (!isAllowed) {
             throw new AppError(HTTP_STATUS.BAD_REQUEST, `Cannot change ${patient.clinicalStatus} to ${clinicalStatus}`)
         }
+        const patientCaregiverId = patient.caregiverId?.toString()
+        const caregiverUser = patientCaregiverId ? await this._caregiverRepo.findById(patientCaregiverId) : null
+        const caregiverUserId = caregiverUser?.userId
 
         switch (`${patient.clinicalStatus}>${clinicalStatus}`) {
             case 'active>hospitalized':
                 this.pausePatientMonitoring(patientId, CLINICAL_STATUS_UPDATE.hospitalized)
                 break
             case 'active>recovered':
-                this.completePatientMonitoring(patientId, CLINICAL_STATUS_UPDATE.recovered)
+                this.completePatientMonitoring(patientId, CLINICAL_STATUS_UPDATE.recovered, caregiverUserId)
                 break
             case 'active>deceased':
-                this.cancelPatientWorkFlow(patientId, doctorId, CLINICAL_STATUS_UPDATE.deceased)
+                this.cancelPatientWorkFlow(patientId, doctorId, CLINICAL_STATUS_UPDATE.deceased, caregiverUserId)
                 break
             case 'hospitalized>active':
                 this.resumePatientMonitoring(patientId)
                 break
             case 'hospitalized>recovered':
-                this.completePatientMonitoring(patientId, CLINICAL_STATUS_UPDATE.recovered)
+                this.completePatientMonitoring(patientId, CLINICAL_STATUS_UPDATE.recovered, caregiverUserId)
                 break
             case 'hospitalized>deceased':
-                this.cancelPatientWorkFlow(patientId, doctorId, CLINICAL_STATUS_UPDATE.deceased)
+                this.cancelPatientWorkFlow(patientId, doctorId, CLINICAL_STATUS_UPDATE.deceased, caregiverUserId)
                 break
             case 'recovered>active':
                 break
