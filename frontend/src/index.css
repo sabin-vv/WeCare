@@ -6,7 +6,7 @@
 body {
     font-family: 'Inter', sans-serif;
     line-height: 1.5;
-    background: #f4f7f6 !important;
+    background: #f4f7f6;
 }
 
 ::-webkit-scrollbar {
