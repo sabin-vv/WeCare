@@ -4,7 +4,7 @@ export const APPOINTMENT_STATUS_CLASS_MAP: Record<string, string> = {
     cancelled: 'statusCancelled',
     missed: 'statusMissed',
     in_consultation: 'statusInConsultation',
-    completed: 'completed',
+    completed: 'statusCompleted',
 }
 
 export const getAppointmentStatusClass = (status: string): string => APPOINTMENT_STATUS_CLASS_MAP[status] ?? ''
