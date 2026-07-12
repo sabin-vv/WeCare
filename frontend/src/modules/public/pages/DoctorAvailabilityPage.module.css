@@ -245,7 +245,7 @@
 
 .timeSlotsGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, 120px);
+    grid-template-columns: repeat(auto-fill, 116px);
     gap: 12px;
 }
 
