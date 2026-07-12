@@ -122,6 +122,8 @@ export interface Appointment {
     cancelledAt?: string
     completedAt?: string
     paidAt?: string
+    videoCallStartedAt?: string
+    videoCallEndedAt?: string
     createdAt?: string
     cancelledBy?: string
     cancellationReason?: string
