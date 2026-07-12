@@ -36,6 +36,7 @@ export const PATIENT_ENDPOINTS = {
     MEDICATIONS_ME: `${MEDICATIONS_API}/me`,
     ALERT_COUNT: `${ALERTS_API}/me/count`,
     VITAL_SCHEDULES: `${VITALS_API}/schedules/me`,
+    VITAL_PLANS_ME: `${VITALS_API}/plans/me`,
     PRESCRIPTIONS_BY_PATIENT: (patientId: string) => `${PRESCRIPTIONS_API}/patient/${patientId}`,
     FEEDBACK: FEEDBACK_API,
     ASSISTANT_CHAT: `${ASSISTANT_API}/chat`,

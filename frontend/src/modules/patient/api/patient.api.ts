@@ -179,6 +179,11 @@ export const getPatientVitalSchedules = async (): Promise<VitalSchedule[]> => {
     return response.data.data
 }
 
+export const getMyActiveVitalPlans = async (): Promise<number> => {
+    const response = await api.get<{ success: boolean; data: { count: number } }>(PATIENT_ENDPOINTS.VITAL_PLANS_ME)
+    return response.data.data.count
+}
+
 export const getPatientPrescriptions = async (patientId: string): Promise<Prescription[]> => {
     const response = await api.get<{ success: boolean; data: Prescription[] }>(
         PATIENT_ENDPOINTS.PRESCRIPTIONS_BY_PATIENT(patientId),
