@@ -8,6 +8,7 @@ export const startVitalCron = () => {
     cron.schedule('59 23 * * *', async () => {
         try {
             const today = new Date()
+            today.setDate(today.getDate() + 1)
             today.setHours(0, 0, 0, 0)
 
             const vitalService = container.resolve(VitalService)

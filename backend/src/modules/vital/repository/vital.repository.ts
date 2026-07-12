@@ -44,7 +44,7 @@ export class VitalRepository implements IVitalRepository {
     async findVitalSchedulesByPatientId(patientId: Types.ObjectId): Promise<VitalScheduleDocument[]> {
         const startOfDay = new Date()
         startOfDay.setHours(0, 0, 0, 0)
-        const endOfDay = new Date(startOfDay)
+        const endOfDay = new Date()
         endOfDay.setHours(23, 59, 59, 999)
 
         return vitalScheduleModel
@@ -91,7 +91,7 @@ export class VitalRepository implements IVitalRepository {
     ): Promise<VitalScheduleDocument | null> {
         const startOfDay = new Date()
         startOfDay.setHours(0, 0, 0, 0)
-        const endOfDay = new Date(startOfDay)
+        const endOfDay = new Date()
         endOfDay.setHours(23, 59, 59, 999)
 
         return vitalScheduleModel

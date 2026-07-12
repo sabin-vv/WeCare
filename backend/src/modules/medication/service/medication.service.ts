@@ -23,7 +23,6 @@ export class MedicationService implements IMedicationService {
     async generateDailySchedule(date: Date): Promise<{ created: number; skipped: number } | undefined> {
         const startOfDay = new Date(date)
         startOfDay.setHours(0, 0, 0, 0)
-
         const endOfDay = new Date(date)
         endOfDay.setHours(23, 59, 59, 999)
 
