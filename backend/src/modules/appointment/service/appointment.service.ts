@@ -1,3 +1,4 @@
+import { RoomServiceClient } from 'livekit-server-sdk'
 import { Types } from 'mongoose'
 import Razorpay from 'razorpay'
 import { inject, injectable } from 'tsyringe'
@@ -15,6 +16,7 @@ import { INotificationService } from '../../notification/interfaces/notification
 import { CreateNotificationPayload } from '../../notification/types/notification.types'
 import { IPatientRepository } from '../../patient/interfaces/patient.repository.interface'
 import { IPaymentRepository } from '../../payment/interfaces/payment.repository.interface'
+import { IVideoCallRepository } from '../../videoCall/interfaces/videoCall.repository.interface'
 import { IWalletService } from '../../wallet/interfaces/wallet.service.interface'
 import { MSG } from '../constants/messages'
 import { IAppointmentRepository } from '../interfaces/appointment.repository.interface'
@@ -35,6 +37,7 @@ import { CreateAppointmentDTO, RescheduleAppointmentDTO, RetryPaymentDTO } from 
 @injectable()
 export class AppointmentService implements IAppointmentService {
     private razorpay: Razorpay
+    private _roomClient: RoomServiceClient
 
     constructor(
         @inject(TOKENS.IAppointmentRepository) private _appointmentRepo: IAppointmentRepository,
@@ -42,6 +45,7 @@ export class AppointmentService implements IAppointmentService {
         @inject(TOKENS.IAdminRepository) private _adminRepo: IAdminRepository,
         @inject(TOKENS.IPaymentRepository) private _paymentRepo: IPaymentRepository,
         @inject(TOKENS.IPatientRepository) private _patientRepo: IPatientRepository,
+        @inject(TOKENS.IVideoCallRepository) private _videoCallRepo: IVideoCallRepository,
         @inject(TOKENS.IWalletService) private _walletService: IWalletService,
         @inject(TOKENS.INotificationService) private _notificationService: INotificationService,
         @inject(TOKENS.IActivityLogService) private _activityLogService: IActivityLogService,
@@ -51,6 +55,9 @@ export class AppointmentService implements IAppointmentService {
             key_id: env.RAZORPAY_KEY_ID,
             key_secret: env.RAZORPAY_KEY_SECRET,
         })
+
+        const liveKitUrl = (env.LIVEKIT_URL || env.LIVEKIT_HOST || '').replace('wss://', 'https://').replace('ws://', 'http://')
+        this._roomClient = new RoomServiceClient(liveKitUrl, env.LIVEKIT_API_KEY, env.LIVEKIT_API_SECRET)
     }
 
     private async validateAppointmentRequest(dto: CreateAppointmentDTO & { patientId: string }) {
@@ -367,6 +374,12 @@ export class AppointmentService implements IAppointmentService {
 
         const dto = toAppointmentResponseDTO(appointment)
 
+        const videoRoom = await this._videoCallRepo.findByAppointmentId(appointment._id.toString())
+        if (videoRoom) {
+            dto.videoCallStartedAt = videoRoom.startedAt?.toISOString()
+            dto.videoCallEndedAt = videoRoom.endedAt?.toISOString()
+        }
+
         const populatedDoctor = appointment.doctorId as unknown as { _id: Types.ObjectId }
         const doctorId = populatedDoctor._id?.toString()
         if (doctorId) {
@@ -648,7 +661,30 @@ export class AppointmentService implements IAppointmentService {
             throw new AppError(HTTP_STATUS.BAD_REQUEST, MSG.NOT_IN_CONSULTATION)
         }
 
-        await this._appointmentRepo.update(appointment._id.toString(), { status: 'completed' })
+        const now = new Date()
+        const videoRoom = await this._videoCallRepo.findByAppointmentId(appointment._id.toString())
+
+        if (videoRoom) {
+            try {
+                await this._roomClient.deleteRoom(videoRoom.roomName)
+            } catch {
+                // room may already be deleted
+            }
+
+            const startedAt = videoRoom.startedAt ? new Date(videoRoom.startedAt).getTime() : now.getTime()
+            const duration = Math.round((now.getTime() - startedAt) / 1000)
+
+            await this._videoCallRepo.updateByRoomName(videoRoom.roomName, {
+                status: 'ended',
+                endedAt: now,
+                duration,
+            })
+        }
+
+        await this._appointmentRepo.update(appointment._id.toString(), {
+            status: 'completed',
+            completedAt: now,
+        })
 
         if (!patient.primaryDoctorId) {
             await this._patientRepo.updateByUserId(patient.userId, { primaryDoctorId: doctor._id })
