@@ -185,7 +185,7 @@ export interface DoctorAppointment {
     appointmentDate: string
     slotStart: string
     slotEnd: string
-    status: 'confirmed' | 'completed'
+    status: 'confirmed' | 'in_consultation' | 'completed'
 }
 
 export interface DoctorAppointmentsResponse {

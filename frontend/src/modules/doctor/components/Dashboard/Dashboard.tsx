@@ -67,7 +67,11 @@ const AppointmentRow = ({ appointment }: { appointment: DoctorAppointment }) => 
                 </div>
             </div>
             <span className={`${styles.statusBadge} ${styles[appointment.status]}`}>
-                {appointment.status === 'confirmed' ? 'Pending' : 'Completed'}
+                {appointment.status === 'confirmed'
+                    ? 'Pending'
+                    : appointment.status === 'in_consultation'
+                      ? 'In Consultation'
+                      : 'Completed'}
             </span>
         </div>
     )

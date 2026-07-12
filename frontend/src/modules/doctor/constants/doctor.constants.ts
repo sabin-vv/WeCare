@@ -3,6 +3,7 @@ import type { RiskLevel } from '../types/doctor.types'
 export const CONSULTATION_STATUS_OPTIONS = [
     { label: 'All', value: 'all' },
     { label: 'Pending Consultation', value: 'confirmed' },
+    { label: 'In Consultation', value: 'in_consultation' },
     { label: 'Completed', value: 'completed' },
 ] as const
 
