@@ -20,6 +20,7 @@ export const PATIENT_ENDPOINTS = {
     PROFILE: `${PATIENTS_API}/me`,
     CARE_TEAM: `${PATIENTS_API}/me/care-team`,
     APPOINTMENTS: `${APPOINTMENT_API}/patient`,
+    CREATE_APPOINTMENT: APPOINTMENT_API,
     APPOINTMENT_BY_ID: (appointmentId: string) => `${APPOINTMENT_API}/${appointmentId}`,
     APPOINTMENT_CANCEL: (id: string) => `${APPOINTMENT_API}/${id}/cancel`,
     APPOINTMENT_RETRY_PAYMENT: (id: string) => `${APPOINTMENT_API}/${id}/retry-payment`,

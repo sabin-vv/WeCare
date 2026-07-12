@@ -65,7 +65,7 @@ export const getDoctorSlots = async (doctorId: string, date: string): Promise<Do
 }
 
 export const createAppointment = async (data: CreateAppointmentRequest): Promise<AppointmentCheckoutResponse> => {
-    const response = await api.post<{ data: AppointmentCheckoutResponse }>(PATIENT_ENDPOINTS.APPOINTMENTS, data)
+    const response = await api.post<{ data: AppointmentCheckoutResponse }>(PATIENT_ENDPOINTS.CREATE_APPOINTMENT, data)
     return response.data.data
 }
 
