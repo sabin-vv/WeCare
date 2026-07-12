@@ -23,9 +23,9 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import {
     cancelAppointment,
     getAppointmentById,
+    getMyActiveVitalPlans,
     getPatientPrescriptions,
     getPatientProfile,
-    getPatientVitalSchedules,
     getWallet,
     retryPayment,
     verifyPayment,
@@ -33,7 +33,7 @@ import {
 import CancelAppointmentModal from '../components/modals/CancelAppointmentModal'
 import PaymentMethodModal from '../components/modals/PaymentMethodModal'
 import { getAppointmentStatusClass, getPaymentStatusClass } from '../constants/patient.constants'
-import type { Appointment, PatientProfileData, Prescription, VitalSchedule } from '../types/patient.types'
+import type { Appointment, PatientProfileData, Prescription } from '../types/patient.types'
 
 import styles from './PatientAppointmentDetailPage.module.css'
 
@@ -53,7 +53,7 @@ const PatientAppointmentDetailPage = () => {
     const [appointment, setAppointment] = useState<Appointment | null>(null)
     const [patient, setPatient] = useState<PatientProfileData | null>(null)
     const [prescriptions, setPrescriptions] = useState<Prescription[]>([])
-    const [vitals, setVitals] = useState<VitalSchedule[]>([])
+    const [activeVitalPlansCount, setActiveVitalPlansCount] = useState(0)
     const [isLoading, setIsLoading] = useState(true)
 
     const [isCancelModalOpen, setIsCancelModalOpen] = useState(false)
@@ -92,8 +92,8 @@ const PatientAppointmentDetailPage = () => {
         getPatientPrescriptions(patient.patientMongoId)
             .then(setPrescriptions)
             .catch(() => {})
-        getPatientVitalSchedules()
-            .then(setVitals)
+        getMyActiveVitalPlans()
+            .then(setActiveVitalPlansCount)
             .catch(() => {})
     }, [patient])
 
@@ -244,13 +244,18 @@ const PatientAppointmentDetailPage = () => {
         },
         {
             label: 'Confirmed',
-            done: ['confirmed', 'in_consultation', 'completed'].includes(appointment.status),
+            done: !!appointment.confirmedAt,
             date: appointment.confirmedAt,
         },
-        {
-            label: 'Consultation',
-            done: appointment.status === 'in_consultation' || appointment.status === 'completed',
-        },
+        ...(appointment.status !== 'cancelled'
+            ? [
+                  {
+                      label: 'Consultation',
+                      done: appointment.status === 'in_consultation' || appointment.status === 'completed',
+                      date: appointment.videoCallStartedAt,
+                  },
+              ]
+            : []),
         {
             label: appointment.status === 'cancelled' ? 'Cancelled' : 'Completed',
             done: appointment.status === 'cancelled' || appointment.status === 'completed',
@@ -285,7 +290,7 @@ const PatientAppointmentDetailPage = () => {
                                         {appointment.averageRating.toFixed(1)}
                                         {appointment.reviewCount != null && (
                                             <span className={styles.reviewCount}>
-                                                ({appointment.reviewCount} reviews)
+                                                ({appointment.reviewCount} Reviews)
                                             </span>
                                         )}
                                     </p>
@@ -528,8 +533,8 @@ const PatientAppointmentDetailPage = () => {
                                     <div className={styles.clinicalStat}>
                                         <Activity size={20} className={styles.statIcon} />
                                         <div className={styles.statInfo}>
-                                            <span className={styles.statValue}>{vitals.length}</span>
-                                            <span className={styles.statLabel}>Vitals Today</span>
+                                            <span className={styles.statValue}>{activeVitalPlansCount}</span>
+                                            <span className={styles.statLabel}>Active Vital Plans</span>
                                         </div>
                                     </div>
                                 </div>
