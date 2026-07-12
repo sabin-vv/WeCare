@@ -383,10 +383,14 @@
 .modalPatientList {
     max-height: 360px;
     overflow-y: auto;
+    display: flex;
+    gap: 10px;
 }
 
 .modalTextContainer {
     min-width: 0;
+    flex: 1;
+    text-align: left;
 }
 
 .convItemButton {

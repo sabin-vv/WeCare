@@ -51,6 +51,7 @@ export interface ListPatientMapper {
     conditions?: string[]
     riskLevel?: string
     caregiver?: string
+    caregiverProfileImage?: string
     clinicalStatus: ClinicalStatus
 }
 

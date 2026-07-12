@@ -178,6 +178,7 @@ export interface PatientSummary extends ApiInterface {
     profileImage?: string
     primaryDoctorId?: string
     assignedDoctorName?: string
+    doctorProfileImage?: string
 }
 
 export type AlertSeverity = 'medium' | 'high' | 'critical'

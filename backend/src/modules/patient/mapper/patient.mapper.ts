@@ -62,6 +62,7 @@ export const toListPatientsMapper = (
     patient: PatientDocument,
     _appointment: AppointmentDocument | null,
     caregiver: UserDocument | null,
+    caregiverProfileImage?: string,
 ): ListPatientMapper => {
     return {
         _id: patient._id.toString(),
@@ -71,6 +72,7 @@ export const toListPatientsMapper = (
         conditions: patient.conditions || [],
         riskLevel: patient.riskLevel,
         caregiver: caregiver?.name || 'Unassigned',
+        caregiverProfileImage: caregiverProfileImage || undefined,
         clinicalStatus: patient.clinicalStatus || 'active',
     }
 }

@@ -375,6 +375,7 @@ export class PatientService implements IPatientService {
             _id: { $in: userIds },
         })
         let caregiversMap = new Map<string, UserDocument>()
+        const caregiverProfileMap = new Map<string, string>()
         if (caregiverIds.length > 0) {
             const caregiverDocs = (
                 await Promise.all(caregiverIds.map((id) => this._caregiverRepo.findById(id)))
@@ -390,7 +391,11 @@ export class PatientService implements IPatientService {
                 caregiverDocs
                     .map((doc) => {
                         const user = userMap.get(doc.userId.toString())
-                        return user ? ([doc._id.toString(), user] as const) : null
+                        if (user) {
+                            caregiverProfileMap.set(doc._id.toString(), doc.profileImage || '')
+                            return [doc._id.toString(), user] as const
+                        }
+                        return null
                     })
                     .filter((entry): entry is [string, UserDocument] => entry !== null),
             )
@@ -419,11 +424,15 @@ export class PatientService implements IPatientService {
                 const caregiver = patient.caregiverId
                     ? (caregiversMap.get(patient.caregiverId.toString()) ?? null)
                     : null
+                const caregiverProfileImage = patient.caregiverId
+                    ? (caregiverProfileMap.get(patient.caregiverId.toString()) ?? '')
+                    : ''
                 return toListPatientsMapper(
                     user,
                     patient,
                     appointmentsMap.get(patient.userId.toString()) ?? null,
                     caregiver,
+                    caregiverProfileImage,
                 )
             })
             .filter((patient): patient is ListPatientMapper => patient !== null)

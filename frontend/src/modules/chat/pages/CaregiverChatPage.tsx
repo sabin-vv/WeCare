@@ -60,7 +60,7 @@ const CaregiverChatPage = () => {
             name: p.assignedDoctorName || 'Unassigned Doctor',
             patientName: p.userName,
             subtitle: `about ${p.userName}`,
-            profileImage: p.profileImage,
+            profileImage: p.doctorProfileImage,
         }))
     }, [])
 

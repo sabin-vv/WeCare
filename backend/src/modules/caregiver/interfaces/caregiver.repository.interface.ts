@@ -14,6 +14,7 @@ export interface PatientSummary {
     profileImage?: string
     primaryDoctorId?: Types.ObjectId
     assignedDoctorName?: string
+    doctorProfileImage?: string
 }
 
 export interface ICaregiverRepository {

@@ -218,6 +218,7 @@ export interface Patients {
     conditions: string[]
     riskLevel: RiskLevel
     caregiver: string
+    caregiverProfileImage?: string
     clinicalStatus: ClinicalStatus
 }
 export interface PaginationData {

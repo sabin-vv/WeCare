@@ -95,6 +95,7 @@ export class CaregiverRepository extends BaseRepository<CaregiverDocument> imple
 
         const doctorIds = subscribedPatients.filter((p) => p.primaryDoctorId).map((p) => p.primaryDoctorId!)
         const doctorNameMap = new Map<string, string>()
+        const doctorProfileMap = new Map<string, string>()
         if (doctorIds.length > 0) {
             const doctors = await DoctorModel.find({ _id: { $in: doctorIds } }).lean()
             const doctorUserIds = doctors.filter((d) => d.userId).map((d) => d.userId)
@@ -104,6 +105,7 @@ export class CaregiverRepository extends BaseRepository<CaregiverDocument> imple
                 const docUser = doctorUserMap.get(doc.userId.toString())
                 if (docUser) {
                     doctorNameMap.set(doc._id.toString(), docUser.name)
+                    doctorProfileMap.set(doc._id.toString(), doc.profileImage || '')
                 }
             }
         }
@@ -123,6 +125,7 @@ export class CaregiverRepository extends BaseRepository<CaregiverDocument> imple
                     profileImage: p.profileImage,
                     primaryDoctorId: p.primaryDoctorId,
                     assignedDoctorName: p.primaryDoctorId ? doctorNameMap.get(p.primaryDoctorId.toString()) || '' : '',
+                    doctorProfileImage: p.primaryDoctorId ? doctorProfileMap.get(p.primaryDoctorId.toString()) || undefined : undefined,
                     userName: user?.name || 'Unknown',
                     userMobile: user?.mobile || '',
                     userEmail: user?.email || '',
