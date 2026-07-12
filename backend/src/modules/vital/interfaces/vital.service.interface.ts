@@ -1,3 +1,5 @@
+import { Types } from 'mongoose'
+
 import { VitalPlanDocument, VitalScheduleDTO } from '../types/vital.types'
 import { CreateVitalPlanDTO } from '../validator/vital.schema'
 
@@ -8,4 +10,5 @@ export interface IVitalService {
     generateDailyVitalSchedule(date: Date): Promise<{ created: number; skipped: number } | undefined>
     getPatientVitalSchedules(userId: string): Promise<VitalScheduleDTO[]>
     markOverdueVitalsAsMissed(): Promise<{ updatedCount: number; criticalAlerts: number }>
+    getPatientByUserId(userId: string): Promise<{ _id: Types.ObjectId } | null>
 }

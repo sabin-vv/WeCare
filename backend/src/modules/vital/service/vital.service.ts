@@ -165,6 +165,12 @@ export class VitalService implements IVitalService {
         return { created: schedulesToCreate.length, skipped }
     }
 
+    async getPatientByUserId(userId: string): Promise<{ _id: Types.ObjectId } | null> {
+        const patient = await this._patientRepo.findByUserId(new Types.ObjectId(userId))
+        if (!patient) return null
+        return { _id: patient._id as Types.ObjectId }
+    }
+
     async getPatientVitalSchedules(userId: string): Promise<VitalScheduleDTO[]> {
         const patient = await this._patientRepo.findByUserId(new Types.ObjectId(userId))
         if (!patient) return []

@@ -46,6 +46,24 @@ export class VitalController {
         sendSuccess(res, MSG.PLAN_CANCELLED, plan)
     }
 
+    getMyActiveVitalPlans = async (req: Request, res: Response) => {
+        const userId = req.user?.userId
+        if (!userId) {
+            throw new AppError(HTTP_STATUS.UNAUTHORIZED, MSG.USER_NOT_AUTHENTICATED)
+        }
+
+        const patient = await this._vitalService.getPatientByUserId(userId)
+        if (!patient) {
+            throw new AppError(HTTP_STATUS.NOT_FOUND, MSG.PATIENT_NOT_FOUND)
+        }
+
+        const plans = await this._vitalService.getPatientVitalPlans(patient._id.toString(), 'active')
+
+        const count = plans.reduce((sum, plan) => sum + plan.vitals.length, 0)
+
+        sendSuccess(res, undefined, { count })
+    }
+
     getPatientVitalSchedules = async (req: Request, res: Response) => {
         const userId = req.user?.userId
         if (!userId) {
