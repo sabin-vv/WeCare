@@ -481,7 +481,10 @@ export class AppointmentService implements IAppointmentService {
             ? await this._appointmentRepo.findByDoctorIdForDate(doctor._id.toString(), params.date)
             : await this._appointmentRepo.findByDoctorId(doctor._id.toString())
         const doctorVisibleAppointments = appointments.filter(
-            (appointment) => appointment.status === 'confirmed' || appointment.status === 'completed',
+            (appointment) =>
+                appointment.status === 'confirmed' ||
+                appointment.status === 'in_consultation' ||
+                appointment.status === 'completed',
         )
 
         const mappedAppointments = await Promise.all(
