@@ -389,8 +389,8 @@ export class AdminRepository implements IAdminRepository {
                         {
                             $lookup: {
                                 from: PatientModel.collection.name,
-                                localField: 'patientId',
-                                foreignField: '_id',
+                                localField: '_id',
+                                foreignField: 'userId',
                                 as: 'patientProfile',
                             },
                         },

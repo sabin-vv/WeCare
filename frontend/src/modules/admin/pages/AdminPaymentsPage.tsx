@@ -18,6 +18,7 @@ import type { Column } from '@/shared/components/Table/DataTable.types'
 import { DEFAULT_PAGINATION } from '@/shared/constants/pagination.constants'
 import { DATE_FORMAT, formatCurrency, formatDate } from '@/shared/utils/format'
 import { getErrorMessage } from '@/utils/getErrorMessage'
+import { getFileUrl } from '@/utils/getFileUrl'
 
 const PAYMENT_STATUS_BADGE: Record<string, string> = {
     pending: styles.badgePending,
@@ -46,7 +47,7 @@ const columns: Column<AdminPayment>[] = [
         key: 'patientName',
         render: (item) => (
             <div className={styles.userCell}>
-                <Avatar name={item.patientName} image={item.patientProfileImage} />
+                <Avatar name={item.patientName} image={getFileUrl(item.patientProfileImage)} />
                 <div className={styles.userInfo}>
                     <span className={styles.userName}>{item.patientName}</span>
                     <span className={styles.userEmail}>{item.patientEmail}</span>
