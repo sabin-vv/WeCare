@@ -24,5 +24,7 @@ jobs:
                   script: |
                       cd ~/weCare
                       git pull origin main
-                      docker compose up --build -d
+                      docker compose up --build --force-recreate -d
+                      docker compose ps
                       docker image prune -f
+                      docker builder prune -f
