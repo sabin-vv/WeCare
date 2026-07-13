@@ -467,6 +467,7 @@ export class AdminRepository implements IAdminRepository {
             platformLogo: settings.platformLogo,
             platformIcon: settings.platformIcon,
             subscriptionFee: settings.subscriptionFee,
+            billingCycle: settings.billingCycle,
         }
     }
 
@@ -502,6 +503,7 @@ export class AdminRepository implements IAdminRepository {
             platformLogo: updated.platformLogo,
             platformIcon: updated.platformIcon,
             subscriptionFee: updated.subscriptionFee,
+            billingCycle: updated.billingCycle,
         }
     }
 

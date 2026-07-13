@@ -30,7 +30,7 @@ const AdminSidebar = ({ isOpen, onClose }: AdminSidebarProps) => {
         <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
             <div className={styles.header}>
                 <div className={styles.logoWrapper}>
-                    <img src={`${baseUrl}${settings?.platformIcon}`} alt="/logo" />
+                    <img src={`${baseUrl}${settings?.platformIcon}`} alt="/logo" className={styles.logo} />
                 </div>
                 <div className={styles.headerText}>
                     <h2 className={styles.title}>Admin Portal</h2>

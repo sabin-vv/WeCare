@@ -96,5 +96,7 @@ export const toPlatformSettingsDTO = (settings: PlatformSettings): PlatformSetti
         platformFee: settings.platformFee || 0,
         platformLogo: settings.platformLogo || '',
         platformIcon: settings.platformIcon || '',
+        subscriptionFee: settings.subscriptionFee || 0,
+        billingCycle: settings.billingCycle || 'monthly',
     }
 }

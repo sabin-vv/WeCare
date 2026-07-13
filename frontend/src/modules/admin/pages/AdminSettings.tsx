@@ -14,6 +14,7 @@ import styles from './AdminSettings.module.css'
 import Button from '@/shared/components/Button/Button'
 import InputField from '@/shared/components/InputField/InputField'
 import PageHeader from '@/shared/components/PageHeader/PageHeader'
+import { getFileUrl } from '@/utils/getFileUrl'
 
 const AdminSettings = () => {
     const {
@@ -214,7 +215,7 @@ const AdminSettings = () => {
                             <label htmlFor="fullLogo" className={styles.logoLabel}>
                                 {fullLogo ? (
                                     <div className={styles.logoPreview}>
-                                        <img src={`${import.meta.env.VITE_S3_BASE_URL}${fullLogo}`} alt="Full logo" />
+                                        <img src={getFileUrl(fullLogo)} alt="Full logo" />
                                         <button
                                             type="button"
                                             className={styles.removeButton}
@@ -255,7 +256,7 @@ const AdminSettings = () => {
                             <label htmlFor="iconLogo" className={styles.logoLabel}>
                                 {iconLogo ? (
                                     <div className={styles.logoPreview}>
-                                        <img src={`${import.meta.env.VITE_S3_BASE_URL}${iconLogo}`} alt="Icon logo" />
+                                        <img src={getFileUrl(iconLogo)} alt="Icon logo" />
                                         <button
                                             type="button"
                                             className={styles.removeButton}
