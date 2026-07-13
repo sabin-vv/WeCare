@@ -176,7 +176,6 @@ const AdminSettings = () => {
                             value={feeInput}
                             onChange={handleFee}
                             inputMode="numeric"
-                            pattern="[0-9]*"
                             label="Platform Fee"
                             errors={errors.platformFee?.message}
                         />
@@ -189,7 +188,6 @@ const AdminSettings = () => {
                             value={subscriptionFeeInput}
                             onChange={handleSubscriptionFee}
                             inputMode="numeric"
-                            pattern="[0-9]*"
                             label="Subscription Fee"
                             errors={errors.subscriptionFee?.message}
                         />

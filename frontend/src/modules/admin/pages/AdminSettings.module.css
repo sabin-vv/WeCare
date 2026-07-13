@@ -145,3 +145,24 @@
     justify-content: flex-end;
     margin-top: 20px;
 }
+
+@media (max-width: 768px) {
+    .form {
+        grid-template-columns: 1fr;
+    }
+    .infoWrapper {
+        flex-direction: column;
+    }
+    .addressFeeWrapper {
+        grid-template-columns: 1fr;
+    }
+    .logoContainer {
+        flex-direction: column;
+        align-items: center;
+    }
+    .logoPlaceholder,
+    .logoPreview {
+        width: 160px;
+        height: 80px;
+    }
+}
