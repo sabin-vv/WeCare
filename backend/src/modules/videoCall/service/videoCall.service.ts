@@ -167,6 +167,11 @@ export class VideoCallService implements IVideoCallService {
             })
         }
 
+        const patient = await this._patientRepo.findByUserId(room.patientId)
+        if (patient && !patient.primaryDoctorId) {
+            await this._patientRepo.updateByUserId(room.patientId, { primaryDoctorId: room.doctorId })
+        }
+
         getIO().to(`user:${room.doctorId.toString()}`).emit('consultation_completed', {
             patientMongoId: room.patientId.toString(),
         })

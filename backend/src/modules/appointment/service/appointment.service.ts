@@ -56,7 +56,9 @@ export class AppointmentService implements IAppointmentService {
             key_secret: env.RAZORPAY_KEY_SECRET,
         })
 
-        const liveKitUrl = (env.LIVEKIT_URL || env.LIVEKIT_HOST || '').replace('wss://', 'https://').replace('ws://', 'http://')
+        const liveKitUrl = (env.LIVEKIT_URL || env.LIVEKIT_HOST || '')
+            .replace('wss://', 'https://')
+            .replace('ws://', 'http://')
         this._roomClient = new RoomServiceClient(liveKitUrl, env.LIVEKIT_API_KEY, env.LIVEKIT_API_SECRET)
     }
 
