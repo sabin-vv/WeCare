@@ -139,6 +139,7 @@ export interface DoctorSearchResult {
     averageRating?: number
     reviewCount?: number
     profileImage?: string
+    consultationFee?: number
 }
 
 export interface SearchDoctorsParams {
