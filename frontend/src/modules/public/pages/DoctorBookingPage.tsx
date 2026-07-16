@@ -125,7 +125,16 @@ const DoctorBookingPage = () => {
             <div className={styles.grid}>
                 {doctors.map((doctor) => (
                     <article key={doctor.id} className={styles.card}>
-                        <div className={styles.cardBody}>
+                        <div className={styles.cardTop}>
+                            <div className={styles.cardInfo}>
+                                <div className={styles.specialtyRow}>
+                                    <span className={styles.specialty}>{doctor.specialty}</span>
+                                    <div className={styles.verifiedBadge}>
+                                        <BadgeCheck size={14} stroke="#10b981" />
+                                    </div>
+                                </div>
+                                <h2 className={styles.doctorName}>{doctor.name}</h2>
+                            </div>
                             <div
                                 className={styles.avatar}
                                 style={{ '--avatar-accent': doctor.accent } as React.CSSProperties}
@@ -141,26 +150,37 @@ const DoctorBookingPage = () => {
                                         className={styles.profileImage}
                                     />
                                 ) : doctor.accent === '#dfeefe' || doctor.accent === '#e1efff' ? (
-                                    <UserRound size={30} />
+                                    <UserRound size={24} />
                                 ) : (
                                     <span>{doctor.initials}</span>
                                 )}
                             </div>
-
-                            <div className={styles.verified}>
-                                <span>Verified</span>
-                                <BadgeCheck size={14} />
-                            </div>
-
-                            <h2 className={styles.doctorName}>{doctor.name}</h2>
-                            <p className={styles.specialty}>{doctor.specialty}</p>
-                            {doctor.averageRating && (
-                                <span className={styles.rating}>
-                                    {doctor.averageRating}
-                                    <Star size={16} fill="#ffce12" stroke="0" /> ({doctor.reviewCount})
-                                </span>
-                            )}
                         </div>
+
+                        <div className={styles.cardMeta}>
+                            <div className={styles.metaItem}>
+                                <div className={styles.metaValue}>
+                                    <span>₹{doctor.consultationFee}</span>
+                                </div>
+                                <span className={styles.metaLabel}>Consultation</span>
+                            </div>
+                            <div className={styles.metaItem}>
+                                {doctor.averageRating ? (
+                                    <div className={styles.ratingBox}>
+                                        <span>
+                                            {doctor.averageRating}
+                                            <Star size={14} className={styles.starIcon} />({doctor.reviewCount})
+                                        </span>
+                                    </div>
+                                ) : (
+                                    <div className={styles.noReviewBox}>
+                                        <span className={styles.noReviewText}>No rating yet</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className={styles.divider} />
 
                         <Button
                             className={styles.bookButton}
