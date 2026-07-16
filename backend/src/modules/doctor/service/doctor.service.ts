@@ -378,6 +378,7 @@ export class DoctorService implements IDoctorService {
                 profileImage: doc.profileImage,
                 averageRating: rating?.averageRating,
                 reviewCount: rating?.reviewCount,
+                consultationFee: doc.consultationFee,
             }
         })
     }
