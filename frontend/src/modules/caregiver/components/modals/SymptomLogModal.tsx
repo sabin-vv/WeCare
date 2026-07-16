@@ -15,6 +15,11 @@ interface SymptomLogModalProps {
     symptomOptions: string[]
 }
 
+const nowString = () => {
+    const d = new Date()
+    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+}
+
 const SymptomLogModal = ({
     isOpen,
     onClose,
@@ -56,6 +61,7 @@ const SymptomLogModal = ({
                 label="Onset Time"
                 value={formState.onsetTime}
                 onChange={(value) => setFormState((current) => ({ ...current, onsetTime: value }))}
+                maxTime={nowString()}
             />
 
             <div className={styles.severitySection}>

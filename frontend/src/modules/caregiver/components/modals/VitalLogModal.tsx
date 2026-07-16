@@ -23,6 +23,11 @@ interface VitalLogModalProps {
     onVitalTypeChange: (nextType: string) => void
 }
 
+const nowString = () => {
+    const d = new Date()
+    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+}
+
 const VitalLogModal = ({
     isOpen,
     onClose,
@@ -126,6 +131,7 @@ const VitalLogModal = ({
                     label="Recorded At"
                     value={formState.recordedAt}
                     onChange={(value) => setFormState((current) => ({ ...current, recordedAt: value }))}
+                    maxTime={nowString()}
                 />
 
                 <label className={styles.modalField}>

@@ -19,6 +19,11 @@ interface MedicationLogModalProps {
     isSaving: boolean
 }
 
+const nowString = () => {
+    const d = new Date()
+    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+}
+
 const MedicationLogModal = ({
     isOpen,
     onClose,
@@ -91,6 +96,7 @@ const MedicationLogModal = ({
                         label="Taken Time"
                         value={formState.takenTime}
                         onChange={(value) => setFormState((current) => ({ ...current, takenTime: value }))}
+                        maxTime={nowString()}
                     />
 
                     <SelectField
