@@ -17,6 +17,7 @@ export interface Specialist {
     profileImage?: string
     averageRating?: number
     reviewCount?: number
+    consultationFee?: number
 }
 
 export interface PatientProfileData {
