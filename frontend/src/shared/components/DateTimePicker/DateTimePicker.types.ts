@@ -11,4 +11,6 @@ export interface DateTimePickerProps {
     error?: string
     minDate?: Date
     maxDate?: Date
+    minTime?: string
+    maxTime?: string
 }
