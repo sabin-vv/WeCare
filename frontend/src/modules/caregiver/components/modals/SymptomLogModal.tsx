@@ -4,6 +4,7 @@ import type { SymptomLogFormState, SymptomSeverity } from '../../types/caregiver
 import Modal from '@/shared/components/Modal/Modal'
 import SelectField from '@/shared/components/SelectField/SelectField'
 import TimePicker from '@/shared/components/TimePicker/TimePicker'
+import { nowHHMM } from '@/shared/utils/time.utils'
 
 interface SymptomLogModalProps {
     isOpen: boolean
@@ -13,11 +14,6 @@ interface SymptomLogModalProps {
     onSave: () => void
     isSaving: boolean
     symptomOptions: string[]
-}
-
-const nowString = () => {
-    const d = new Date()
-    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
 }
 
 const SymptomLogModal = ({
@@ -61,7 +57,7 @@ const SymptomLogModal = ({
                 label="Onset Time"
                 value={formState.onsetTime}
                 onChange={(value) => setFormState((current) => ({ ...current, onsetTime: value }))}
-                maxTime={nowString()}
+                maxTime={nowHHMM()}
             />
 
             <div className={styles.severitySection}>

@@ -48,6 +48,7 @@ import styles from './CaregiverPatients.module.css'
 import MainWrapper from '@/shared/components/MainWrapper/MainWrapper'
 import { Section } from '@/shared/components/Section/Section'
 import { DATE_FORMAT, formatDate } from '@/shared/utils/format'
+import { nowHHMM } from '@/shared/utils/time.utils'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 
 const iconMap: Record<string, typeof Activity> = {
@@ -183,7 +184,7 @@ const CaregiverPatients = () => {
 
     const openMedicationModal = (medication: MedicationSchedule) => {
         const scheduledDate = new Date(medication.scheduleTime)
-        const defaultTime = formatDate(scheduledDate, DATE_FORMAT.TIME)
+        const defaultTime = `${String(scheduledDate.getHours()).padStart(2, '0')}:${String(scheduledDate.getMinutes()).padStart(2, '0')}`
 
         setSelectedMedication(medication)
         setMedicationLogForm({
@@ -226,8 +227,7 @@ const CaregiverPatients = () => {
 
     const openVitalModal = (vitalType?: string, schedule?: VitalScheduleItem) => {
         const fallbackType = vitalType || vitalSchedules[0]?.vitalType || 'blood_pressure'
-        const now = new Date()
-        const defaultTime = formatDate(now, DATE_FORMAT.TIME)
+        const defaultTime = nowHHMM()
 
         setVitalLogForm({
             selectedScheduleId: schedule?._id,
@@ -282,8 +282,7 @@ const CaregiverPatients = () => {
     }
 
     const openSymptomModal = () => {
-        const now = new Date()
-        const defaultTime = formatDate(now, DATE_FORMAT.TIME)
+        const defaultTime = nowHHMM()
 
         setSymptomLogForm({
             symptom: SYMPTOM_OPTIONS[0],
@@ -453,7 +452,7 @@ const CaregiverPatients = () => {
                                         </div>
 
                                         <div className={styles.vitalsGrid}>
-                                            {vitalSchedules.map((schedule) => {
+                                            {vitalSchedules.map((schedule, _, arr) => {
                                                 const type = schedule.vitalType
                                                 const Icon = iconMap[type] || Activity
                                                 const label = VITAL_LABEL_MAP[type] || type
@@ -467,11 +466,15 @@ const CaregiverPatients = () => {
                                                           : schedule.status === 'missed'
                                                             ? 'Missed'
                                                             : schedule.status
+                                                const earliestPendingTime = arr
+                                                    .filter(s => s.status === 'pending')
+                                                    .sort((a, b) => new Date(a.scheduleTime).getTime() - new Date(b.scheduleTime).getTime())[0]?.scheduleTime
 
                                                 return (
                                                     <article
                                                         key={schedule._id}
                                                         className={styles.vitalCard}
+                                                        data-status={schedule.status}
                                                         role="button"
                                                         tabIndex={0}
                                                         onClick={() => openVitalModal(type, schedule)}
@@ -525,7 +528,7 @@ const CaregiverPatients = () => {
                                                             )}
                                                         </div>
                                                         <div className={styles.vitalLog}>
-                                                            {schedule.status === 'pending' && (
+                                                            {schedule.status === 'pending' && schedule.scheduleTime === earliestPendingTime && Date.now() >= new Date(schedule.scheduleTime).getTime() - 15 * 60 * 1000 && (
                                                                 <span
                                                                     className={styles.logVital}
                                                                     onClick={(e) => {
@@ -561,63 +564,69 @@ const CaregiverPatients = () => {
                                         </div>
 
                                         <div className={styles.timeline}>
-                                            {timeline.map((item, index) => {
-                                                const meta = toneMeta[item.tone]
-                                                const SectionIcon = meta.sectionIcon
+                                            {(() => {
+                                                const nextEligibleMedId = medications
+                                                    .filter(m => m.status === 'pending' && Date.now() >= new Date(m.scheduleTime).getTime() - 15 * 60 * 1000)
+                                                    .sort((a, b) => new Date(a.scheduleTime).getTime() - new Date(b.scheduleTime).getTime())[0]?._id
 
-                                                return (
-                                                    <article
-                                                        key={`${item.time}-${item.medicine}-${index}`}
-                                                        className={styles.timelineRow}
-                                                    >
-                                                        <div className={styles.timelineTime}>
-                                                            <span>{item.time}</span>
-                                                        </div>
-                                                        <div className={styles.timelineLine} />
-                                                        <div
-                                                            className={`${styles.timelineCard} ${meta.timelineClassName}`}
+                                                return timeline.map((item, index) => {
+                                                    const meta = toneMeta[item.tone]
+                                                    const SectionIcon = meta.sectionIcon
+
+                                                    return (
+                                                        <article
+                                                            key={`${item.time}-${item.medicine}-${index}`}
+                                                            className={styles.timelineRow}
                                                         >
-                                                            <div className={styles.timelineTop}>
-                                                                <div className={styles.timelineTitleWrap}>
-                                                                    <SectionIcon size={16} />
-                                                                    <span className={styles.timelineTitle}>
-                                                                        {item.title}
-                                                                    </span>
-                                                                </div>
+                                                            <div className={styles.timelineTime}>
+                                                                <span>{item.time}</span>
                                                             </div>
+                                                            <div className={styles.timelineLine} />
+                                                            <div
+                                                                className={`${styles.timelineCard} ${meta.timelineClassName}`}
+                                                            >
+                                                                <div className={styles.timelineTop}>
+                                                                    <div className={styles.timelineTitleWrap}>
+                                                                        <SectionIcon size={16} />
+                                                                        <span className={styles.timelineTitle}>
+                                                                            {item.title}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
 
-                                                            <div className={styles.timelineContent}>
-                                                                <div className={styles.timelineText}>
-                                                                    <h4>{item.medicine}</h4>
-                                                                    <p>{item.note}</p>
-                                                                    <span>Route: {item.route}</span>
-                                                                </div>
-                                                                <button
-                                                                    type="button"
-                                                                    className={
-                                                                        item.tone === 'success'
-                                                                            ? styles.timelineSuccessBtn
-                                                                            : styles.timelineActionBtn
-                                                                    }
-                                                                    onClick={() => {
-                                                                        if (item.actionLabel === 'Take Action') {
-                                                                            const medication = medications.find(
-                                                                                (med) => med._id === item.id,
-                                                                            )
-                                                                            if (medication) {
-                                                                                openMedicationModal(medication)
-                                                                            }
+                                                                <div className={styles.timelineContent}>
+                                                                    <div className={styles.timelineText}>
+                                                                        <h4>{item.medicine}</h4>
+                                                                        <p>{item.note}</p>
+                                                                        <span>Route: {item.route}</span>
+                                                                    </div>
+                                                                    <button
+                                                                        type="button"
+                                                                        className={
+                                                                            item.tone === 'success'
+                                                                                ? styles.timelineSuccessBtn
+                                                                                : styles.timelineActionBtn
                                                                         }
-                                                                    }}
-                                                                    disabled={item.actionLabel !== 'Take Action'}
-                                                                >
-                                                                    {item.actionLabel}
-                                                                </button>
+                                                                        onClick={() => {
+                                                                            if (item.actionLabel === 'Take Action') {
+                                                                                const medication = medications.find(
+                                                                                    (med) => med._id === item.id,
+                                                                                )
+                                                                                if (medication) {
+                                                                                    openMedicationModal(medication)
+                                                                                }
+                                                                            }
+                                                                        }}
+                                                                        disabled={item.id !== nextEligibleMedId}
+                                                                    >
+                                                                        {item.actionLabel}
+                                                                    </button>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </article>
-                                                )
-                                            })}
+                                                        </article>
+                                                    )
+                                                })
+                                            })()}
                                         </div>
                                     </section>
                                 )}

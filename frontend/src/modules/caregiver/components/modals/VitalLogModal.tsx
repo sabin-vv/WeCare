@@ -8,6 +8,7 @@ import InputField from '@/shared/components/InputField/InputField'
 import Modal from '@/shared/components/Modal/Modal'
 import SelectField from '@/shared/components/SelectField/SelectField'
 import TimePicker from '@/shared/components/TimePicker/TimePicker'
+import { nowHHMM } from '@/shared/utils/time.utils'
 
 interface VitalLogModalProps {
     isOpen: boolean
@@ -21,11 +22,6 @@ interface VitalLogModalProps {
     selectedVitalLabel: string
     selectedVitalUnit: string
     onVitalTypeChange: (nextType: string) => void
-}
-
-const nowString = () => {
-    const d = new Date()
-    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
 }
 
 const VitalLogModal = ({
@@ -131,7 +127,7 @@ const VitalLogModal = ({
                     label="Recorded At"
                     value={formState.recordedAt}
                     onChange={(value) => setFormState((current) => ({ ...current, recordedAt: value }))}
-                    maxTime={nowString()}
+                    maxTime={nowHHMM()}
                 />
 
                 <label className={styles.modalField}>
