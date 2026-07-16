@@ -1,6 +1,7 @@
 import styles from './Chat.module.css'
 
 import type { ConversationListProps } from '@/modules/chat/types/chat.types'
+import { getFileUrl } from '@/utils/getFileUrl'
 
 const ConversationList = ({
     conversations,
@@ -29,18 +30,32 @@ const ConversationList = ({
                         onClick={() => onSelect(conv.patientId)}
                         className={`${styles.convItem} ${isSelected ? styles.convItemSelected : ''}`}
                     >
-                        <div className={styles.convItemTop}>
-                            <span className={styles.convItemName}>{conv.otherPersonName}</span>
-                            {conv.unreadCount > 0 && <span className={styles.badge}>{conv.unreadCount}</span>}
-                        </div>
-                        <div className={styles.convItemAbout}>about {conv.patientName}</div>
-                        <div
-                            className={`${styles.convItemPreview} ${conv.unreadCount > 0 ? styles.convItemPreviewNew : styles.convItemPreviewRead}`}
-                        >
-                            {conv.lastSenderId
-                                ? `${conv.lastSenderRole === currentUserRole ? 'You: ' : conv.lastSenderRole === 'doctor' ? 'Dr: ' : 'Cg: '}`
-                                : ''}
-                            {conv.lastMessage}
+                        <div className={styles.convItemContent}>
+                            <div className={styles.convItemAvatar}>
+                                {conv.otherPersonProfileImage ? (
+                                    <img
+                                        src={getFileUrl(conv.otherPersonProfileImage)}
+                                        alt=""
+                                        className={styles.convItemAvatarImg}
+                                    />
+                                ) : (
+                                    conv.otherPersonName.charAt(0).toUpperCase()
+                                )}
+                            </div>
+                            <div className={styles.convItemText}>
+                                <div className={styles.convItemTop}>
+                                    <span className={styles.convItemName}>{conv.otherPersonName}</span>
+                                    {conv.unreadCount > 0 && <span className={styles.badge}>{conv.unreadCount}</span>}
+                                </div>
+                                <div
+                                    className={`${styles.convItemPreview} ${conv.unreadCount > 0 ? styles.convItemPreviewNew : styles.convItemPreviewRead}`}
+                                >
+{conv.lastSenderId
+    ? `${conv.lastSenderRole === currentUserRole ? 'You: ' : ''}`
+    : ''}
+                                    {conv.lastMessage}
+                                </div>
+                            </div>
                         </div>
                     </button>
                 )

@@ -67,6 +67,38 @@
     background-color: #eff6ff;
 }
 
+.convItemContent {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.convItemAvatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: #64748b;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.convItemAvatarImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.convItemText {
+    flex: 1;
+    min-width: 0;
+}
+
 .convItemTop {
     display: flex;
     justify-content: space-between;
