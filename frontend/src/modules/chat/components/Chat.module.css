@@ -33,14 +33,19 @@
 }
 
 .newChatBtn {
-    padding: 6px 14px;
-    background-color: #2563eb;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #10b981;
     color: #fff;
     border: none;
-    border-radius: 6px;
-    font-size: 13px;
+    font-size: 18px;
     font-weight: 600;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
 
 .convItem {
@@ -240,6 +245,33 @@
 .loadingText {
     padding: 24px;
     color: #94a3b8;
+}
+
+.dateDivider {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: #94a3b8;
+    padding: 16px 0 12px;
+    position: relative;
+}
+
+.dateDivider::before,
+.dateDivider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: calc(50% - 80px);
+    height: 1px;
+    background: #e2e8f0;
+}
+
+.dateDivider::before {
+    left: 0;
+}
+
+.dateDivider::after {
+    right: 0;
 }
 
 .bubbleRow {

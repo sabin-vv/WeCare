@@ -1,11 +1,7 @@
 import styles from './Chat.module.css'
 
 import type { MessageBubbleProps } from '@/modules/chat/types/chat.types'
-
-const formatTime = (dateStr: string) => {
-    const d = new Date(dateStr)
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-}
+import { formatMessageTime } from '@/shared/utils/time.utils'
 
 const MessageBubble = ({ message, isOwn }: MessageBubbleProps) => {
     return (
@@ -14,7 +10,7 @@ const MessageBubble = ({ message, isOwn }: MessageBubbleProps) => {
                 <div className={styles.bubbleText}>{message.message}</div>
 
                 <div className={styles.footer}>
-                    <span className={styles.bubbleTime}>{formatTime(message.createdAt)}</span>
+                    <span className={styles.bubbleTime}>{formatMessageTime(message.createdAt)}</span>
                 </div>
             </div>
         </div>

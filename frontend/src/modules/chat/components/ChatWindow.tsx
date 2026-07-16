@@ -1,10 +1,11 @@
-import { useEffect, useRef } from 'react'
+import { Fragment, useEffect, useRef } from 'react'
 
 import styles from './Chat.module.css'
 import ChatInput from './ChatInput'
 import MessageBubble from './MessageBubble'
 
 import type { ChatWindowProps } from '@/modules/chat/types/chat.types'
+import { formatDateSeparator } from '@/shared/utils/time.utils'
 import { getFileUrl } from '@/utils/getFileUrl'
 
 const ChatWindow = ({
@@ -51,9 +52,22 @@ const ChatWindow = ({
                     <div className={styles.emptyState}>No messages yet. Start the conversation!</div>
                 ) : null}
                 {!isLoading &&
-                    messages.map((msg) => (
-                        <MessageBubble key={msg.id} message={msg} isOwn={msg.senderId === currentUserId} />
-                    ))}
+                    messages.map((msg, i) => {
+                        const showDivider =
+                            i === 0 ||
+                            new Date(msg.createdAt).toDateString() !==
+                                new Date(messages[i - 1].createdAt).toDateString()
+                        return (
+                            <Fragment key={msg.id}>
+                                {showDivider && (
+                                    <div className={styles.dateDivider}>
+                                        {formatDateSeparator(msg.createdAt)}
+                                    </div>
+                                )}
+                                <MessageBubble message={msg} isOwn={msg.senderId === currentUserId} />
+                            </Fragment>
+                        )
+                    })}
             </div>
 
             <ChatInput onSend={onSend} disabled={disabled} />

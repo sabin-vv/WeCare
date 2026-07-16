@@ -20,6 +20,19 @@ export const calculateAge = (dob: string): number => {
     return age
 }
 
+export const formatMessageTime = (dateStr: string): string =>
+    new Date(dateStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+
+export const formatDateSeparator = (dateStr: string): string => {
+    const d = new Date(dateStr)
+    const now = new Date()
+    if (d.toDateString() === now.toDateString()) return 'Today'
+    const yesterday = new Date(now)
+    yesterday.setDate(yesterday.getDate() - 1)
+    if (d.toDateString() === yesterday.toDateString()) return 'Yesterday'
+    return d.toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' })
+}
+
 export const formatRelativeDate = (isoString: string): string => {
     const today = new Date()
     const date = new Date(isoString)

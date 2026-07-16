@@ -16,7 +16,7 @@ const ConversationList = ({
                 <span className={styles.convListTitle}>Conversations</span>
                 {onNewChat && (
                     <button type="button" onClick={onNewChat} className={styles.newChatBtn}>
-                        + New Chat
+                        +
                     </button>
                 )}
             </div>
