@@ -20,6 +20,7 @@
     color: #10b981;
     cursor: default;
     margin-right: 4px;
+    flex-shrink: 0;
 }
 
 .videoCallCount {

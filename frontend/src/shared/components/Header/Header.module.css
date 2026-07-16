@@ -109,6 +109,8 @@
     gap: 16px;
     min-width: 200px;
     justify-content: flex-end;
+    overflow: visible;
+    flex-shrink: 0;
 }
 
 .icon {
