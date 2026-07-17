@@ -20,3 +20,9 @@
 .documentInput:focus {
     border-color: #137fec;
 }
+
+@media (max-width: 640px) {
+    .gridContainer {
+        grid-template-columns: 1fr;
+    }
+}

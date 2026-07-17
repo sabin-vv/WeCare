@@ -374,3 +374,123 @@
     color: #6b7280;
     font-size: 16px;
 }
+
+@media (max-width: 768px) {
+    .twoColumn {
+        grid-template-columns: 1fr;
+    }
+
+
+    .patientRow {
+        padding: 12px;
+    }
+
+    .patientRowBody {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .patientRowBody + .patientRowBody {
+        gap: 8px;
+    }
+
+    .basicInfo {
+        gap: 6px;
+    }
+
+    .scheduleRow {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .patientRowHeader {
+        gap: 10px;
+    }
+
+    .scheduleTimeCol {
+        min-width: 48px;
+    }
+}
+
+@media (max-width: 640px) {
+    .patientRow {
+        padding: 10px;
+        gap: 12px;
+    }
+
+    .patientRowBody {
+        gap: 8px;
+    }
+
+    .patientRowBody + .patientRowBody {
+        gap: 6px;
+    }
+
+    .conditionList li {
+        font-size: 12px;
+    }
+
+    .scheduleRow {
+        padding: 10px;
+    }
+
+    .scheduleTimeCol {
+        min-width: unset;
+    }
+
+    .scheduleTime {
+        font-size: 13px;
+    }
+
+    .scheduleTitle {
+        font-size: 13px;
+    }
+
+    .scheduleMeta {
+        font-size: 11px;
+    }
+
+    .scheduleStatus {
+        font-size: 10px;
+        padding: 3px 8px;
+    }
+
+    .activityItem {
+        padding: 8px;
+    }
+
+    .activityAction {
+        font-size: 12px;
+    }
+
+    .activityDescription {
+        font-size: 11px;
+    }
+
+    .activityTime {
+        font-size: 10px;
+    }
+
+    .patientName {
+        font-size: 14px;
+    }
+
+    .patientMeta {
+        font-size: 12px;
+    }
+
+    .medicalRecordBtn {
+        font-size: 11px;
+        padding: 5px 10px;
+    }
+
+    .fieldValue {
+        font-size: 13px;
+    }
+
+    .riskBadge,
+    .clinicalBadge {
+        font-size: 9px;
+        padding: 2px 8px;
+    }
+}

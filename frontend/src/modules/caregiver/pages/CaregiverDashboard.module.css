@@ -154,3 +154,50 @@
         grid-template-columns: 1fr;
     }
 }
+
+@media (max-width: 768px) {
+    .statusPanel {
+        padding: 24px;
+    }
+
+    .heading {
+        font-size: 26px;
+    }
+
+    .infoCard {
+        padding: 16px;
+    }
+}
+
+@media (max-width: 640px) {
+    .rejectBox {
+        padding: 16px;
+    }
+
+    .reasonBox {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .statusPanel {
+        padding: 20px;
+        border-radius: 16px;
+    }
+
+    .heading {
+        font-size: 22px;
+    }
+
+    .sub {
+        font-size: 14px;
+    }
+
+    .infoCard h2 {
+        font-size: 16px;
+    }
+
+    .infoCard p {
+        font-size: 13px;
+    }
+}
