@@ -49,6 +49,7 @@ export interface ChatInputProps {
 
 export interface ChatLayoutProps {
     children: ReactNode
+    hasActiveChat?: boolean
 }
 
 export interface ChatWindowProps {
@@ -60,6 +61,7 @@ export interface ChatWindowProps {
     onSend: (message: string) => void
     disabled?: boolean
     isLoading?: boolean
+    onBack?: () => void
 }
 
 export interface ConversationListProps {

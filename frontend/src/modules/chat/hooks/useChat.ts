@@ -204,6 +204,11 @@ export const useChat = () => {
         updateConversationPreview,
     ])
 
+    const clearSelection = useCallback(() => {
+        setSelectedPatientId(null)
+        selectedPatientIdRef.current = null
+    }, [])
+
     return {
         conversations,
         messages,
@@ -217,5 +222,6 @@ export const useChat = () => {
         sendMessage,
         startNewChat,
         fetchConversations,
+        clearSelection,
     }
 }

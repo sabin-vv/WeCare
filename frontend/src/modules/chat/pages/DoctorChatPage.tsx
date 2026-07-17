@@ -4,6 +4,7 @@ import { useChat } from '../hooks/useChat'
 import { useUnreadChatCount } from '../hooks/useUnreadChatCount'
 import type { PatientOption } from '../types/chat.types'
 
+import chatStyles from '@/modules/chat/components/Chat.module.css'
 import ChatLayout from '@/modules/chat/components/ChatLayout'
 import ChatWindow from '@/modules/chat/components/ChatWindow'
 import ConversationList from '@/modules/chat/components/ConversationList'
@@ -24,6 +25,7 @@ const DoctorChatPage = () => {
         selectConversation,
         sendMessage,
         startNewChat,
+        clearSelection,
     } = useChat()
 
     const { reset: resetChatCount, setConversationRead } = useUnreadChatCount()
@@ -74,7 +76,7 @@ const DoctorChatPage = () => {
 
     return (
         <MainWrapper title="Chat" subtitle="Communicate with caregivers about your patients">
-            <ChatLayout>
+            <ChatLayout hasActiveChat={!!selectedPatientId}>
                 {loadingConversations ? (
                     <div style={{ padding: '24px', color: '#94a3b8' }}>Loading conversations...</div>
                 ) : (
@@ -95,19 +97,10 @@ const DoctorChatPage = () => {
                         currentUserId={currentUserId}
                         onSend={sendMessage}
                         disabled={sending}
+                        onBack={clearSelection}
                     />
                 ) : (
-                    <div
-                        style={{
-                            flex: 1,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: '#94a3b8',
-                            fontSize: '14px',
-                            backgroundColor: '#f8fafc',
-                        }}
-                    >
+                    <div className={chatStyles.emptyPlaceholder}>
                         {loadingMessages ? 'Loading messages...' : 'Select a conversation to start chatting'}
                     </div>
                 )}

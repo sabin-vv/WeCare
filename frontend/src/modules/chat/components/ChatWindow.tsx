@@ -1,3 +1,4 @@
+import { ChevronLeft } from 'lucide-react'
 import { Fragment, useEffect, useRef } from 'react'
 
 import styles from './Chat.module.css'
@@ -17,6 +18,7 @@ const ChatWindow = ({
     onSend,
     disabled,
     isLoading,
+    onBack,
 }: ChatWindowProps) => {
     const containerRef = useRef<HTMLDivElement>(null)
 
@@ -28,6 +30,11 @@ const ChatWindow = ({
     return (
         <div className={styles.chatWindow}>
             <div className={styles.chatWindowHeader}>
+                {onBack && (
+                    <button type="button" onClick={onBack} className={styles.backBtn}>
+                        <ChevronLeft />
+                    </button>
+                )}
                 <div className={styles.chatWindowHeaderAvatar}>
                     {otherPersonProfileImage ? (
                         <img
@@ -60,9 +67,7 @@ const ChatWindow = ({
                         return (
                             <Fragment key={msg.id}>
                                 {showDivider && (
-                                    <div className={styles.dateDivider}>
-                                        {formatDateSeparator(msg.createdAt)}
-                                    </div>
+                                    <div className={styles.dateDivider}>{formatDateSeparator(msg.createdAt)}</div>
                                 )}
                                 <MessageBubble message={msg} isOwn={msg.senderId === currentUserId} />
                             </Fragment>
