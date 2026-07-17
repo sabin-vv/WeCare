@@ -73,7 +73,7 @@ export const MEDICATION_STATUS_META: Record<
         title: 'Medication Deviation',
         note: 'Missed dose',
         tone: 'critical' as const,
-        actionLabel: 'Take Action',
+        actionLabel: 'Missed',
     },
     skipped: {
         title: 'Medication Skipped',

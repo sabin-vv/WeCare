@@ -148,21 +148,22 @@ const CaregiverPatients = () => {
         loadAll(true)
     }
 
-    const now = new Date()
     const alerts: AlertCard[] = medications
-        .filter((med) => med.status === 'missed' || (med.status === 'pending' && new Date(med.scheduleTime) < now))
+        .filter((med) => {
+            if (med.status !== 'pending') return false
+            const elapsed = Date.now() - new Date(med.scheduleTime).getTime()
+            return elapsed > 0 && elapsed < 60 * 60 * 1000
+        })
         .map((med) => {
-            const time = new Date(med.scheduleTime)
             const timeStr = `${formatDate(med.scheduleTime, { month: 'short', day: 'numeric' })}, ${formatDate(med.scheduleTime, { ...DATE_FORMAT.TIME, hour12: true })}`
-            const isOverdue = med.status === 'missed' || time < new Date()
             return {
                 id: med._id,
-                title: med.status === 'missed' ? 'Missed Dose' : 'Overdue Dose',
+                title: 'Overdue Dose',
                 medicine: `${med.medicineName} ${med.dosage}`,
                 scheduled: timeStr,
                 route: med.route,
-                overdue: isOverdue ? 'Needs attention' : '',
-                tone: med.status === 'missed' ? 'critical' : 'warning',
+                overdue: 'Needs attention',
+                tone: 'warning' as const,
             }
         })
 
@@ -467,8 +468,12 @@ const CaregiverPatients = () => {
                                                             ? 'Missed'
                                                             : schedule.status
                                                 const earliestPendingTime = arr
-                                                    .filter(s => s.status === 'pending')
-                                                    .sort((a, b) => new Date(a.scheduleTime).getTime() - new Date(b.scheduleTime).getTime())[0]?.scheduleTime
+                                                    .filter((s) => s.status === 'pending')
+                                                    .sort(
+                                                        (a, b) =>
+                                                            new Date(a.scheduleTime).getTime() -
+                                                            new Date(b.scheduleTime).getTime(),
+                                                    )[0]?.scheduleTime
 
                                                 return (
                                                     <article
@@ -528,17 +533,21 @@ const CaregiverPatients = () => {
                                                             )}
                                                         </div>
                                                         <div className={styles.vitalLog}>
-                                                            {schedule.status === 'pending' && schedule.scheduleTime === earliestPendingTime && Date.now() >= new Date(schedule.scheduleTime).getTime() - 15 * 60 * 1000 && (
-                                                                <span
-                                                                    className={styles.logVital}
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation()
-                                                                        openVitalModal(type, schedule)
-                                                                    }}
-                                                                >
-                                                                    Log reading
-                                                                </span>
-                                                            )}
+                                                            {schedule.status === 'pending' &&
+                                                                schedule.scheduleTime === earliestPendingTime &&
+                                                                Date.now() >=
+                                                                    new Date(schedule.scheduleTime).getTime() -
+                                                                        15 * 60 * 1000 && (
+                                                                    <span
+                                                                        className={styles.logVital}
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation()
+                                                                            openVitalModal(type, schedule)
+                                                                        }}
+                                                                    >
+                                                                        Log reading
+                                                                    </span>
+                                                                )}
                                                         </div>
                                                     </article>
                                                 )
@@ -564,12 +573,7 @@ const CaregiverPatients = () => {
                                         </div>
 
                                         <div className={styles.timeline}>
-                                            {(() => {
-                                                const nextEligibleMedId = medications
-                                                    .filter(m => m.status === 'pending' && Date.now() >= new Date(m.scheduleTime).getTime() - 15 * 60 * 1000)
-                                                    .sort((a, b) => new Date(a.scheduleTime).getTime() - new Date(b.scheduleTime).getTime())[0]?._id
-
-                                                return timeline.map((item, index) => {
+                                            {timeline.map((item, index) => {
                                                     const meta = toneMeta[item.tone]
                                                     const SectionIcon = meta.sectionIcon
 
@@ -603,9 +607,11 @@ const CaregiverPatients = () => {
                                                                     <button
                                                                         type="button"
                                                                         className={
-                                                                            item.tone === 'success'
-                                                                                ? styles.timelineSuccessBtn
-                                                                                : styles.timelineActionBtn
+                                                                            item.actionLabel === 'Missed'
+                                                                                ? styles.timelineMissedBtn
+                                                                                : item.tone === 'success'
+                                                                                    ? styles.timelineSuccessBtn
+                                                                                    : styles.timelineActionBtn
                                                                         }
                                                                         onClick={() => {
                                                                             if (item.actionLabel === 'Take Action') {
@@ -617,8 +623,7 @@ const CaregiverPatients = () => {
                                                                                 }
                                                                             }
                                                                         }}
-                                                                        disabled={item.id !== nextEligibleMedId}
-                                                                    >
+                                                            >
                                                                         {item.actionLabel}
                                                                     </button>
                                                                 </div>
@@ -626,7 +631,7 @@ const CaregiverPatients = () => {
                                                         </article>
                                                     )
                                                 })
-                                            })()}
+                                            }
                                         </div>
                                     </section>
                                 )}
