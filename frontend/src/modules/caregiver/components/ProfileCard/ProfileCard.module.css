@@ -160,3 +160,96 @@
 .actionBtn:hover {
     opacity: 0.9;
 }
+
+@media (max-width: 768px) {
+    .card {
+        padding: 14px 16px;
+        gap: 14px;
+    }
+
+    .cardLeft {
+        gap: 12px;
+    }
+
+    .avatar {
+        width: 48px;
+        height: 48px;
+    }
+
+    .avatar span {
+        font-size: 18px;
+    }
+
+    .name {
+        font-size: 17px;
+    }
+
+    .actionBtn {
+        padding: 8px 14px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 640px) {
+    .card {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 12px;
+        gap: 12px;
+    }
+
+    .cardLeft {
+        gap: 10px;
+    }
+
+    .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+    }
+
+    .avatar span {
+        font-size: 16px;
+    }
+
+    .name {
+        font-size: 15px;
+    }
+
+    .nameRow {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .riskBadge {
+        font-size: 10px;
+        padding: 3px 8px;
+    }
+
+    .metaRow {
+        font-size: 12px;
+        gap: 4px;
+        flex-wrap: wrap;
+    }
+
+    .conditionRow {
+        flex-wrap: wrap;
+        font-size: 12px;
+        gap: 4px;
+    }
+
+    .conditionTag {
+        font-size: 11px;
+        padding: 2px 8px;
+    }
+
+    .cardRight {
+        width: 100%;
+    }
+
+    .actionBtn {
+        width: 100%;
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+}

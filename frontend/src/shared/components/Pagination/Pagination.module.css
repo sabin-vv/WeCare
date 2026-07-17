@@ -76,3 +76,51 @@
     padding: 0 6px;
     color: #9ca3af;
 }
+
+@media (max-width: 768px) {
+    .controls {
+        gap: 4px;
+    }
+
+    .page,
+    .arrow {
+        width: 32px;
+        height: 32px;
+    }
+
+    .page {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 640px) {
+    .pagination {
+        flex-direction: column;
+        gap: 12px;
+        padding: 16px 0;
+    }
+
+    .info {
+        font-size: 13px;
+        text-align: center;
+    }
+
+    .controls {
+        gap: 4px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .page,
+    .arrow {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+        border-radius: 8px;
+    }
+
+    .dots {
+        padding: 0 3px;
+        font-size: 13px;
+    }
+}

@@ -66,3 +66,36 @@
         transform: rotate(360deg);
     }
 }
+
+@media (max-width: 768px) {
+    .filterFields > * {
+        min-width: 140px;
+        max-width: 160px;
+    }
+}
+
+@media (max-width: 640px) {
+    .filterBar {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .filterFields {
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 0.625rem;
+    }
+
+    .filterFields > * {
+        min-width: unset;
+        max-width: unset;
+        flex: 1 1 calc(50% - 0.3125rem);
+        min-width: 0;
+    }
+
+    .clearBtn {
+        width: 100%;
+        justify-content: center;
+        height: 36px;
+    }
+}
