@@ -1,6 +1,7 @@
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
+import helmet from 'helmet'
 
 import { errorMiddleware } from './core/middleware/errorMiddleware'
 import { createActivityLogRoutes } from './modules/activityLog/routes/activityLog.routes'
@@ -30,6 +31,8 @@ import { createVitalRoutes } from './modules/vital/routes/vital.route'
 import { createWalletRoutes } from './modules/wallet/routes/wallet.route'
 
 const app = express()
+
+app.use(helmet())
 
 app.use(
     cors({
