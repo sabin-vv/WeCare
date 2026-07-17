@@ -31,6 +31,7 @@ import {
     MEDICATION_STATUS_META,
     SYMPTOM_OPTIONS,
     VITAL_LABEL_MAP,
+    VITAL_RANGES,
     VITAL_UNIT_MAP,
 } from '../constants/caregiver.constants'
 import type {
@@ -257,9 +258,41 @@ const CaregiverPatients = () => {
         }))
     }
 
+    const validateVitalReading = (): string | null => {
+        if (isBloodPressure) {
+            const systolic = Number(vitalLogForm.systolic)
+            const diastolic = Number(vitalLogForm.diastolic)
+            if (!vitalLogForm.systolic || Number.isNaN(systolic)) return 'Please enter a systolic value'
+            if (!vitalLogForm.diastolic || Number.isNaN(diastolic)) return 'Please enter a diastolic value'
+
+            const sysRange = VITAL_RANGES.systolic
+            const diaRange = VITAL_RANGES.diastolic
+            if (systolic < sysRange.min || systolic > sysRange.max)
+                return `${sysRange.label} must be between ${sysRange.min} and ${sysRange.max}`
+            if (diastolic < diaRange.min || diastolic > diaRange.max)
+                return `${diaRange.label} must be between ${diaRange.min} and ${diaRange.max}`
+            if (diastolic >= systolic) return 'Diastolic must be lower than systolic'
+            return null
+        }
+
+        const value = Number(vitalLogForm.value)
+        if (!vitalLogForm.value || Number.isNaN(value)) return `Please enter a ${selectedVitalLabel} value`
+
+        const range = VITAL_RANGES[vitalLogForm.vitalType]
+        if (range && (value < range.min || value > range.max))
+            return `${range.label} must be between ${range.min} and ${range.max}`
+        return null
+    }
+
     const handleVitalLogSubmit = async () => {
         if (patients.length === 0) return
         const patientId = patients[0]._id
+
+        const validationError = validateVitalReading()
+        if (validationError) {
+            toast.error(validationError)
+            return
+        }
 
         try {
             setIsSavingVital(true)
@@ -574,64 +607,63 @@ const CaregiverPatients = () => {
 
                                         <div className={styles.timeline}>
                                             {timeline.map((item, index) => {
-                                                    const meta = toneMeta[item.tone]
-                                                    const SectionIcon = meta.sectionIcon
+                                                const meta = toneMeta[item.tone]
+                                                const SectionIcon = meta.sectionIcon
 
-                                                    return (
-                                                        <article
-                                                            key={`${item.time}-${item.medicine}-${index}`}
-                                                            className={styles.timelineRow}
+                                                return (
+                                                    <article
+                                                        key={`${item.time}-${item.medicine}-${index}`}
+                                                        className={styles.timelineRow}
+                                                    >
+                                                        <div className={styles.timelineTime}>
+                                                            <span>{item.time}</span>
+                                                        </div>
+                                                        <div className={styles.timelineLine} />
+                                                        <div
+                                                            className={`${styles.timelineCard} ${meta.timelineClassName}`}
                                                         >
-                                                            <div className={styles.timelineTime}>
-                                                                <span>{item.time}</span>
-                                                            </div>
-                                                            <div className={styles.timelineLine} />
-                                                            <div
-                                                                className={`${styles.timelineCard} ${meta.timelineClassName}`}
-                                                            >
-                                                                <div className={styles.timelineTop}>
-                                                                    <div className={styles.timelineTitleWrap}>
-                                                                        <SectionIcon size={16} />
-                                                                        <span className={styles.timelineTitle}>
-                                                                            {item.title}
-                                                                        </span>
-                                                                    </div>
+                                                            <div className={styles.timelineTop}>
+                                                                <div className={styles.timelineTitleWrap}>
+                                                                    <SectionIcon size={16} />
+                                                                    <span className={styles.timelineTitle}>
+                                                                        {item.title}
+                                                                    </span>
                                                                 </div>
+                                                            </div>
 
-                                                                <div className={styles.timelineContent}>
-                                                                    <div className={styles.timelineText}>
-                                                                        <h4>{item.medicine}</h4>
-                                                                        <p>{item.note}</p>
-                                                                        <span>Route: {item.route}</span>
-                                                                    </div>
-                                                                    <button
-                                                                        type="button"
-                                                                        className={
-                                                                            item.actionLabel === 'Missed'
-                                                                                ? styles.timelineMissedBtn
-                                                                                : item.tone === 'success'
-                                                                                    ? styles.timelineSuccessBtn
-                                                                                    : styles.timelineActionBtn
-                                                                        }
-                                                                        onClick={() => {
-                                                                            if (item.actionLabel === 'Take Action') {
-                                                                                const medication = medications.find(
-                                                                                    (med) => med._id === item.id,
-                                                                                )
-                                                                                if (medication) {
-                                                                                    openMedicationModal(medication)
-                                                                                }
-                                                                            }
-                                                                        }}
-                                                            >
-                                                                        {item.actionLabel}
-                                                                    </button>
+                                                            <div className={styles.timelineContent}>
+                                                                <div className={styles.timelineText}>
+                                                                    <h4>{item.medicine}</h4>
+                                                                    <p>{item.note}</p>
+                                                                    <span>Route: {item.route}</span>
                                                                 </div>
+                                                                <button
+                                                                    type="button"
+                                                                    className={
+                                                                        item.actionLabel === 'Missed'
+                                                                            ? styles.timelineMissedBtn
+                                                                            : item.tone === 'success'
+                                                                              ? styles.timelineSuccessBtn
+                                                                              : styles.timelineActionBtn
+                                                                    }
+                                                                    onClick={() => {
+                                                                        if (item.actionLabel === 'Take Action') {
+                                                                            const medication = medications.find(
+                                                                                (med) => med._id === item.id,
+                                                                            )
+                                                                            if (medication) {
+                                                                                openMedicationModal(medication)
+                                                                            }
+                                                                        }
+                                                                    }}
+                                                                >
+                                                                    {item.actionLabel}
+                                                                </button>
                                                             </div>
-                                                        </article>
-                                                    )
-                                                })
-                                            }
+                                                        </div>
+                                                    </article>
+                                                )
+                                            })}
                                         </div>
                                     </section>
                                 )}

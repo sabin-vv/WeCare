@@ -48,6 +48,14 @@ export const VITAL_UNIT_MAP: Record<string, string> = {
     spo2: '%',
 }
 
+export const VITAL_RANGES: Record<string, { min: number; max: number; label: string }> = {
+    systolic: { min: 50, max: 250, label: 'Systolic' },
+    diastolic: { min: 30, max: 150, label: 'Diastolic' },
+    blood_sugar: { min: 10, max: 1000, label: 'Blood sugar' },
+    heart_rate: { min: 20, max: 300, label: 'Heart rate' },
+    spo2: { min: 70, max: 100, label: 'SpO2' },
+}
+
 export const SYMPTOM_OPTIONS = [
     'Headache',
     'Dizziness',
