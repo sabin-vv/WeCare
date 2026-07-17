@@ -168,10 +168,18 @@ const CaregiverPatients = () => {
             }
         })
 
+    const earliestPendingMedTime = medications
+        .filter((med) => med.status === 'pending')
+        .sort((a, b) => new Date(a.scheduleTime).getTime() - new Date(b.scheduleTime).getTime())[0]?.scheduleTime
+
     const timeline: TimelineItem[] = [...medications]
         .sort((a, b) => new Date(a.scheduleTime).getTime() - new Date(b.scheduleTime).getTime())
         .map((med) => {
             const statusMeta = MEDICATION_STATUS_META[med.status]
+            const isActionablePending =
+                med.status === 'pending' &&
+                med.scheduleTime === earliestPendingMedTime &&
+                Date.now() >= new Date(med.scheduleTime).getTime() - 15 * 60 * 1000
             return {
                 id: med._id,
                 time: formatDate(med.scheduleTime, { ...DATE_FORMAT.TIME, hour12: true }),
@@ -180,7 +188,7 @@ const CaregiverPatients = () => {
                 note: statusMeta.note,
                 route: med.route,
                 tone: statusMeta.tone,
-                actionLabel: statusMeta.actionLabel,
+                actionLabel: med.status === 'pending' && !isActionablePending ? 'Upcoming' : statusMeta.actionLabel,
             }
         })
 
@@ -515,7 +523,6 @@ const CaregiverPatients = () => {
                                                         data-status={schedule.status}
                                                         role="button"
                                                         tabIndex={0}
-                                                        onClick={() => openVitalModal(type, schedule)}
                                                         onKeyDown={(e) => {
                                                             if (e.key === 'Enter' || e.key === ' ') {
                                                                 e.preventDefault()
@@ -639,8 +646,10 @@ const CaregiverPatients = () => {
                                                                 </div>
                                                                 <button
                                                                     type="button"
+                                                                    disabled={item.actionLabel !== 'Take Action'}
                                                                     className={
-                                                                        item.actionLabel === 'Missed'
+                                                                        item.actionLabel === 'Missed' ||
+                                                                        item.actionLabel === 'Upcoming'
                                                                             ? styles.timelineMissedBtn
                                                                             : item.tone === 'success'
                                                                               ? styles.timelineSuccessBtn
